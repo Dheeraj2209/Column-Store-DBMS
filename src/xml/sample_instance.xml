@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ColumnStoreSchema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:noNamespaceSchemaLocation="ColumnStoreSchema.xsd">
+
+  <Database name="ECommerceDB">
+    <Relations>
+      <Relation name="Customer">
+        <Attributes>
+          <Attribute name="CustomerID" type="integer" isNullable="false" isUnique="true"/>
+          <Attribute name="Name" type="string" isNullable="false"/>
+          <Attribute name="Email" type="string" isNullable="false"/>
+          <Attribute name="RegistrationDate" type="date" isNullable="false"/>
+        </Attributes>
+        <PrimaryKey>
+          <AttributeRef name="CustomerID"/>
+        </PrimaryKey>
+      </Relation>
+
+      <Relation name="Order">
+        <Attributes>
+          <Attribute name="OrderID" type="integer" isNullable="false" isUnique="true"/>
+          <Attribute name="CustomerID" type="integer" isNullable="false"/>
+          <Attribute name="OrderDate" type="date" isNullable="false"/>
+          <Attribute name="TotalAmount" type="decimal" isNullable="false"/>
+        </Attributes>
+        <PrimaryKey>
+          <AttributeRef name="OrderID"/>
+        </PrimaryKey>
+      </Relation>
+    </Relations>
+
+    <!-- <ForeignKeys>
+      <ForeignKey name="FK_Order_Customer" fromRelation="Order" toRelation="Customer">
+        <Reference fromAttribute="CustomerID" toAttribute="CustomerID"/>
+      </ForeignKey>
+    </ForeignKeys> -->
+
+    <ForeignKeys>
+    <ForeignKey name="fk_order_customer">
+        <Parent table="orders" column="customer_id"/>
+        <Child table="customers" column="id"/>
+    </ForeignKey>
+    <ForeignKey name="fk_order_product">
+        <Parent table="orders" column="product_id"/>
+        <Child table="products" column="id"/>
+    </ForeignKey>
+    </ForeignKeys>
+
+    <UniqueConstraints>
+      <UniqueConstraint name="UC_Customer_Email" relation="Customer">
+        <AttributeRef name="Email"/>
+      </UniqueConstraint>
+    </UniqueConstraints>
+  </Database>
+
+</ColumnStoreSchema>

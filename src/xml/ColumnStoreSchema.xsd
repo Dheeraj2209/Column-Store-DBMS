@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- Root element: ColumnStoreSchema -->
+  <xs:element name="ColumnStoreSchema">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Database" type="DatabaseType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Database container -->
+  <xs:complexType name="DatabaseType">
+    <xs:sequence>
+      <xs:element name="Relations" type="RelationsType"/>
+      <xs:element name="ForeignKeys" type="ForeignKeysType" minOccurs="0"/>
+      <xs:element name="UniqueConstraints" type="UniqueConstraintsType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- Relations Structure -->
+  <xs:complexType name="RelationsType">
+    <xs:sequence>
+      <xs:element name="Relation" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attributes" type="AttributesType"/>
+            <xs:element name="PrimaryKey" type="PrimaryKeyType"/>
+          </xs:sequence>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Attributes Structure -->
+  <xs:complexType name="AttributesType">
+    <xs:sequence>
+      <xs:element name="Attribute" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="type" use="required">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="integer"/>
+                <xs:enumeration value="string"/>
+                <xs:enumeration value="decimal"/>
+                <xs:enumeration value="date"/>
+                <xs:enumeration value="boolean"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="isNullable" type="xs:boolean" default="true"/>
+          <xs:attribute name="isUnique" type="xs:boolean" default="false"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Primary Key Structure -->
+  <xs:complexType name="PrimaryKeyType">
+    <xs:sequence>
+      <xs:element name="AttributeRef" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Foreign Keys Structure -->
+  <!-- <xs:complexType name="ForeignKeysType">
+    <xs:sequence>
+      <xs:element name="ForeignKey" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Reference" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:attribute name="fromAttribute" type="xs:string" use="required"/>
+                <xs:attribute name="toAttribute" type="xs:string" use="required"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="fromRelation" type="xs:string" use="required"/>
+          <xs:attribute name="toRelation" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType> -->
+
+  <xs:complexType name="ForeignKeysType">
+  <xs:sequence>
+    <xs:element name="ForeignKey" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:sequence>
+          <!-- Parent Relation -->
+          <xs:element name="Parent">
+            <xs:complexType>
+              <xs:attribute name="table" type="xs:string" use="required"/>
+              <xs:attribute name="column" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+          <!-- Child Relation -->
+          <xs:element name="Child">
+            <xs:complexType>
+              <xs:attribute name="table" type="xs:string" use="required"/>
+              <xs:attribute name="column" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+  
+  <!-- Unique Constraints Structure -->
+  <xs:complexType name="UniqueConstraintsType">
+    <xs:sequence>
+      <xs:element name="UniqueConstraint" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AttributeRef" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:attribute name="name" type="xs:string" use="required"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="relation" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
