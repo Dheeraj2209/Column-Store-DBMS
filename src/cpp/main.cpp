@@ -1,23 +1,46 @@
 #include <iostream>
 #include "createDB.h"
+#include "CStoreEngine.h"
+// int main(int argc, char* argv[]) {
+//     if (argc != 2) {//if incorrect number of arguments is provided
+//         std::cerr << "Usage: " << argv[0] << " <XML_FILE_PATH>" << std::endl;
+//         return 1;
+//     }
+//     std::string xmlPath = argv[1];
+
+//     // Create Column Store DB
+//     bool success = createColumnStoreDB(xmlPath);
+
+//     if (success) {
+//         std::cout << "Database created successfully." << std::endl;
+//         return 0;
+//     } else {
+//         std::cout << "Failed to create the database." << std::endl; return 1;
+//     }
+// }
+
 
 int main(int argc, char* argv[]) {
-    // Check if the correct number of arguments is provided
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <XML_FILE_PATH>" << std::endl;
-        return 1; // Return error code
+        return 1;
     }
-
+    
     std::string xmlPath = argv[1];
-
-    // Create the Column Store DB
-    bool success = createColumnStoreDB(xmlPath);
-
-    if (success) {
+    
+    Database db = CStoreEngine::loadFromXML(xmlPath);
+    
+    if (db.name.empty()) {
+        std::cerr << "Error: Database name is empty. XML parsing may have failed." << std::endl;
+        return 1;
+    }
+    
+    if (db.create()) {
         std::cout << "Database created successfully." << std::endl;
     } else {
-        std::cout << "Failed to create the database." << std::endl;
+        std::cerr << "Failed to create the database." << std::endl;
+        return 1;
     }
-
-    return success ? 0 : 1; // Return 0 for success, 1 for failure
+    
+    return 0;
 }
