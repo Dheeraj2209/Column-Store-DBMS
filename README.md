@@ -31,9 +31,9 @@ sudo apt-get install libtinyxml2-dev  # For Ubuntu/Debian
 
 ### DataBase Creation
 
-#### Using g++
+#### Using g++: Go to the src/cpp folder and run the following command
 ```sh
-g++ -std=c++17 -o CreateDB src/main.cpp src/createDB.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+% g++ -std=c++17 -o createDBOOPS Engines/DDLEngine.cpp Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp Schema/Constraint.cpp Schema/View.cpp main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
 ```
 
 #### Using CMake (Optional)

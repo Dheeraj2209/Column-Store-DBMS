@@ -5,7 +5,7 @@
 #ifndef CATTRIBUTE_H
 #define CATTRIBUTE_H
 
-
+#include "../include/external_includes.h"
 
 class CAttribute {
 public:
@@ -13,8 +13,8 @@ public:
     std::string type;
     bool isNullable;
     bool isUnique;
-
-    CAttribute(const std::string& name, const std::string& type, bool isNullable = true, bool isUnique = false);
+    bool isPK;
+    CAttribute(const std::string& name, const std::string& type, bool isNullable = true, bool isUnique = false, bool isPK=false);
 };
 
 

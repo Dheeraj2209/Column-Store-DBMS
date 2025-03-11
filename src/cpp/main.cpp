@@ -1,6 +1,6 @@
 #include <iostream>
-#include "createDB.h"
-#include "CStoreEngine.h"
+//#include "createDB.h"
+#include "Engines/DDLEngine.h"
 // int main(int argc, char* argv[]) {
 //     if (argc != 2) {//if incorrect number of arguments is provided
 //         std::cerr << "Usage: " << argv[0] << " <XML_FILE_PATH>" << std::endl;
@@ -27,8 +27,14 @@ int main(int argc, char* argv[]) {
     }
     
     std::string xmlPath = argv[1];
-    
-    Database db = CStoreEngine::loadFromXML(xmlPath);
+//    bool created = DDLEngine::createColumnStoreDBfromXMLSchema(xmlPath);
+//    if(created){
+//        std::cout << "Database created successfully." << std::endl;
+//    } else {
+//        std::cerr << "Failed to create the database." << std::endl;
+//        return 1;
+//    }
+    Database db = DDLEngine::loadSchemaFromXML(xmlPath);
     
     if (db.name.empty()) {
         std::cerr << "Error: Database name is empty. XML parsing may have failed." << std::endl;

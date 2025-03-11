@@ -1,0 +1,3 @@
+ForeignKey: fk_order_customer - Parent: orders(customer_id) -> Child: customers(id)
+ForeignKey: fk_order_product - Parent: orders(product_id) -> Child: products(id)
+UniqueConstraint: UC_Customer_Email on Relation: Customer Attributes: Email 
