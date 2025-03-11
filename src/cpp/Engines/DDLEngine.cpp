@@ -4,7 +4,7 @@
 
 using namespace tinyxml2;
 
-Database CStoreEngine::loadFromXML(const std::string& xmlFilePath) {
+Database CStoreEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
     Database db;
     
     XMLDocument doc;

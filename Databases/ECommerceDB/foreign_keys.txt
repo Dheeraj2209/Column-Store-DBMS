@@ -1,2 +1,0 @@
-FK: fk_order_customer - Parent: orders(customer_id) -> Child: customers(id)
-FK: fk_order_product - Parent: orders(product_id) -> Child: products(id)
