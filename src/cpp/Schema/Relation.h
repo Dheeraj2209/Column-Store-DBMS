@@ -13,7 +13,7 @@
 // Relation: a table in the database.
 class Relation : public Schema_Element {
 public:
-    std::vector<CAttribute> attributes;
+    std::map<string,CAttribute> attributes;
     PrimaryKey primaryKey;
 
     // The create() method creates a directory for the relation and a .dat file for each attribute.

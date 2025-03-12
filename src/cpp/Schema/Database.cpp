@@ -4,7 +4,10 @@
 
 #include "Database.h"
 
-
+Database::Database(){}
+Database::Database(const std::string& xmlFilePath){
+  this->xmlFilePath = xmlFilePath;
+}
 // ---------- Database Implementation ----------
 bool Database::create() const {
     // Create the main database directory under ../../Databases/DatabaseName.

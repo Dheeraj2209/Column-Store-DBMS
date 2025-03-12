@@ -5,7 +5,7 @@
 using namespace tinyxml2;
 
 Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
-    Database db;
+    Database db(xmlFilePath);
     
     XMLDocument doc;
     if (doc.LoadFile(xmlFilePath.c_str()) != XML_SUCCESS) {

@@ -17,6 +17,7 @@ public:
     // Loads a Database instance (i.e. its schema) from an XML instance document.
     static Database loadSchemaFromXML(const std::string& xmlFilePath);
     static bool createColumnStoreDBfromXMLSchema(const std::string& xmlFilePath);
+    static bool changeSchema(const std::string& xmlFilePath);
 };
 
 #endif // DDLEngine_H
