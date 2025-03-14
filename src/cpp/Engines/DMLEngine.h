@@ -14,6 +14,15 @@
 #include "../Schema/PrimaryKey.h"
 #include "../Schema/Constraint.h"
 #include "../Schema/View.h"
+#include "../ComputationObjects/Query.h"
+#include "../Engines/DataLoader.h"
+#include "../Engines/DataManipulator.h"
+#include "../Engines/DataDeleter.h"
+#include "../Engines/QueryManager.h"
+#include "../Engines/ViewManager.h"
+#include "../Engines/DataStitcher.h"
+#include "../CustomTypes/Date_DDMMYYYY_Type.h"
+
 
 
 class DMLEngine {
