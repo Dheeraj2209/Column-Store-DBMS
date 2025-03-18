@@ -14,8 +14,8 @@ class QueryManager {
 public:
     QueryManager();
     bool addQuery(const Query& query);
-    vector<Relation> executeQueries();
-    Retation executeQuery(const Query& query);
+    vector<Relation*> executeQueries();
+    Relation * executeQuery(const Query& query);
     ~QueryManager();
 };
 
