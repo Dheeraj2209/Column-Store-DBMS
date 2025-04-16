@@ -20,12 +20,12 @@ bool Relation::setPrimaryKey(const PrimaryKey& primaryKey) {
     this->primaryKey = primaryKey;
     return true;
 }
-bool Relation::addCAttribute(const CAttribute& attribute) {
-    if (cattributes.find(attribute.name) != cattributes.end()) {
-        std::cerr << "Error: Attribute " << attribute.name << " already exists in relation.\n";
+bool Relation::addCAttribute(const CAttribute* attribute) {
+    if (cattributes.find(attribute->name) != cattributes.end()) {
+        std::cerr << "Error: Attribute " << attribute->name << " already exists in relation.\n";
         return false;
     }
-    cattributes[attribute.name] = new CAttribute(attribute);
+    cattributes[attribute->name] = new CAttribute(attribute->name, attribute->type, attribute->isNullable, attribute->isUnique);
     return true;
 }
 bool Relation::removeCAttribute(const std::string& attributeName) {

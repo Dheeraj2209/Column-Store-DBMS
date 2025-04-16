@@ -7,12 +7,12 @@
 
 #include "../include/external_includes.h"
 
-#include "Query.h"
-#include "Relation.h"
+#include "../ComputationObjects/Query.h"
+#include "../Schema/Relation.h"
 
 
-class viewManager {
-    std::map<string, Query> views;
+class ViewManager {
+    std::map<string, Query*> views;
 
 };
 

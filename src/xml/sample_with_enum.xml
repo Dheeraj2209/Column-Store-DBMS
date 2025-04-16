@@ -11,7 +11,7 @@
           <Attribute name="Email" type="string" isNullable="false"/>
           <Attribute name="RegistrationDate" type="date" isNullable="false"/>
 
-          <!-- <Attribute name="CustomerGender" type="enum{M,F}" isNullable="false"/> -->
+          <!-- <Attribute name="CustomerGender" type="enum{M,F,O}" isNullable="false"/> -->
           <!-- Add a storage attribute for Attribute -->
         </Attributes>
         <PrimaryKey>

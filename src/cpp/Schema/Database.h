@@ -7,7 +7,11 @@
 
 #include "Schema_Element.h"
 #include "../include/external_includes.h"
-
+#include "Relation.h"
+#include "View.h"
+#include "Constraint.h"
+//#include "../include/fsnamespace.h"
+using namespace std;
 // Database Class
 // The Database is a composition of Schema_Element objects.
 class Database{

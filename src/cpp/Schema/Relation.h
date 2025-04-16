@@ -9,7 +9,7 @@
 #include "Schema_Element.h"
 #include "CAttribute.h"
 #include "PrimaryKey.h"
-
+using namespace std;
 // Relation: a table in the database.
 class Relation : public Schema_Element {
   std::map<string,CAttribute*> cattributes;
@@ -19,7 +19,7 @@ public:
 PrimaryKey getPrimaryKey() const;
 bool setCAttributes(const std::map<std::string, CAttribute*>& attributes);
 bool setPrimaryKey(const PrimaryKey& primaryKey);
-bool addCAttribute(const CAttribute& attribute);
+bool addCAttribute(const CAttribute* attribute);
 bool removeCAttribute(const std::string& attributeName);
 CAttribute* getCAttribute(const std::string& attributeName);
 

@@ -3,21 +3,21 @@
 //
 
 #include "Query.h"
-
+//#include "../Schema/Database.h"
 
 Query::Query(const string& querystring) : querystring(querystring) {
     // Parse the query string
     parseQuery();
 }
 
-Query::Query(const string& querystring, Database& sourceDB) : querystring(querystring), sourceDB(sourceDB) {
-    // Parse the query string
-    parseQuery();
-}
-
-void Query::setSourceDB(Database& sourceDB) {
-    this->sourceDB = sourceDB;
-}
+//Query::Query(const string& querystring, Database& sourceDB) : querystring(querystring), sourceDB(sourceDB) {
+//    // Parse the query string
+//    parseQuery();
+//}
+//
+//void Query::setSourceDB(Database& sourceDB) {
+//    this->sourceDB = sourceDB;
+//}
 
 void Query::setQuerystring(const string& querystring) {
     this->querystring = querystring;
@@ -40,10 +40,10 @@ void Query::setOrderbycols(const vector<std::string>& orderbycols) {
     this->orderbycols = orderbycols;
 }
 
-Database Query::getSourceDB() const {
-    return sourceDB;
-}
-
+//Database Query::getSourceDB() const {
+//    return sourceDB;
+//}
+//
 string Query::getQuerystring() const {
     return querystring;
 }
@@ -129,3 +129,9 @@ vector<std::string> Query::split(const string& str, char delimiter) {
     }
     return tokens;
 }
+
+//void Query::setQuerystring(const string& querystring) {
+//    this->querystring = querystring;
+//    parseQuery();
+//}
+//Query::~Query() {}

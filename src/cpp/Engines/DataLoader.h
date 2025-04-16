@@ -4,19 +4,21 @@
 
 #ifndef DATALOADER_H
 #define DATALOADER_H
-
+#include <fstream>
+#include <sstream>
 #include "../include/external_includes.h"
 #include "../Schema/Database.h"
-#include "../incude/stream_includes.h"
+//#include "../incude/stream_includes.h"
 #include "../include/Tbl.hpp"
 #include "../Schema/Relation.h"
 #include "../Schema/Schema_Element.h"
-#include "CustomTypes/Date_DDMMYYYY_Type.h"
+#include "../CustomTypes/Date_DDMMYYYY_Type.h"
 //#include "../include/DMLEngine.h"
 
 using namespace std;
 class DataLoader {
-    static bool loadDataFromCSV(Database& db, const std::string& CSVfile, const std::string& relationName);
+public:
+    static bool loadDataFromCSV(Database* db, const std::string& CSVfile, const std::string& relationName);
 };
 
 
