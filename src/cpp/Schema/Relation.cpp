@@ -9,6 +9,9 @@
 std::map<std::string, CAttribute*> Relation::getCAttributes() const {
     return cattributes;
 }
+std::string Relation::getName() const {
+    return this->name;
+}
 PrimaryKey Relation::getPrimaryKey() const {
     return primaryKey;
 }
@@ -74,4 +77,14 @@ bool Relation::create(const fs::path &basePath) const {
     }
     return true;
 }
+std::map<string,PrimaryKeyConstraint*> Relation::getpks() {
+    return pks;
+}
+std::map<string,ForeignKeyConstraint*> Relation::getfks() {
+    return fks;
+}
+std::map<string,UniqueKeyConstraint*> Relation::getuks() {
+    return uks;
+}
+// Destructor
 Relation::~Relation() {}

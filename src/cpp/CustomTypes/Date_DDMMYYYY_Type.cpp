@@ -13,3 +13,8 @@ Date_DDMMYYYY_Type Date_DDMMYYYY_Type::parse(const std::string& dateStr) {
     }
     return date;
 }
+std::string Date_DDMMYYYY_Type::dateToString(const Date_DDMMYYYY_Type& date) {
+    char buffer[11];
+    snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d", date.year, date.month, date.day);
+    return std::string(buffer);
+}

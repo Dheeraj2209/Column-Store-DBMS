@@ -12,6 +12,7 @@ class Schema_Element {
 public:
     std::string name;
     virtual bool create(const fs::path &basePath) const = 0;
+    std::string getName() const { return name; }
     virtual ~Schema_Element() {}
 };
 

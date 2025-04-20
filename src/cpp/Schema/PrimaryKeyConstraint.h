@@ -22,6 +22,7 @@ public:
         this->name = name;
     }
     bool create(const fs::path &basePath) const override;
+    std::string getName();
 };
 
 #endif //PRIMARYKEYCONSTRAINT_H

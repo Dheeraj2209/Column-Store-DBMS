@@ -19,6 +19,7 @@ class Database{
     std::map<string,Relation*> relations; //Use a map instead of vector to store schema elements
    	std::map<string,View*> views;
     std::map<string,Constraint*> constraints;
+
     std::string xmlFilePath;
 public:
     Database();
@@ -43,7 +44,7 @@ public:
     View* getView(const std::string& viewName);
     Constraint* getConstraint(const std::string& constraintName);
     bool create() const;
-
+	getForeignKeyConstraintsForRelation(const std::string& relationName)
     ~Database();//Drop the database
 };
 

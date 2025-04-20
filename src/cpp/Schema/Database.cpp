@@ -141,6 +141,9 @@ bool Database::create() const {
     }
     return true;
 }
+std::map<string,ForeignKeyConstraint*> Database::getForeignKeyConstraintsForRelation(const std::string& relationName) {
+    return relations[relationName]->getfks();
+}
 Database::~Database() {
     // Clean up allocated Schema_Element pointers. Strictly enforce the Composition relationship.
 //    for (Schema_Element *elem : schemaElements) {

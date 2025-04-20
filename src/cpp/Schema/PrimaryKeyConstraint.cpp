@@ -20,3 +20,6 @@ bool PrimaryKeyConstraint::create(const fs::path &basePath) const {
     outFile.close();
     return true;
 }
+std::string PrimaryKeyConstraint::getName() {
+    return this->name;
+}
