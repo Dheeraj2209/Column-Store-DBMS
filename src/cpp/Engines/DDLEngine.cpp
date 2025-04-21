@@ -191,14 +191,14 @@ bool DDLEngine::init() {
 //    }
 //    doc.Print(xmlFile);
 //    return db;
-////    if(pushSchematoMeta_Metadata(db)){
-////          cout << "Schema pushed to metadata" << endl;
-////          return db;
-////    }
-////    else{
-////        cerr << "Failed to push schema to metadata" << endl;
-////        return db;
-////    }
+//    if(pushSchematoMeta_Metadata(db)){
+//          cout << "Schema pushed to metadata" << endl;
+//          return db;
+//    }
+//    else{
+//        cerr << "Failed to push schema to metadata" << endl;
+//        return db;
+//    }
 //
 //}
 Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
@@ -434,6 +434,13 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
         std::cerr << "Cannot copy schema file: Database name is empty." << std::endl;
     }
 
+    if (db.create()) {
+        std::cout << "Database created successfully." << std::endl;
+    } else {
+        std::cerr << "Failed to create the database." << std::endl;
+        Database Emptydb;
+        return Emptydb;
+    }
     return db;
 }
 
