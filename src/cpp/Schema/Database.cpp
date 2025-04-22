@@ -11,7 +11,7 @@ Database::Database(const std::string& xmlFilePath){
   this->xmlFilePath = xmlFilePath;
 }
 
-string Database::getName() const {
+std::string Database::getName() const {
     return name;
 }
 map<string,Relation*> Database::getRelations() const {
@@ -42,11 +42,11 @@ void Database::setXmlFilePath(const std::string& xmlFilePath) {
     this->xmlFilePath = xmlFilePath;
 }
 bool Database::addRelation(Relation* relation) {
-    if (relations.find(relation->name) != relations.end()) {
-        std::cerr << "Error: Relation " << relation->name << " already exists in database.\n";
+    if (relations.find(relation->getName()) != relations.end()) { // Use getName
+        std::cerr << "Error: Relation " << relation->getName() << " already exists in database.\n"; // Use getName
         return false;
     }
-    relations[relation->name] = relation;
+    relations[relation->getName()] = relation; // Use getName
     return true;
 }
 bool Database::addView(View* view) {
@@ -123,7 +123,7 @@ bool Database::create() const {
     // For each schema element, call its create() method.
     for (const auto &elem : relations) {
         if (!elem.second->create(basePath)) {
-            std::cerr << "Failed to create schema element: " << elem.second->name << std::endl;
+            std::cerr << "Failed to create schema element: " << elem.second->getName() << std::endl; // Use getName
             return false;
         }
     }
@@ -160,3 +160,4 @@ Database::~Database() {
     }
 
 }
+

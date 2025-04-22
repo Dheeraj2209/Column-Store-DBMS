@@ -9,8 +9,6 @@
 #include <fstream>
 #include <iostream>
 
-
-
 class PrimaryKeyConstraint : public Constraint {
 public:
     Relation* relation;
@@ -21,7 +19,7 @@ public:
         : Constraint(PRIMARY_KEY), relation(rel), attributeRefs(attrs) {
         this->name = name;
     }
-    bool create(const fs::path &basePath) const override;
+    bool create(const fs::path &basePath) const;
     std::string getName();
 };
 

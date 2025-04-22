@@ -17,4 +17,7 @@ bool View::create(const fs::path &basePath) const {
     outFile << "View Query: " << query << std::endl;
     return true;
 }
-View::~View() {}
+
+View::~View() {
+    // Destructor implementation
+}

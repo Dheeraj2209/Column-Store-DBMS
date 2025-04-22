@@ -24,8 +24,6 @@ public:
     Constraint(Type type) : type(type) {}
     virtual bool create(const fs::path &basePath) const override = 0;
     virtual ~Constraint() {}
-//    virtual bool create(const fs::path &basePath) const override;
-//    ~Constraint();
 };
 
 

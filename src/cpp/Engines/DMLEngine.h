@@ -24,8 +24,8 @@
 #include "../CustomTypes/Date_DDMMYYYY_Type.h"
 
 //meta_metadata.json file's global variables
-fs::path meta_metadata_path;
-std::ofstream meta_metadata_file;
+extern fs::path meta_metadata_path;
+extern std::ofstream meta_metadata_file;
 
 
 class DMLEngine {

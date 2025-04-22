@@ -236,7 +236,7 @@
 #include <algorithm>
 
 // Include the Tbl header (make sure your include paths are set correctly)
-#include "Tbl.hpp"
+#include "../include/Tbl.hpp"
 
 // Helper functions – you need to implement these in your project:
 std::unordered_set<std::string> getReferencedKeySet(Database* db, ForeignKeyConstraint* fk) {

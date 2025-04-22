@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 //    }
     Database db = DDLEngine::loadSchemaFromXML(xmlPath);
     
-    if (db.name.empty()) {
+    if (db.getName().empty()) {
         std::cerr << "Error: Database name is empty. XML parsing may have failed." << std::endl;
         return 1;
     }

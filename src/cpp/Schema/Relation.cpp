@@ -10,7 +10,7 @@ std::map<std::string, CAttribute*> Relation::getCAttributes() const {
     return cattributes;
 }
 std::string Relation::getName() const {
-    return this->name;
+    return this->name; // Return the name of the relation
 }
 PrimaryKey Relation::getPrimaryKey() const {
     return primaryKey;
@@ -47,6 +47,9 @@ CAttribute* Relation::getCAttribute(const std::string& attributeName) {
     return cattributes[attributeName];
 }
 
+void Relation::setName(const std::string& name) {
+    this->name = name;
+}
 
 bool Relation::create(const fs::path &basePath) const {
     // Create a directory for the relation under the database base path.
@@ -87,4 +90,6 @@ std::map<string,UniqueKeyConstraint*> Relation::getuks() {
     return uks;
 }
 // Destructor
-Relation::~Relation() {}
+Relation::~Relation() {
+    // Destructor implementation
+}

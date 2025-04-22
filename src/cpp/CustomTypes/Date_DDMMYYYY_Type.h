@@ -14,7 +14,7 @@ public:
     uint16_t year;
 
     Date_DDMMYYYY_Type();
-    static std::string dateToString(const Date_DDMMYYYY_Type& date)
+    static std::string dateToString(const Date_DDMMYYYY_Type& date);
     static Date_DDMMYYYY_Type parse(const std::string& dateStr);
 };
 

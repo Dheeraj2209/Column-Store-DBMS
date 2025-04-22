@@ -247,7 +247,7 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
             }
 
             Relation* rel = new Relation();
-            rel->name = relName;
+            rel->setName(relName); // Use setName to set the name
             relationMap[relName] = rel;
 
             // Parse Attributes
@@ -438,8 +438,8 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
         std::cout << "Database created successfully." << std::endl;
     } else {
         std::cerr << "Failed to create the database." << std::endl;
-        Database Emptydb;
-        return Emptydb;
+        // Database Emptydb;
+        // return Emptydb;
     }
     return db;
 }

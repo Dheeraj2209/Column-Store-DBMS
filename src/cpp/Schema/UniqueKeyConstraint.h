@@ -18,7 +18,7 @@ class UniqueKeyConstraint : public Constraint {
         : Constraint(UNIQUE), relation(rel), attributeRefs(attrs) {
         this->name = name;
     }
-    bool create(const fs::path &basePath) const override;
+    bool create(const fs::path &basePath) const;
 };
 
 

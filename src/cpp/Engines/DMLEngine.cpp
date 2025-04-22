@@ -157,3 +157,6 @@ bool DMLEngine::loadDatafromCSV(const string& DBname, const string& CSVfile, con
 //bool DMLEngine::updateData(const string & DBname, const string & RelationName, const std::vector<std::string>& values){
 //    return dataManipulator.updateData(this->databases[DBname], RelationName, values);
 //}
+
+fs::path meta_metadata_path;
+std::ofstream meta_metadata_file;
