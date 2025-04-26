@@ -16,11 +16,12 @@
 #include "../Schema/View.h"
 #include "../ComputationObjects/Query.h"
 #include "../Engines/DataLoader.h"
-#include "../Engines/DataManipulator.h"
+#include "../Engines/DataManipulator.hpp"
 #include "../Engines/DataDeleter.h"
 #include "../Engines/QueryManager.h"
 #include "../Engines/ViewManager.h"
 #include "../Engines/DataStitcher.h"
+#include "../Engines/ConstraintValidator.hpp"
 #include "../CustomTypes/Date_DDMMYYYY_Type.h"
 
 //meta_metadata.json file's global variables
@@ -35,6 +36,8 @@ class DMLEngine {
   ViewManager viewManager;
   DataManipulator dataManipulator;
   DataDeleter dataDeleter;
+  DataStitcher dataStitcher;
+  ConstraintValidator constraintValidator;
   public:
 //    static bool loadDatafromCSV(const string & DBname const string & CSVfile, const string & RelationName);
     static bool init();

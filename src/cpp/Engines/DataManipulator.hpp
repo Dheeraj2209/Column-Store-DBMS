@@ -6,6 +6,10 @@
 
 #include "../include/external_includes.h"
 #include "../Schema/Relation.h"
+#include "../Schema/CAttribute.h"
+#include "../Data_Objects/ColVal.hpp"
+#include "../Data_Objects/Table.hpp"
+#include "../Data_Objects/Row.hpp"
 #include <vector>
 #include <string>
 
@@ -19,6 +23,7 @@ public:
     // in the same order as relation->getCAttributes().
     // Returns true on success.
     bool updateTuple(Relation* relation, int rowIndex, const std::vector<std::string>& newData);
+    bool updateTuple(Relation* relation, Row* row);
 };
 
 #endif // DATAMANIPULATOR_H
