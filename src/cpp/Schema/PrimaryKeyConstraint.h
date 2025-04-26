@@ -13,7 +13,8 @@ class PrimaryKeyConstraint : public Constraint {
 public:
     Relation* relation;
     std::vector<std::string> attributeRefs;
-
+    PrimaryKey* primaryKey;
+    PrimaryKeyConstraint() : Constraint(PRIMARY_KEY) {}
     PrimaryKeyConstraint(const std::string& name, Relation* rel,
                          const std::vector<std::string>& attrs)
         : Constraint(PRIMARY_KEY), relation(rel), attributeRefs(attrs) {

@@ -89,6 +89,9 @@ std::map<string,ForeignKeyConstraint*> Relation::getfks() {
 std::map<string,UniqueKeyConstraint*> Relation::getuks() {
     return uks;
 }
+std::string Relation::getDBName() const {
+    return this->database->getName();
+}
 // Destructor
 Relation::~Relation() {
     // Destructor implementation

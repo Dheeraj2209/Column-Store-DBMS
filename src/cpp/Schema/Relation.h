@@ -20,6 +20,7 @@ class Relation : public Schema_Element {
   std::map<string,CAttribute*> cattributes;
   PrimaryKey primaryKey;
   std::string name; // Added 'name' member
+   Database* database;
 public:
   std::map<string,CAttribute*> getCAttributes() const;
   PrimaryKey getPrimaryKey() const;
@@ -35,6 +36,7 @@ public:
   std::map<string,UniqueKeyConstraint*> getuks();
   std::map<string,PrimaryKeyConstraint*> getpks();
   std::string getName() const; // Ensure getName() is declared
+  std::string getDBName() const;
   void setName(const std::string& name); // Added setter for name
   // The create() method creates a directory for the relation and a .dat file for each attribute.
   virtual bool create(const fs::path &basePath) const override;

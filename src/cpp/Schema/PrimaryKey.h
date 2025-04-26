@@ -9,6 +9,8 @@
 
 class PrimaryKey {
 public:
+    Relation* relation;
+    CAttribute* attribute;
     std::vector<std::string> attributeRefs;
 };
 

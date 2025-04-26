@@ -19,7 +19,6 @@ public:
         UNIQUE
     };
     Type type;
-
     // For a unique constraint:
     Constraint(Type type) : type(type) {}
     virtual bool create(const fs::path &basePath) const override = 0;
