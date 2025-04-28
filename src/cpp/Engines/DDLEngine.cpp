@@ -13,7 +13,7 @@ bool DDLEngine::init() {
 //        return false;
 //    }
 //    return true;
-   meta_metadata_path = fs::path("../../Databases");
+//   meta_metadata_path = fs::path("../../Databases");
 //    meta_metadata_file(meta_metadata_path, std::ios::app);
 //    if (!meta_metadata_file) {
 //        std::cerr << "Failed to create meta_metadata file." << std::endl;
@@ -408,11 +408,11 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
         }
     }
 
-    if (pushSchematoMeta_Metadata(db)) {
-        std::cout << "Schema pushed to metadata" << std::endl;
-    } else {
-        std::cerr << "Failed to push schema to metadata" << std::endl;
-    }
+//    if (pushSchematoMeta_Metadata(db)) {
+//        std::cout << "Schema pushed to metadata" << std::endl;
+//    } else {
+//        std::cerr << "Failed to push schema to metadata" << std::endl;
+//    }
 
     // Create a copy of the XML file
     std::string dbNameStr = db.getName(); // Assuming getName() exists
@@ -857,7 +857,7 @@ Database* DDLEngine::loadSchema(const std::string& xmlFilePath) {
 
 
 
-using namespace tinyxml2;
+//using namespace tinyxml2;
 
 //bool DDLEngine::createColumnStoreDBfromXMLSchema(const std::string& xmlFilePath) {
 //    // Parse XML file
@@ -928,47 +928,47 @@ using namespace tinyxml2;
 //    return true;
 //}
 
-bool DDLEngine::pushSchematoMeta_Metadata(const Database& db){
-    //Now let's push the schema to the meta_metadata file, which is a json file
-    //make sure we're pushing all the dataitems of concerned classes
-    meta_metadata_file << "{\n";
-    meta_metadata_file << "  \"Database\": \"" << db.getName() << "\",\n";
-    meta_metadata_file << "  \"XMLFilePath\": \"" << db.getXmlFilePath() << "\",\n";
-    meta_metadata_file << "  \"Relations\": [\n";
-    for (const auto& relation : db.getRelations()) {
-        meta_metadata_file << "    {\n";
-        meta_metadata_file << "      \"Relation\": \"" << relation.first << "\",\n";
-        meta_metadata_file << "      \"Attributes\": [\n";
-        for (const auto& attr : relation.second->getCAttributes()) {
-            meta_metadata_file << "        {\n";
-            meta_metadata_file << "          \"Attribute\": \"" << attr.first << "\",\n";
-            meta_metadata_file << "          \"Type\": \"" << attr.second->type << "\"\n";
-            meta_metadata_file << "        },\n";
-        }
-        //now, let's store the Primary Key
-        meta_metadata_file << "     Primary Key: " << relation.second->getPrimaryKey().attributeRefs[0] << std::endl;
-
-        meta_metadata_file << "      ]\n";
-        meta_metadata_file << "    },\n";
-    }
-    for (const auto& view : db.getViews()) {
-        meta_metadata_file << "    {\n";
-        meta_metadata_file << "      \"View\": \"" << view.first << "\",\n";
-        meta_metadata_file << "      \"Query\": \"" << view.second->query->getQuerystring() << "\"\n";
-        meta_metadata_file << "    },\n";
-    }
-    for (const auto& constraint : db.getConstraints()) {
-        meta_metadata_file << "    {\n";
-        meta_metadata_file << "      \"Constraint\": \"" << constraint.first << "\",\n";
-        meta_metadata_file << "      \"Type\": \"" << constraint.second->type << "\"\n";
-        meta_metadata_file << "    },\n";
-    }
-
-    meta_metadata_file << "  ]\n";
-    meta_metadata_file << "}\n";
-
-    return true;
-}
+//bool DDLEngine::pushSchematoMeta_Metadata(const Database& db){
+//    //Now let's push the schema to the meta_metadata file, which is a json file
+//    //make sure we're pushing all the dataitems of concerned classes
+//    meta_metadata_file << "{\n";
+//    meta_metadata_file << "  \"Database\": \"" << db.getName() << "\",\n";
+//    meta_metadata_file << "  \"XMLFilePath\": \"" << db.getXmlFilePath() << "\",\n";
+//    meta_metadata_file << "  \"Relations\": [\n";
+//    for (const auto& relation : db.getRelations()) {
+//        meta_metadata_file << "    {\n";
+//        meta_metadata_file << "      \"Relation\": \"" << relation.first << "\",\n";
+//        meta_metadata_file << "      \"Attributes\": [\n";
+//        for (const auto& attr : relation.second->getCAttributes()) {
+//            meta_metadata_file << "        {\n";
+//            meta_metadata_file << "          \"Attribute\": \"" << attr.first << "\",\n";
+//            meta_metadata_file << "          \"Type\": \"" << attr.second->type << "\"\n";
+//            meta_metadata_file << "        },\n";
+//        }
+//        //now, let's store the Primary Key
+//        meta_metadata_file << "     Primary Key: " << relation.second->getPrimaryKey().attributeRefs[0] << std::endl;
+//
+//        meta_metadata_file << "      ]\n";
+//        meta_metadata_file << "    },\n";
+//    }
+//    for (const auto& view : db.getViews()) {
+//        meta_metadata_file << "    {\n";
+//        meta_metadata_file << "      \"View\": \"" << view.first << "\",\n";
+//        meta_metadata_file << "      \"Query\": \"" << view.second->query->getQuerystring() << "\"\n";
+//        meta_metadata_file << "    },\n";
+//    }
+//    for (const auto& constraint : db.getConstraints()) {
+//        meta_metadata_file << "    {\n";
+//        meta_metadata_file << "      \"Constraint\": \"" << constraint.first << "\",\n";
+//        meta_metadata_file << "      \"Type\": \"" << constraint.second->type << "\"\n";
+//        meta_metadata_file << "    },\n";
+//    }
+//
+//    meta_metadata_file << "  ]\n";
+//    meta_metadata_file << "}\n";
+//
+//    return true;
+//}
 
 // int main(int argc, char* argv[]) {
 //     if (argc != 2) {

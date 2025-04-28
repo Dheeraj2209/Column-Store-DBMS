@@ -30,7 +30,8 @@ extern std::ofstream meta_metadata_file;
 
 
 class DMLEngine {
-  map<string,Database*> databases;
+  map<string,Database*> databases;//will be deprecated
+  Database* currentDB;
   DataLoader dataLoader;
   QueryManager queryManager;
   ViewManager viewManager;
@@ -40,8 +41,14 @@ class DMLEngine {
   ConstraintValidator constraintValidator;
   public:
 //    static bool loadDatafromCSV(const string & DBname const string & CSVfile, const string & RelationName);
-    static bool init();
-    static bool loadMeta_Metadata();
+    bool init();
+    DMLEngine(){
+        // Initialize the engine
+        if (!init()) {
+            std::cerr << "Failed to initialize DMLEngine." << std::endl;
+        }
+    }
+    bool loadMeta_Metadata();
     bool loadDatafromCSV(const string& DBname, const string& CSVfile, const string& RelationName);
 //    static bool insertData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool deleteData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);

@@ -228,6 +228,7 @@
 //}
 #include "DataLoader.h"
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <iostream>
 #include <unordered_map>
@@ -297,6 +298,18 @@ std::unordered_set<std::string> getReferencedKeySet(Database* db, ForeignKeyCons
 }
 
 bool DataLoader::loadDataFromCSV(Database* db, const std::string& relationName, const std::string& csvPath) {
+      cout<<"Available relations in the database: "<<endl;
+      for (const auto& [name, rel] : db->getRelations()) {
+        std::cout << "Relation: " << name << "\n";
+        for (const auto& [attrName, attr] : rel->getCAttributes()) {
+          cout<<"Available attributes in the relation: "<<endl;
+            std::cout << "  Attribute: " << attrName << ", Type: " << attr->type << "\n";
+        }
+        cout<<"Available attributes in the relation END"<<endl;
+
+    }
+    cout<<"Available relations in the database END"<<endl;
+    cout<<"Checking if the relation "<<relationName<<" exists in the database: "<<endl;
     Relation* relation = db->getRelation(relationName);
     if (!relation) {
         std::cerr << "Relation " << relationName << " not found.\n";
@@ -334,11 +347,11 @@ bool DataLoader::loadDataFromCSV(Database* db, const std::string& relationName, 
 
     // Open output streams
     std::unordered_map<std::string, std::ofstream> outStreams;
-    std::string basePath = "../Databases/" + db->getName() + "/" + relationName + "/";
+    std::string basePath = "../../Databases/" + db->getName() + "/" + relationName + "/";
     for (const auto& name : attributeNames) {
         outStreams[name].open(basePath + name + ".dat", std::ios::binary | std::ios::app);
         if (!outStreams[name]) {
-            std::cerr << "Error opening file for writing: " << name << "\n";
+            std::cerr << "Error opening file for writing: " << basePath + name + ".dat" << "\n";
             return false;
         }
     }

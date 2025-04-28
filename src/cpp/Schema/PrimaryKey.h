@@ -21,20 +21,33 @@ public:
     CAttribute* attribute;
     std::vector<std::string> attributeRefs;
     std::string name;
-    PrimaryKey(const std::string& name, CAttribute* attribute, const std::vector<std::string>& attributeRefs)
-        : name(name), attribute(attribute), attributeRefs(attributeRefs) {
+    PrimaryKey(const std::string& name, CAttribute* attribute, const std::vector<std::string>& attributeRefs){
+        this->name = name;
+        this->attribute = attribute;
+        this->attributeRefs = attributeRefs;
         this->relationName = attribute->RelationName;
     }
-    PrimaryKey(const std::string& name, CAttribute* attribute)
-        : name(name), attribute(attribute) {
+    PrimaryKey(const std::string& name, CAttribute* attribute){
+        this->name = name;
+        this->attribute = attribute;
+        this->attributeRefs.push_back(attribute->name);
+        this->attributeRefs.push_back(attribute->RelationName);
+        this->DatabaseName = attribute->DatabaseName;
         this->relationName = attribute->RelationName;
     }
-    PrimaryKey(const std::string& name, CAttribute* attribute, const std::string& relationName)
-        : name(name), attribute(attribute), relationName(relationName) {
+    PrimaryKey(const std::string& name, CAttribute* attribute, const std::string& relationName){
+        this->name = name;
+        this->attribute = attribute;
+        this->attributeRefs.push_back(attribute->name);
+        this->attributeRefs.push_back(attribute->RelationName);
+        this->DatabaseName = attribute->DatabaseName;
         this->relationName = relationName;
     }
-    PrimaryKey(const std::string& name, CAttribute* attribute, const std::vector<std::string>& attributeRefs, const std::string& relationName)
-        : name(name), attribute(attribute), attributeRefs(attributeRefs), relationName(relationName) {
+    PrimaryKey(const std::string& name, CAttribute* attribute, const std::vector<std::string>& attributeRefs, const std::string& relationName){
+        this->name = name;
+        this->attribute = attribute;
+        this->attributeRefs = attributeRefs;
+        this->DatabaseName = attribute->DatabaseName;
         this->relationName = relationName;
     }
 	PrimaryKey() {}

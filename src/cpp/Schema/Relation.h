@@ -36,15 +36,16 @@ class Relation : public Schema_Element {
   PrimaryKey getPrimaryKey() const;
   Relation(const std::string& name, Database* database) : name(name), database(database) {}
     Relation(const std::string& name, Database* database, const std::map<std::string,CAttribute*>& attributes)
-        : name(name), database(database), cattributes(attributes) {}
+        :      cattributes(attributes), name(name), database(database) {}
     Relation(const std::string& name, Database* database, const std::map<std::string,CAttribute*>& attributes,
              const PrimaryKey& primaryKey)
-        : name(name), database(database), cattributes(attributes), primaryKey(primaryKey) {}
+        :  cattributes(attributes), primaryKey(primaryKey), name(name), database(database)
+ {}
     Relation(const std::string& name, Database* database, const std::map<std::string,CAttribute*>& attributes,
                  const PrimaryKey& primaryKey, const std::map<std::string,ForeignKeyConstraint*>& fks,
                  const std::map<std::string,UniqueKeyConstraint*>& uks,
                  const std::map<std::string,PrimaryKeyConstraint*>& pks)
-        : name(name), database(database), cattributes(attributes), primaryKey(primaryKey), fks(fks), uks(uks), pks(pks) {}
+        : cattributes(attributes), primaryKey(primaryKey), name(name), database(database), pks(pks), uks(uks), fks(fks) {}
    Relation(){}
   bool setCAttributes(const std::map<std::string, CAttribute*>& attributes);
   bool setPrimaryKey(const PrimaryKey& primaryKey);

@@ -1,0 +1,7 @@
+% g++ *.o Schema/*.o Engines/*.o ComputationObjects/*.o CustomTypes/*.o DataObjects/*.o  -o myapp -L/opt/homebrew/lib -ltinyxml2 -std=c++17
+
+//Command for Create Database:
+% g++ -std=c++17 -o createDBOOPS Engines/DDLEngine.cpp Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp Schema/Constraint.cpp Schema/View.cpp Schema/PrimaryKey.cpp Schema/PrimaryKeyConstraint.cpp Schema/UniqueKeyConstraint.cpp Schema/ForeignKeyConstraint.cpp ComputationObjects/Query.cpp main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+
+//Command for Load Database:
+ % g++ -std=c++17 -o load Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp dml_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2

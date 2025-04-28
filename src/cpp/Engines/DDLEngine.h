@@ -35,7 +35,7 @@ public:
     // Loads a Database instance (i.e. its schema) from an XML instance document.
   static bool init();
     static Database loadSchemaFromXML(const std::string& xmlFilePath);
-    static bool pushSchematoMeta_Metadata(const Database& db);
+//    static bool pushSchematoMeta_Metadata(const Database& db);
 //    static bool createColumnStoreDBfromXMLSchema(const std::string& xmlFilePath);
     static bool changeSchema(const std::string& xmlFilePath);
     static Database* loadSchema(const std::string& xmlFilePath);

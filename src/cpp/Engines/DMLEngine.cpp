@@ -13,7 +13,7 @@ bool DMLEngine::init() {
         return false;
     }
     // Load the meta-metadata
-    return loadMeta_Metadata();
+    return this->loadMeta_Metadata();
 }
 bool DMLEngine::loadMeta_Metadata() {
     // For each database in the XML file, create a Database object and add it to the map
@@ -118,12 +118,15 @@ bool DMLEngine::loadMeta_Metadata() {
         }
     }
 
+    databases = loadedDatabases; // Store loaded databases in the DMLEngine instance
+
     // If this is meant to persist across instances, expose loadedDatabases via a static getter
     // For now, we assume this is a one-time load for initialization
     return success;
 }
 
 bool DMLEngine::loadDatafromCSV(const string& DBname, const string& CSVfile, const string& RelationName) {
+
     // Check if database exists
     if (this->databases.find(DBname) == this->databases.end()) {
         std::cerr << "Error: Database '" << DBname << "' not found" << std::endl;
@@ -134,7 +137,7 @@ bool DMLEngine::loadDatafromCSV(const string& DBname, const string& CSVfile, con
     Database* db = this->databases[DBname];
 
     // Delegate to DataLoader's static method
-    bool success = DataLoader::loadDataFromCSV(db, CSVfile, RelationName);
+    bool success = DataLoader::loadDataFromCSV(db, RelationName, CSVfile);
 
     if (success) {
         std::cout << "Successfully loaded data from " << CSVfile
