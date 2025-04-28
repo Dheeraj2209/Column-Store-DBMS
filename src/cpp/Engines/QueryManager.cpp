@@ -2,7 +2,7 @@
 // Created by Pradyun Devarakonda on 12/03/25.
 //
 
-#include "QueryManager.h"
+// #include "QueryManager.h"
 
 
 QueryManager::QueryManager() { /* Implementation */ }
@@ -30,49 +30,174 @@ static bool rowSatisfiesConditions(Relation* rel,
   return true;
 }
 
-//Relation* QueryManager::executeQuery(const Query& rawQuery) {
-//  // 1) Parse the query
-//  Query q = rawQuery;
-//  q.parseQuery();
+//Table* executeQuery(const Query& query) {
 //
-//  // 2) Must have exactly one table for v0.0
-//  auto relNames = q.getParticipating_relations();
-//  if (relNames.size() != 1) {
-//    cerr << "Only single‑relation queries supported in v0.0\n";
-//    return nullptr;
-//  }
-//  Relation* base = db->getRelation(relNames[0]);
-//  if (!base) {
-//    cerr << "Relation not found: " << relNames[0] << "\n";
-//    return nullptr;
-//  }
-//
-//  // 3) Clone schema (no data)
-//  Relation* result = base->createEmptyClone();
-//
-//  // 4) Copy only the projected columns
-//  auto projCols = q.getResultcols();
-//  if (projCols.empty()) {
-//    // if no projection, default to all columns
-//    for (auto& p : base->getCAttributes()) projCols.push_back(p.first);
-//  }
-//  result->projectColumns(projCols);
-//
-//  // 5) Scan each row, apply WHERE, then append to result
-//  size_t numRows = base->getNumRows();
-//  DataStitcher stitcher;
-//  for (size_t r = 0; r < numRows; ++r) {
-//    if (!rowSatisfiesConditions(base, r, q.getConditions())) continue;
-//
-//    // Read each projected column’s value
-//    for (auto& col : projCols) {
-//      // For simplicity we read the stitched string and store it directly
-//      string tuple = stitcher.stitchData(*base, (int)r);
-//      result->appendValue((int)r, col, tuple.c_str(), tuple.size());
-//    }
-//  }
-//
-//  // 6) ORDER BY not implemented in v0.0
-//
-//  return result;
 //}
+
+//
+// Created by Pradyun Devarakonda on 12/03/25.
+//
+
+#include "QueryManager.h"
+
+
+QueryManager::QueryManager() { /* Implementation */ }
+// Engines/QueryManager.cpp
+#include "QueryManager.h"
+#include "../Engines/DataStitcher.h"
+
+// Helper: evaluates a simple condition like "col = value" or "col > value"
+static bool evaluateCondition(const string& condition, const Row* row) {
+    // Parse condition into operator and value
+    size_t opPos = string::npos;
+    string ops[] = {"=", ">", "<", ">=", "<=", "!="};
+    string op;
+
+    for (const string& testOp : ops) {
+        size_t pos = condition.find(testOp);
+        if (pos != string::npos) {
+            opPos = pos;
+            op = testOp;
+            break;
+        }
+    }
+
+    if (opPos == string::npos) return true; // No condition
+
+    string colName = condition.substr(0, opPos);
+    colName.erase(remove_if(colName.begin(), colName.end(), ::isspace), colName.end());
+
+    string value = condition.substr(opPos + op.length());
+    value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
+
+    // Find the column value in the row
+    for (ColVal* colVal : row->getColVals()) {
+        if (colVal->getAttributeName() == colName) {
+            string rowValue;
+            if (colVal->getAttribute()->type == "int") {
+                rowValue = to_string(colVal->getIntValue());
+            } else if (colVal->getAttribute()->type == "decimal") {
+                rowValue = to_string(colVal->getDoubleValue());
+            } else if (colVal->getAttribute()->type == "date") {
+                rowValue = colVal->getDateValue().toString();
+            } else {
+                rowValue = colVal->getStringValue();
+            }
+
+            // Compare based on operator
+            if (op == "=") return rowValue == value;
+            if (op == ">") return rowValue > value;
+            if (op == "<") return rowValue < value;
+            if (op == ">=") return rowValue >= value;
+            if (op == "<=") return rowValue <= value;
+            if (op == "!=") return rowValue != value;
+        }
+    }
+
+    return false;
+}
+
+Table* QueryManager::executeQuery(const Query& query) {
+    // Get the relation name from query
+    auto relations = query.getParticipating_relations();
+    if (relations.empty()) {
+        cerr << "No relation specified in query" << endl;
+        return nullptr;
+    }
+
+    // Get the relation
+    Relation* relation = db->getRelation(relations[0]);
+    if (!relation) {
+        cerr << "Relation not found: " << relations[0] << endl;
+        return nullptr;
+    }
+
+    // Create result table
+    Table* resultTable = new Table(relation);
+
+    // Get projection columns
+    vector<string> projectionCols = query.getResultcols();
+    if (projectionCols.empty()) {
+        // If no columns specified, select all
+        for (const auto& attr : relation->getCAttributes()) {
+            projectionCols.push_back(attr.first);
+        }
+    }
+
+    // Get conditions
+    vector<string> conditions = query.getConditions();
+
+    // Use DataStitcher to reconstruct rows
+    DataStitcher stitcher;
+    int numRows = relation->getNumRows();
+
+    for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
+        // Create a row with all columns first
+        Row* row = new Row(relation);
+
+        // Add values for each column
+        for (const auto& attr : relation->getCAttributes()) {
+            string colValue = stitcher.stitchData(*relation, rowIndex);
+            CAttribute* attribute = attr.second;
+
+            ColVal* colVal = new ColVal(attribute);
+            if (attribute->type == "int") {
+                colVal->setValue(stoi(colValue));
+            } else if (attribute->type == "decimal") {
+                colVal->setValue(stod(colValue));
+            } else if (attribute->type == "date") {
+                colVal->setValue(Date_DDMMYYYY_Type::parse(colValue));
+            } else {
+                colVal->setValue(colValue);
+            }
+
+            row->addColVal(colVal);
+        }
+
+        // Check if row satisfies all conditions
+        bool satisfiesConditions = true;
+        for (const string& condition : conditions) {
+            if (!evaluateCondition(condition, row)) {
+                satisfiesConditions = false;
+                break;
+            }
+        }
+
+        if (satisfiesConditions) {
+            // Create projected row with only requested columns
+            Row* projectedRow = new Row(relation);
+            for (const string& colName : projectionCols) {
+                for (ColVal* colVal : row->getColVals()) {
+                    if (colVal->getAttributeName() == colName) {
+                        projectedRow->addColVal(colVal);
+                        break;
+                    }
+                }
+            }
+            resultTable->addRow(projectedRow);
+        }
+    }
+
+    // Handle ORDER BY if specified
+    vector<string> orderByCols = query.getOrderbycols();
+    if (!orderByCols.empty()) {
+        // Sort the rows based on order by columns
+        vector<Row*> rows = resultTable->getRows();
+        sort(rows.begin(), rows.end(),
+            [&orderByCols](const Row* a, const Row* b) {
+                for (const string& orderByCol : orderByCols) {
+                    for (size_t i = 0; i < a->getColVals().size(); i++) {
+                        if (a->getColVals()[i]->getAttributeName() == orderByCol) {
+                            string valA = a->getColVals()[i]->getStringValue();
+                            string valB = b->getColVals()[i]->getStringValue();
+                            if (valA != valB) return valA < valB;
+                        }
+                    }
+                }
+                return false;
+            });
+    }
+
+    return resultTable;
+}
+
