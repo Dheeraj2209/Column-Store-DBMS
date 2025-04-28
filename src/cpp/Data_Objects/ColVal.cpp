@@ -2,7 +2,7 @@
 // Created by Pradyun Devarakonda on 17/04/25.
 //
 
-#include "ColVal.h"
+#include "ColVal.hpp"
 
 ColVal::ColVal() {
     attribute = nullptr;
@@ -77,6 +77,7 @@ double ColVal::getDoubleValue() const {
     }
     else{
         std::cerr << "Error: Attribute type is not double." << std::endl;
+    }
 }
 Date_DDMMYYYY_Type ColVal::getDateValue() const {
     if(attribute->type == "date") {
@@ -138,9 +139,9 @@ std::string ColVal::getAttributeName() const {
 std::string ColVal::getAttributeType() const {
     return attribute->type;
 }
-std::string ColVal::getAttributeTypeName() const {
-    return attribute->typeName;
-}
-std::string ColVal::getAttributeTypeString() const {
-    return attribute->typeString;
-}
+//std::string ColVal::getAttributeTypeName() const {
+//    return attribute->type;
+//}
+//std::string ColVal::getAttributeTypeString() const {
+//    return attribute->type;
+//}

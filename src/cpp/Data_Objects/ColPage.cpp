@@ -2,7 +2,7 @@
 // Created by Pradyun Devarakonda on 17/04/25.
 //
 
-#include "ColPage.h"
+#include "ColPage.hpp"
 
 ColPage::ColPage(Relation* relation, CAttribute* attribute) {
     this->relation = relation;

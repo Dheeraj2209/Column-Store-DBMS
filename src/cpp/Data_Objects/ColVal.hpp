@@ -57,8 +57,15 @@ class ColVal {
   CAttribute* getAttribute() const;
   string getAttributeName() const;
   string getAttributeType() const;
-  string getAttributeTypeName() const;
-  string getAttributeTypeString() const;
+  void setValue(Date_DDMMYYYY_Type datevalue);
+    void setValue(const string& strvalue);
+    void setValue(int intvalue);
+    void setValue(double doublevalue);
+    void setValue(bool isNull);
+
+
+//  string getAttributeTypeName() const;
+//  string getAttributeTypeString() const;
   bool operator==(const ColVal& other) const {
     if (this->isNull != other.isNull) return false;
     if (this->isNull && other.isNull) return true; // both are null

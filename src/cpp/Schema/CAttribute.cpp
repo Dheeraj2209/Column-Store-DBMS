@@ -19,7 +19,7 @@
 //            this->dataType = DATE;
 //        }
 //    }
-}
+//}
 //std::string CAttribute::getName() const {
 //    return name;
 //}

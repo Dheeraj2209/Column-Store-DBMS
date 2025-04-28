@@ -9,7 +9,7 @@
 #include "../CustomTypes/Enum_Type.h"
 
 class Enum_Handler {
-    Map<string, Enum_Type> enums;
+    std::map<std::string, Enum_Type> enums;
 };
 
 
