@@ -5,11 +5,11 @@
 // #include "QueryManager.h"
 
 
-QueryManager::QueryManager() { /* Implementation */ }
+
 // Engines/QueryManager.cpp
 #include "QueryManager.h"
 #include "../Engines/DataStitcher.h"
-
+//QueryManager::QueryManager() { /* Implementation */ }
 // Helper: very simple condition evaluator of the form "col = value"
 static bool rowSatisfiesConditions(Relation* rel,
                                   size_t rowIdx,

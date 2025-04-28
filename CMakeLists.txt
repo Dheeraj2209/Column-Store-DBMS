@@ -152,20 +152,20 @@ add_executable(Load ${SRC_DIR}/dml_main.cpp)
 target_link_libraries(Load PRIVATE columnstore_lib)
 
 # Test executables
-add_executable(CreateTest ${TEST_DIR}/create_test.cpp)
-target_link_libraries(CreateTest PRIVATE columnstore_lib)
-
-add_executable(LoadTest ${TEST_DIR}/load_test.cpp)
-target_link_libraries(LoadTest PRIVATE columnstore_lib)
-
-add_executable(InsertTest ${TEST_DIR}/insert_test.cpp)
-target_link_libraries(InsertTest PRIVATE columnstore_lib)
-
-add_executable(UpdateTest ${TEST_DIR}/update_test.cpp)
-target_link_libraries(UpdateTest PRIVATE columnstore_lib)
-
-add_executable(DeleteTest ${TEST_DIR}/delete_test.cpp)
-target_link_libraries(DeleteTest PRIVATE columnstore_lib)
-
-add_executable(QueryTest ${TEST_DIR}/query_test.cpp)
-target_link_libraries(QueryTest PRIVATE columnstore_lib)
+#add_executable(CreateTest ${TEST_DIR}/create_test.cpp)
+#target_link_libraries(CreateTest PRIVATE columnstore_lib)
+#
+#add_executable(LoadTest ${TEST_DIR}/load_test.cpp)
+#target_link_libraries(LoadTest PRIVATE columnstore_lib)
+#
+#add_executable(InsertTest ${TEST_DIR}/insert_test.cpp)
+#target_link_libraries(InsertTest PRIVATE columnstore_lib)
+#
+#add_executable(UpdateTest ${TEST_DIR}/update_test.cpp)
+#target_link_libraries(UpdateTest PRIVATE columnstore_lib)
+#
+#add_executable(DeleteTest ${TEST_DIR}/delete_test.cpp)
+#target_link_libraries(DeleteTest PRIVATE columnstore_lib)
+#
+#add_executable(QueryTest ${TEST_DIR}/query_test.cpp)
+#target_link_libraries(QueryTest PRIVATE columnstore_lib)

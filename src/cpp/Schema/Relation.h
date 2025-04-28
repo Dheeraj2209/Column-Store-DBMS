@@ -68,6 +68,8 @@ class Relation : public Schema_Element {
         return name;
     }
 
+    int getNumRows();
+
 };
 
 #endif //RELATION_H

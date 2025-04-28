@@ -2,6 +2,7 @@
 #define DDLEngine_H
 
 #include "../include/external_includes.h"
+#include <tinyxml2.h>
 //#include "ColumnStoreDB.h"
 #include "../include/fsnamespace.h"
 #include "../Schema/Database.h"

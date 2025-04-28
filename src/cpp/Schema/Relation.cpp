@@ -94,6 +94,38 @@ std::map<string,UniqueKeyConstraint*> Relation::getuks() {
 std::string Relation::getDBName() const {
     return this->database->getName();
 }
+
+int Relation::getNumRows() {
+    // Implement logic to count the number of rows in the relation
+    // This is a placeholder implementation
+    auto basepath = "../Databases/" + this->getDBName() + "/" + this->getName();
+    auto pk = this->getPrimaryKey();
+    auto pkattr = pk.attribute;
+    auto pkattrpath = basepath + "/" + pkattr->getName() + ".dat";
+    std::ifstream file(pkattrpath, std::ios::binary);
+    int count = 0;
+    while (file) {
+//        file.read(reinterpret_cast<char *>(&count), sizeof(count));
+           if(pkattr->getType() == "int"){
+            int64_t value;
+            file.read(reinterpret_cast<char *>(&value), sizeof(value));
+            }
+        else if(pkattr->getType() == "float"){
+            double value;
+            file.read(reinterpret_cast<char *>(&value), sizeof(value));
+        }
+        else{
+            size_t len;
+            file.read(reinterpret_cast<char *>(&len), sizeof(len));
+            std::string value(len, '\0');
+            file.read(&value[0], len);
+        }
+        count++;
+    }
+
+    return count;
+}
+
 // Destructor
 Relation::~Relation() {
     // Destructor implementation

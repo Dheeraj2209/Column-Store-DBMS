@@ -182,30 +182,93 @@
 #
 #.PHONY: all clean create load insert update delete query tests createtest loadtest inserttest updatetest deletetest querytest
 # Compiler settings
+#CXX = g++
+#CXXFLAGS = -std=c++17 -Wall -I/opt/homebrew/include -I/usr/include/tinyxml2
+#LDFLAGS = -L/opt/homebrew/lib -ltinyxml2
+#
+## Directories
+#SRC_DIR = src/cpp
+#TEST_DIR = src/cpp/test
+#BUILD_DIR = build
+#
+## Source files
+#SOURCES = $(wildcard $(SRC_DIR)/Schema/*.cpp) \
+#          $(wildcard $(SRC_DIR)/ComputationObjects/*.cpp) \
+#          $(wildcard $(SRC_DIR)/CustomTypes/*.cpp) \
+#          $(wildcard $(SRC_DIR)/Data_Objects/*.cpp) \
+#          $(wildcard $(SRC_DIR)/Engines/*.cpp) \
+#          $(SRC_DIR)/main.cpp \
+#          $(SRC_DIR)/dml_main.cpp \
+#          $(SRC_DIR)/insert_main.cpp \
+#          $(SRC_DIR)/update_main.cpp \
+#          $(SRC_DIR)/delete_main.cpp \
+#          $(SRC_DIR)/query_main.cpp
+#
+## Object files (mirror source structure in build dir)
+#OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
+#
+## Targets
+#all: create load insert update delete query
+#
+#create: $(BUILD_DIR)/Create
+#load: $(BUILD_DIR)/Load
+#insert: $(BUILD_DIR)/Insert
+#update: $(BUILD_DIR)/Update
+#delete: $(BUILD_DIR)/Delete
+#query: $(BUILD_DIR)/Query
+#
+## Main executables
+#$(BUILD_DIR)/Create: $(OBJECTS) $(BUILD_DIR)/main.o
+#	@mkdir -p $(@D)
+#	$(CXX) $^ -o $@ $(LDFLAGS)
+#
+#$(BUILD_DIR)/Load: $(OBJECTS) $(BUILD_DIR)/dml_main.o
+#	@mkdir -p $(@D)
+#	$(CXX) $^ -o $@ $(LDFLAGS)
+#
+#$(BUILD_DIR)/Insert: $(OBJECTS) $(BUILD_DIR)/insert_main.o
+#	@mkdir -p $(@D)
+#	$(CXX) $^ -o $@ $(LDFLAGS)
+#
+#$(BUILD_DIR)/Update: $(OBJECTS) $(BUILD_DIR)/update_main.o
+#	@mkdir -p $(@D)
+#	$(CXX) $^ -o $@ $(LDFLAGS)
+#
+#$(BUILD_DIR)/Delete: $(OBJECTS) $(BUILD_DIR)/delete_main.o
+#	@mkdir -p $(@D)
+#	$(CXX) $^ -o $@ $(LDFLAGS)
+#
+#$(BUILD_DIR)/Query: $(OBJECTS) $(BUILD_DIR)/query_main.o
+#	@mkdir -p $(@D)
+#	$(CXX) $^ -o $@ $(LDFLAGS)
+#
+## Object file rule with directory creation
+#$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+#	@mkdir -p $(@D)
+#	$(CXX) $(CXXFLAGS) -c $< -o $@
+#
+## Clean
+#clean:
+#	rm -rf $(BUILD_DIR)
+#
+#.PHONY: all clean create load insert update delete query
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -I/opt/homebrew/include -I/usr/include/tinyxml2
 LDFLAGS = -L/opt/homebrew/lib -ltinyxml2
 
 # Directories
 SRC_DIR = src/cpp
-TEST_DIR = src/cpp/test
 BUILD_DIR = build
 
-# Source files
-SOURCES = $(wildcard $(SRC_DIR)/Schema/*.cpp) \
-          $(wildcard $(SRC_DIR)/ComputationObjects/*.cpp) \
-          $(wildcard $(SRC_DIR)/CustomTypes/*.cpp) \
-          $(wildcard $(SRC_DIR)/Data_Objects/*.cpp) \
-          $(wildcard $(SRC_DIR)/Engines/*.cpp) \
-          $(SRC_DIR)/main.cpp \
-          $(SRC_DIR)/dml_main.cpp \
-          $(SRC_DIR)/insert_main.cpp \
-          $(SRC_DIR)/update_main.cpp \
-          $(SRC_DIR)/delete_main.cpp \
-          $(SRC_DIR)/query_main.cpp
+# Common source files
+COMMON_SOURCES = $(wildcard $(SRC_DIR)/Schema/*.cpp) \
+                 $(wildcard $(SRC_DIR)/ComputationObjects/*.cpp) \
+                 $(wildcard $(SRC_DIR)/CustomTypes/*.cpp) \
+                 $(wildcard $(SRC_DIR)/Data_Objects/*.cpp) \
+                 $(wildcard $(SRC_DIR)/Engines/*.cpp)
 
-# Object files (mirror source structure in build dir)
-OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
+# Object files
+COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(COMMON_SOURCES))
 
 # Targets
 all: create load insert update delete query
@@ -217,32 +280,32 @@ update: $(BUILD_DIR)/Update
 delete: $(BUILD_DIR)/Delete
 query: $(BUILD_DIR)/Query
 
-# Main executables
-$(BUILD_DIR)/Create: $(OBJECTS) $(BUILD_DIR)/main.o
+# Executables
+$(BUILD_DIR)/Create: $(COMMON_OBJECTS) $(BUILD_DIR)/main.o
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/Load: $(OBJECTS) $(BUILD_DIR)/dml_main.o
+$(BUILD_DIR)/Load: $(COMMON_OBJECTS) $(BUILD_DIR)/dml_main.o
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/Insert: $(OBJECTS) $(BUILD_DIR)/insert_main.o
+$(BUILD_DIR)/Insert: $(COMMON_OBJECTS) $(BUILD_DIR)/insert_main.o
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/Update: $(OBJECTS) $(BUILD_DIR)/update_main.o
+$(BUILD_DIR)/Update: $(COMMON_OBJECTS) $(BUILD_DIR)/update_main.o
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/Delete: $(OBJECTS) $(BUILD_DIR)/delete_main.o
+$(BUILD_DIR)/Delete: $(COMMON_OBJECTS) $(BUILD_DIR)/delete_main.o
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/Query: $(OBJECTS) $(BUILD_DIR)/query_main.o
+$(BUILD_DIR)/Query: $(COMMON_OBJECTS) $(BUILD_DIR)/query_main.o
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-# Object file rule with directory creation
+# How to build .o files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
