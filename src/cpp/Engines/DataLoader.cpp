@@ -243,7 +243,7 @@ std::unordered_set<std::string> getReferencedKeySet(Database* db, ForeignKeyCons
     std::unordered_set<std::string> refSet;
 
     std::string dbName = db->getName();
-    std::string parentRel = fk->parentTable->name;
+    std::string parentRel = fk->parentTable->getName();
     std::string parentAttr = fk->parentColumn->name;
 
     Relation* parentRelation = db->getRelation(parentRel);

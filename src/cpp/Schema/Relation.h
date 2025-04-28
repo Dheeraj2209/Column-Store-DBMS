@@ -13,34 +13,61 @@
 #include "ForeignKeyConstraint.h"
 #include "UniqueKeyConstraint.h"
 #include "PrimaryKeyConstraint.h"
+//#include "Database.h"
+class Database; // forward declaration
+class ForeignKeyConstraint;
+class UniqueKeyConstraint;
+class PrimaryKeyConstraint;
 
-using namespace std;
+//Database* database; //forward declaration
+//using namespace std;
 // Relation: a table in the database.
 class Relation : public Schema_Element {
-  std::map<string,CAttribute*> cattributes;
+  public:
+  std::map<std::string,CAttribute*> cattributes;
   PrimaryKey primaryKey;
   std::string name; // Added 'name' member
    Database* database;
-public:
-  std::map<string,CAttribute*> getCAttributes() const;
+  std::map<std::string,PrimaryKeyConstraint*> pks;
+  std::map<std::string,UniqueKeyConstraint*> uks;
+  std::map<std::string,ForeignKeyConstraint*> fks;
+
+  std::map<std::string,CAttribute*> getCAttributes() const;
   PrimaryKey getPrimaryKey() const;
+  Relation(const std::string& name, Database* database) : name(name), database(database) {}
+    Relation(const std::string& name, Database* database, const std::map<std::string,CAttribute*>& attributes)
+        : name(name), database(database), cattributes(attributes) {}
+    Relation(const std::string& name, Database* database, const std::map<std::string,CAttribute*>& attributes,
+             const PrimaryKey& primaryKey)
+        : name(name), database(database), cattributes(attributes), primaryKey(primaryKey) {}
+    Relation(const std::string& name, Database* database, const std::map<std::string,CAttribute*>& attributes,
+                 const PrimaryKey& primaryKey, const std::map<std::string,ForeignKeyConstraint*>& fks,
+                 const std::map<std::string,UniqueKeyConstraint*>& uks,
+                 const std::map<std::string,PrimaryKeyConstraint*>& pks)
+        : name(name), database(database), cattributes(attributes), primaryKey(primaryKey), fks(fks), uks(uks), pks(pks) {}
+   Relation(){}
   bool setCAttributes(const std::map<std::string, CAttribute*>& attributes);
   bool setPrimaryKey(const PrimaryKey& primaryKey);
   bool addCAttribute(const CAttribute* attribute);
   bool removeCAttribute(const std::string& attributeName);
   CAttribute* getCAttribute(const std::string& attributeName);
-  std::map<string,PrimaryKeyConstraint*> pks;
-  std::map<string,UniqueKeyConstraint*> uks;
-  std::map<string,ForeignKeyConstraint*> fks;
-  std::map<string,ForeignKeyConstraint*> getfks();
-  std::map<string,UniqueKeyConstraint*> getuks();
-  std::map<string,PrimaryKeyConstraint*> getpks();
+
+  std::map<std::string,ForeignKeyConstraint*> getfks();
+  std::map<std::string,UniqueKeyConstraint*> getuks();
+  std::map<std::string,PrimaryKeyConstraint*> getpks();
   std::string getName() const; // Ensure getName() is declared
   std::string getDBName() const;
   void setName(const std::string& name); // Added setter for name
   // The create() method creates a directory for the relation and a .dat file for each attribute.
   virtual bool create(const fs::path &basePath) const override;
   ~Relation();
+//  string getDBName() const {
+//      return database->getName();
+//  }
+    std::string getRelationName() const {
+        return name;
+    }
+
 };
 
 #endif //RELATION_H

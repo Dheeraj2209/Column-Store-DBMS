@@ -64,11 +64,11 @@ public:
             std::cout << row->toString() << "\n";
         }
     }
-    bool findtotalRowsinRelation() {
-        string name = relation->getName(); string pkname = relation->getPrimaryKey().attribute->getName();
-        auto basePath = "../Databases/" + relation->getName() + "/" + relation->getName() + ".dat";
-        std::ifstream file(basePath, std::ios::binary);
-    }
+//    bool findtotalRowsinRelation() {
+//        string name = relation->getName(); string pkname = relation->getPrimaryKey().attribute->getName();
+//        auto basePath = "../Databases/" + relation->getName() + "/" + relation->getName() + ".dat";
+//        std::ifstream file(basePath, std::ios::binary);
+//    }
 	int getTotalRowsinRelation() const {
 
         return totalRowsinRelation;

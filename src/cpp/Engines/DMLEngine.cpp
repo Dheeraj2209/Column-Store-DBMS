@@ -76,8 +76,8 @@ bool DMLEngine::loadMeta_Metadata() {
         }
 
         // Use DDLEngine to load the schema
-        DDLEngine ddlEngine; // Assuming DDLEngine has a default constructor
-        Database* db = new Database(ddlEngine.loadSchemaFromXML(schemaFilePath.string()));
+//        DDLEngine ddlEngine; // Assuming DDLEngine has a default constructor
+        Database* db = new Database(DDLEngine::loadSchema(schemaFilePath.string()));
 
         // Check if loading was successful (basic validation)
         if (db->getName().empty()) {

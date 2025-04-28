@@ -28,8 +28,9 @@ public:
 
     // Returns true if 'value' DOES exist in the parentRelation/parentColumn
     static bool validateForeignKey(
-        const ForeignKeyConstraint* fkConstraint,
-        const ColVal& value);
+                                             const ColVal& value,
+                                             const ForeignKeyConstraint* fkConstraint);
 };
+
 
 #endif // CONSTRAINTVALIDATOR_HPP

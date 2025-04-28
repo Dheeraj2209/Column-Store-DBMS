@@ -201,8 +201,10 @@ bool ConstraintValidator::validateUniqueKey(Relation* relation,
 //------------------------------------------------------------------------------
 // Foreign Key: valid if the value *does* exist in the parent table/column
 //------------------------------------------------------------------------------
-bool ConstraintValidator::validateForeignKey(const ForeignKeyConstraint* fkConstraint,
-                                             const ColVal& value)
+bool ConstraintValidator::validateForeignKey(
+                                             const ColVal& value,
+                                             const ForeignKeyConstraint* fkConstraint)
+
 {
     Relation*  parentRel = fkConstraint->parentTable;
     CAttribute* parentCol = fkConstraint->parentColumn;

@@ -3,6 +3,8 @@
 //
 
 #include "Relation.h"
+#include "CAttribute.h"
+#include "Database.h"
 
 // ---------- Relation Implementation ----------
 

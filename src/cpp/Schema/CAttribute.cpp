@@ -4,8 +4,8 @@
 
 #include "CAttribute.h"
 // ---------- Attribute Implementation ----------
-CAttribute::CAttribute(const std::string& name, const std::string& type, bool isNullable, bool isUnique, bool isPK)
-    : name(name), type(type), isNullable(isNullable), isUnique(isUnique), isPK(isPK) {if(isPK){isNullable = false; isUnique = true;}
+//CAttribute::CAttribute(const std::string& name, const std::string& type, bool isNullable, bool isUnique, bool isPK)
+//    : name(name), type(type), isNullable(isNullable), isUnique(isUnique), isPK(isPK) {if(isPK){isNullable = false; isUnique = true;}
 //  		if(type == "int") {
 //			this->dataType = INT;
 //        }
@@ -20,6 +20,24 @@ CAttribute::CAttribute(const std::string& name, const std::string& type, bool is
 //        }
 //    }
 }
-std::string CAttribute::getName() const {
-    return name;
-}
+//std::string CAttribute::getName() const {
+//    return name;
+//}
+//std::string CAttribute::getType() const {
+//    return type;
+//}
+//bool CAttribute::isNullable() const {
+//    return isNullable;
+//}
+//bool CAttribute::isUnique() const {
+//    return isUnique;
+//}
+//bool CAttribute::isPrimaryKey() const {
+//    return isPK;
+//}
+//std::string CAttribute::getRelationName() const {
+//    return RelationName;
+//}
+//void CAttribute::setRelationName(const std::string& relationName) {
+//    RelationName = relationName;
+//}

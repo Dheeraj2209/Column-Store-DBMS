@@ -7,18 +7,19 @@
 
 #include "../include/external_includes.h"
 #include "../Schema/Schema_Element.h"
+#include "../Schema/Database.h"
 #include "../Schema/Relation.h"
 #include "../Schema/CAttribute.h"
 #include "../Schema/PrimaryKey.h"
 #include "../Schema/Constraint.h"
-#include "../Schema/View.h"
-#include "../ComputationObjects/Query.h"
-#include "../Engines/DataLoader.h"
-#include "../Engines/DataManipulator.h"
-#include "../Engines/DataDeleter.h"
-#include "../Engines/QueryManager.h"
-#include "../Engines/ViewManager.h"
-#include "../Engines/DataStitcher.h"
+//#include "../Schema/View.h"
+//#include "../ComputationObjects/Query.h"
+//#include "../Engines/DataLoader.h"
+//#include "../Engines/DataManipulator.hpp"
+//#include "../Engines/DataDeleter.h"
+//#include "../Engines/QueryManager.h"
+//#include "../Engines/ViewManager.h"
+//#include "../Engines/DataStitcher.h"
 #include "../CustomTypes/Date_DDMMYYYY_Type.h"
 
 class ColVal {
@@ -32,6 +33,9 @@ class ColVal {
   Date_DDMMYYYY_Type datevalue;
   bool isNull;
   ColVal();
+  ColVal(CAttribute* attribute){
+      this->attribute = attribute;
+  }
   ColVal(CAttribute* attribute, const string& strvalue);
   ColVal(CAttribute* attribute, int intvalue);
   ColVal(CAttribute* attribute, double doublevalue);
@@ -69,7 +73,8 @@ class ColVal {
         return this->doublevalue == other.doublevalue;
     } else if (this->attribute->type == "STRING") {
         return this->strvalue == other.strvalue;
-    } else if (this->attribute->type == "DATE") {
+    }
+    else if (this->attribute->type == "DATE") {
         return this->datevalue == other.datevalue;
     }
 

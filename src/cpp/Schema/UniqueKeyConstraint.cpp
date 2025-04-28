@@ -3,6 +3,7 @@
 //
 
 #include "UniqueKeyConstraint.h"
+#include "Relation.h"
 
 bool UniqueKeyConstraint::create(const fs::path &basePath) const {
     fs::path constraintsFile = basePath / "constraints.txt";

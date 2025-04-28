@@ -7,8 +7,8 @@
 
 #include "Schema_Element.h"
 #include "../include/fsnamespace.h"
-#include "Relation.h"
-#include "CAttribute.h"
+//#include "Relation.h"
+//#include "CAttribute.h"
 // Constraint: represents a constraint. Here we use a single class to represent both foreign key and unique constraints.
 // The 'type' member distinguishes them.
 class Constraint : public Schema_Element {

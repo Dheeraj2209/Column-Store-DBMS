@@ -3,6 +3,8 @@
 //
 
 #include "ForeignKeyConstraint.h"
+#include "CAttribute.h"
+#include "Relation.h"
 
 
 bool ForeignKeyConstraint::create(const fs::path &basePath) const {

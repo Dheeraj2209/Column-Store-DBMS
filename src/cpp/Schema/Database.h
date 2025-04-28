@@ -10,6 +10,7 @@
 #include "Relation.h"
 #include "View.h"
 #include "Constraint.h"
+#include "CAttribute.h"
 //#include "../include/fsnamespace.h"
 using namespace std;
 // Database Class

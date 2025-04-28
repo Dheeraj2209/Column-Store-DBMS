@@ -1,8 +1,8 @@
 //
 // Created by Pradyun Devarakonda on 12/03/25.
 //
-#ifndef DATAMANIPULATOR_H
-#define DATAMANIPULATOR_H
+#ifndef DATAMANIPULATOR_HPP
+#define DATAMANIPULATOR_HPP
 
 #include "../include/external_includes.h"
 #include "../Schema/Relation.h"
@@ -26,4 +26,4 @@ public:
     bool updateTuple(Relation* relation, Row* row);
 };
 
-#endif // DATAMANIPULATOR_H
+#endif // DATAMANIPULATOR_HPP

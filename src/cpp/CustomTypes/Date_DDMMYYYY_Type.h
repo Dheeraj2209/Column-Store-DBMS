@@ -16,6 +16,12 @@ public:
     Date_DDMMYYYY_Type();
     static std::string dateToString(const Date_DDMMYYYY_Type& date);
     static Date_DDMMYYYY_Type parse(const std::string& dateStr);
+    bool operator==(const Date_DDMMYYYY_Type& other) const {
+        return (day == other.day && month == other.month && year == other.year);
+    }
+    std::string toString() const {
+        return dateToString(*this);
+    }
 };
 
 

@@ -444,6 +444,419 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
     return db;
 }
 
+//Database* DDLEngine::loadSchema(const std::string& xmlFilePath) {
+//    Database* db = new Database(xmlFilePath);
+//
+//    XMLDocument doc;
+//    if (doc.LoadFile(xmlFilePath.c_str()) != XML_SUCCESS) {
+//        std::cerr << "Failed to load XML file: " << xmlFilePath << std::endl;
+//        return db;
+//    }
+//
+//    // Expected Root Element: <ColumnStoreSchema>
+//    XMLElement* root = doc.RootElement();
+//    if (!root) {
+//        std::cerr << "Invalid XML: No root element." << std::endl;
+//        return db;
+//    }
+//
+//    // Parse the <Database> element
+//    XMLElement* dbElement = root->FirstChildElement("Database");
+//    if (!dbElement) {
+//        std::cerr << "Invalid XML: No <Database> element found." << std::endl;
+//        return db;
+//    }
+//
+//    const char* dbName = dbElement->Attribute("name");
+//    if (dbName)
+//        db->setName(dbName);
+//    else
+//        std::cerr << "Database name attribute missing." << std::endl;
+//
+//    // Map to resolve relation references
+//    std::map<std::string, Relation*> relationMap;
+//
+//    // Parse Relations
+//    XMLElement* relationsElement = dbElement->FirstChildElement("Relations");
+//    if (relationsElement) {
+//        for (XMLElement* relationElem = relationsElement->FirstChildElement("Relation");
+//             relationElem;
+//             relationElem = relationElem->NextSiblingElement("Relation")) {
+//
+//            const char* relName = relationElem->Attribute("name");
+//            if (!relName) {
+//                std::cerr << "Relation name missing." << std::endl;
+//                continue;
+//            }
+//
+//            Relation* rel = new Relation();
+//            rel->setName(relName); // Use setName to set the name
+//            relationMap[relName] = rel;
+//
+//            // Parse Attributes
+//            XMLElement* attributesElem = relationElem->FirstChildElement("Attributes");
+//            if (attributesElem) {
+//                for (XMLElement* attrElem = attributesElem->FirstChildElement("Attribute");
+//                     attrElem;
+//                     attrElem = attrElem->NextSiblingElement("Attribute")) {
+//
+//                    const char* attrName = attrElem->Attribute("name");
+//                    const char* attrType = attrElem->Attribute("type");
+//                    bool isNullable = true, isUnique = false;
+//                    attrElem->QueryBoolAttribute("isNullable", &isNullable);
+//                    attrElem->QueryBoolAttribute("isUnique", &isUnique);
+//
+//                    if (attrName && attrType) {
+//                        CAttribute* attr = new CAttribute(attrName, attrType, isNullable, isUnique);
+//                        rel->addCAttribute(attr);
+//                    } else {
+//                        std::cerr << "Attribute missing name or type in relation " << relName << std::endl;
+//                    }
+//                }
+//            }
+//
+//            // Parse Primary Key as Constraint
+//            XMLElement* pkElem = relationElem->FirstChildElement("PrimaryKey");
+//            if (pkElem) {
+//                std::vector<std::string> pkAttrs;
+//                for (XMLElement* attrRef = pkElem->FirstChildElement("AttributeRef");
+//                     attrRef;
+//                     attrRef = attrRef->NextSiblingElement("AttributeRef")) {
+//                    const char* refName = attrRef->Attribute("name");
+//                    if (refName) {
+//                        pkAttrs.push_back(refName);
+//                    }
+//                }
+//                if (!pkAttrs.empty()) {
+//                    PrimaryKeyConstraint* pkCons = new PrimaryKeyConstraint("PK_" + std::string(relName), rel, pkAttrs);
+//                    db->addConstraint(pkCons);
+//                }
+//            }
+//
+//            db->addRelation(rel);
+//        }
+//    }
+//
+//    // Parse Foreign Keys
+//    XMLElement* fkElement = dbElement->FirstChildElement("ForeignKeys");
+//    if (fkElement) {
+//        for (XMLElement* fkElem = fkElement->FirstChildElement("ForeignKey");
+//             fkElem;
+//             fkElem = fkElem->NextSiblingElement("ForeignKey")) {
+//
+//            const char* fkName = fkElem->Attribute("name");
+//            if (!fkName) {
+//                std::cerr << "ForeignKey name missing." << std::endl;
+//                continue;
+//            }
+//
+//            XMLElement* parentElem = fkElem->FirstChildElement("Parent");
+//            XMLElement* childElem = fkElem->FirstChildElement("Child");
+//            if (!parentElem || !childElem) {
+//                std::cerr << "ForeignKey " << fkName << " missing Parent or Child element." << std::endl;
+//                continue;
+//            }
+//
+//            const char* pTableName = parentElem->Attribute("table");
+//            const char* pColumnName = parentElem->Attribute("column");
+//            const char* cTableName = childElem->Attribute("table");
+//            const char* cColumnName = childElem->Attribute("column");
+//
+//            if (!pTableName || !pColumnName || !cTableName || !cColumnName) {
+//                std::cerr << "ForeignKey " << fkName << " missing table or column attributes." << std::endl;
+//                continue;
+//            }
+//
+//            auto pTableIt = relationMap.find(pTableName);
+//            auto cTableIt = relationMap.find(cTableName);
+//            if (pTableIt == relationMap.end() || cTableIt == relationMap.end()) {
+//                std::cerr << "ForeignKey " << fkName << " references unknown table." << std::endl;
+//                continue;
+//            }
+//
+//            Relation* pTable = pTableIt->second;
+//            Relation* cTable = cTableIt->second;
+//
+//            CAttribute* pColumn = pTable->getCAttribute(pColumnName);
+//            CAttribute* cColumn = cTable->getCAttribute(cColumnName);
+//            if (!pColumn || !cColumn) {
+//                std::cerr << "ForeignKey " << fkName << " references unknown column." << std::endl;
+//                continue;
+//            }
+//
+//            ForeignKeyConstraint* fkCons = new ForeignKeyConstraint(fkName, pTable, pColumn, cTable, cColumn);
+//            db->addConstraint(fkCons);
+//        }
+//    }
+//
+//    // Parse Unique Constraints
+//    XMLElement* ucElement = dbElement->FirstChildElement("UniqueConstraints");
+//    if (ucElement) {
+//        for (XMLElement* ucElem = ucElement->FirstChildElement("UniqueConstraint");
+//             ucElem;
+//             ucElem = ucElem->NextSiblingElement("UniqueConstraint")) {
+//
+//            const char* ucName = ucElem->Attribute("name");
+//            const char* relationName = ucElem->Attribute("relation");
+//            if (!ucName || !relationName) {
+//                std::cerr << "UniqueConstraint missing name or relation." << std::endl;
+//                continue;
+//            }
+//
+//            auto relIt = relationMap.find(relationName);
+//            if (relIt == relationMap.end()) {
+//                std::cerr << "UniqueConstraint " << ucName << " references unknown relation." << std::endl;
+//                continue;
+//            }
+//            Relation* rel = relIt->second;
+//
+//            std::vector<std::string> attrRefs;
+//            for (XMLElement* attrRef = ucElem->FirstChildElement("AttributeRef");
+//                 attrRef;
+//                 attrRef = attrRef->NextSiblingElement("AttributeRef")) {
+//                const char* refName = attrRef->Attribute("name");
+//                if (refName) {
+//                    attrRefs.push_back(refName);
+//                }
+//            }
+//            if (attrRefs.empty()) {
+//                std::cerr << "UniqueConstraint " << ucName << " has no attribute references." << std::endl;
+//                continue;
+//            }
+//
+//            UniqueKeyConstraint* ucCons = new UniqueKeyConstraint(ucName, rel, attrRefs);
+//            db->addConstraint(ucCons);
+//        }
+//    }
+//
+//    // Parse Views
+//    XMLElement* viewsElement = dbElement->FirstChildElement("Views");
+//    if (viewsElement) {
+//        for (XMLElement* viewElem = viewsElement->FirstChildElement("View");
+//             viewElem;
+//             viewElem = viewElem->NextSiblingElement("View")) {
+//
+//            const char* viewName = viewElem->Attribute("name");
+//            const char* viewQuery = viewElem->GetText();
+//            if (!viewName || !viewQuery) {
+//                std::cerr << "View missing name or query." << std::endl;
+//                continue;
+//            }
+//
+//            View* view = new View();
+//            view->name = viewName;
+//            view->query = new Query(viewQuery);
+////            view->query->setQuerystring(viewQuery);
+//            db->addView(view);
+//        }
+//    }
+//
+//    return db;
+//}
+
+
+Database* DDLEngine::loadSchema(const std::string& xmlFilePath) {
+    Database* db = new Database();
+    db->setName("default"); // Initialize with default name
+
+    XMLDocument doc;
+    if (doc.LoadFile(xmlFilePath.c_str()) != XML_SUCCESS) {
+        std::cerr << "Failed to load XML file: " << xmlFilePath << std::endl;
+        return db;
+    }
+
+    XMLElement* root = doc.RootElement();
+    if (!root || strcmp(root->Name(), "ColumnStoreSchema") != 0) {
+        std::cerr << "Invalid XML: Missing or incorrect root element" << std::endl;
+        return db;
+    }
+
+    // Parse Database element
+    XMLElement* dbElem = root->FirstChildElement("Database");
+    if (!dbElem) {
+        std::cerr << "Missing Database element" << std::endl;
+        return db;
+    }
+
+    // Set database name
+    const char* dbName = dbElem->Attribute("name");
+    if (dbName) db->setName(dbName);
+
+    std::map<std::string, Relation*> relationMap;
+
+    // Parse Relations
+    XMLElement* relationsElem = dbElem->FirstChildElement("Relations");
+    if (relationsElem) {
+        for (XMLElement* relElem = relationsElem->FirstChildElement("Relation");
+             relElem; relElem = relElem->NextSiblingElement("Relation")) {
+
+            const char* relName = relElem->Attribute("name");
+            if (!relName) continue;
+
+            Relation* rel = new Relation(relName, db);
+            relationMap[relName] = rel;
+
+            // Parse Attributes
+            XMLElement* attrsElem = relElem->FirstChildElement("Attributes");
+            if (attrsElem) {
+                for (XMLElement* attrElem = attrsElem->FirstChildElement("Attribute");
+                     attrElem; attrElem = attrElem->NextSiblingElement("Attribute")) {
+
+                    const char* attrName = attrElem->Attribute("name");
+                    const char* attrType = attrElem->Attribute("type");
+                    if (!attrName || !attrType) continue;
+
+                    bool isNullable = attrElem->BoolAttribute("nullable");
+                    bool isUnique = attrElem->BoolAttribute("unique");
+
+                    CAttribute* attr = new CAttribute(
+                        attrName, attrType, isNullable, isUnique
+                    );
+                    attr->DatabaseName = db->getName();
+                    attr->RelationName = relName;
+
+                    rel->cattributes[attrName] = attr;
+                }
+            }
+
+            // Parse Primary Key
+            XMLElement* pkElem = relElem->FirstChildElement("PrimaryKey");
+            if (pkElem) {
+                std::vector<std::string> pkAttrs;
+                std::vector<CAttribute*> pkAttributes;
+
+                for (XMLElement* attrRef = pkElem->FirstChildElement("AttributeRef");
+                     attrRef; attrRef = attrRef->NextSiblingElement("AttributeRef")) {
+
+                    const char* refName = attrRef->Attribute("name");
+                    if (!refName) continue;
+
+                    pkAttrs.push_back(refName);
+                    if (CAttribute* attr = rel->getCAttribute(refName)) {
+                        attr->isPK = true;
+                        pkAttributes.push_back(attr);
+                    }
+                }
+
+                if (!pkAttributes.empty()) {
+                    PrimaryKey pk("PK_" + std::string(relName), pkAttributes[0], pkAttrs);
+                    rel->primaryKey = pk;
+
+                    // Create PrimaryKeyConstraint
+                    PrimaryKeyConstraint* pkCons = new PrimaryKeyConstraint(
+                        "PKC_" + std::string(relName), rel, pkAttrs
+                    );
+                    db->addConstraint(pkCons);
+                    rel->pks[pkCons->name] = pkCons;
+                }
+            }
+
+            db->addRelation(rel);
+        }
+    }
+
+    // Parse Foreign Keys
+    XMLElement* fksElem = dbElem->FirstChildElement("ForeignKeys");
+    if (fksElem) {
+        for (XMLElement* fkElem = fksElem->FirstChildElement("ForeignKey");
+             fkElem; fkElem = fkElem->NextSiblingElement("ForeignKey")) {
+
+            const char* fkName = fkElem->Attribute("name");
+            if (!fkName) continue;
+
+            XMLElement* parentElem = fkElem->FirstChildElement("Parent");
+            XMLElement* childElem = fkElem->FirstChildElement("Child");
+            if (!parentElem || !childElem) continue;
+
+            const char* parentRel = parentElem->Attribute("table");
+            const char* parentCol = parentElem->Attribute("column");
+            const char* childRel = childElem->Attribute("table");
+            const char* childCol = childElem->Attribute("column");
+
+            if (!parentRel || !parentCol || !childRel || !childCol) continue;
+
+            Relation* parent = relationMap[parentRel];
+            Relation* child = relationMap[childRel];
+            if (!parent || !child) continue;
+
+            CAttribute* parentAttr = parent->getCAttribute(parentCol);
+            CAttribute* childAttr = child->getCAttribute(childCol);
+            if (!parentAttr || !childAttr) continue;
+
+            // Set FK flags
+            childAttr->isFK = true;
+            parentAttr->isPK = true; // Assume parent is PK
+
+            // Create ForeignKeyConstraint
+            ForeignKeyConstraint* fk = new ForeignKeyConstraint(
+                fkName, parent, parentAttr, child, childAttr
+            );
+            fk->DatabaseName = db->getName();
+
+            db->addConstraint(fk);
+            child->fks[fkName] = fk;
+            parent->fks[fkName] = fk;
+        }
+    }
+
+    // Parse Unique Constraints
+    XMLElement* ucsElem = dbElem->FirstChildElement("UniqueConstraints");
+    if (ucsElem) {
+        for (XMLElement* ucElem = ucsElem->FirstChildElement("UniqueConstraint");
+             ucElem; ucElem = ucElem->NextSiblingElement("UniqueConstraint")) {
+
+            const char* ucName = ucElem->Attribute("name");
+            const char* relName = ucElem->Attribute("relation");
+            if (!ucName || !relName) continue;
+
+            Relation* rel = relationMap[relName];
+            if (!rel) continue;
+
+            std::vector<std::string> ucAttrs;
+            for (XMLElement* attrRef = ucElem->FirstChildElement("AttributeRef");
+                 attrRef; attrRef = attrRef->NextSiblingElement("AttributeRef")) {
+
+                const char* refName = attrRef->Attribute("name");
+                if (!refName) continue;
+
+                ucAttrs.push_back(refName);
+                if (CAttribute* attr = rel->getCAttribute(refName)) {
+                    attr->isUnique = true;
+                }
+            }
+
+            if (!ucAttrs.empty()) {
+                UniqueKeyConstraint* uc = new UniqueKeyConstraint(
+                    ucName, rel, ucAttrs
+                );
+                db->addConstraint(uc);
+                rel->uks[ucName] = uc;
+            }
+        }
+    }
+
+    // Parse Views
+    XMLElement* viewsElem = dbElem->FirstChildElement("Views");
+    if (viewsElem) {
+        for (XMLElement* viewElem = viewsElem->FirstChildElement("View");
+             viewElem; viewElem = viewElem->NextSiblingElement("View")) {
+
+            const char* viewName = viewElem->Attribute("name");
+            const char* query = viewElem->GetText();
+            if (!viewName || !query) continue;
+
+            View* view = new View();
+            view->name = viewName;
+            view->query = new Query(query);
+            db->addView(view);
+        }
+    }
+
+    return db;
+}
+
+
+
 using namespace tinyxml2;
 
 //bool DDLEngine::createColumnStoreDBfromXMLSchema(const std::string& xmlFilePath) {

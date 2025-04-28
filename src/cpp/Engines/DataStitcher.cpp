@@ -58,8 +58,8 @@ std::string DataStitcher::stitchData(const Relation& relation, int rowIndex) {
     std::ostringstream oss;
     for (size_t i = 0; i < stitchedValues.size(); i++) {
         oss << stitchedValues[i];
-        if (i != stitchedValues.size() - 1)
-            oss << \", \";
+//        if (i != stitchedValues.size() - 1)
+//            oss << \", \";
     }
     return oss.str();
 }

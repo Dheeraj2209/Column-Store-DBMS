@@ -3,7 +3,7 @@
 //
 
 #include "PrimaryKeyConstraint.h"
-
+#include "Relation.h"
 bool PrimaryKeyConstraint::create(const fs::path &basePath) const {
     fs::path constraintsFile = basePath / "constraints.txt";
     std::ofstream outFile(constraintsFile, std::ios::app);

@@ -8,29 +8,29 @@
 #include "../include/external_includes.h"
 #include "../ComputationObjects/Query.h"
 #include "../Schema/Database.h"
-
+#include "../Data_Objects/Table.hpp"
 class QueryManager {
     Database* db;
-    vector<Query> queries;
+//    vector<Query> queries;
 public:
     QueryManager();
     QueryManager(Database* database) : db(database) {}
-    bool addQuery(const Query& query) {
-        queries.push_back(query);
-        return true;
-    }
+//    bool addQuery(const Query& query) {
+//        queries.push_back(query);
+//        return true;
+//    }
 
     // Execute all stored queries, return each result as a Relation*
-    vector<Relation*> executeQueries() {
-        vector<Relation*> results;
-        for (auto& q : queries) {
-            results.push_back(executeQuery(q));
-        }
-        return results;
-    }
+//    vector<Relation*> executeQueries() {
+//        vector<Relation*> results;
+//        for (auto& q : queries) {
+//            results.push_back(executeQuery(q));
+//        }
+//        return results;
+//    }
 
     // Execute a single query, returning a new Relation* with the result set
-    Relation* executeQuery(const Query& query);
+    Table* executeQuery(const Query& query);
 
     ~QueryManager() = default;
 };

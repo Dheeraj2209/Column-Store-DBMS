@@ -1,9 +1,3 @@
-//
-// Created by Pradyun Devarakonda on 12/03/25.
-//
-
-#include "DataManipulator.h"
-
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -19,6 +13,7 @@ int offset = 0;
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include "ConstraintValidator.hpp"
 
 // Helper: read all values from a column file into a vector of strings
 static bool readColumnFile(const std::string &path,
@@ -145,7 +140,7 @@ static bool writeColumnFile(const std::string &path,
 //
 //    return true;
 //}
-#include "../Engines/ConstraintValidator.hpp"
+//#include "../Engines/ConstraintValidator.hpp"
 
 // Assumes 'row' represents a valid existing row to be updated
 bool DataManipulator::updateTuple(Relation* relation, Row* row) {
@@ -167,7 +162,14 @@ bool DataManipulator::updateTuple(Relation* relation, Row* row) {
 
         // Primary Key constraint check
         if (attribute->isPK) {
-            if (!ConstraintValidator::validatePrimaryKey(relation, attribute, *colval, attribute->getPrimaryKeyConstraint())) {
+          		PrimaryKeyConstraint* pkConstraint;
+          		for (auto & pkConstraintiter : relation->getpks()) {
+						if (pkConstraintiter.second->getAttribute() == attribute) {
+            				pkConstraint = pkConstraintiter.second;
+            			}
+          		}
+//            if (!ConstraintValidator::validatePrimaryKey(relation, *colval)) {
+            if (!ConstraintValidator::validatePrimaryKey(relation, *colval, pkConstraint)) {
                 std::cerr << "Primary key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
@@ -175,20 +177,39 @@ bool DataManipulator::updateTuple(Relation* relation, Row* row) {
 
         // Unique Key constraint check
         if (attribute->isUnique && (attribute->isPK == false)) {
-            if (!ConstraintValidator::validateUniqueKey(relation, attribute, *colval, attribute->getUniqueKeyConstraint())) {
+//            if (!ConstraintValidator::validateUniqueKey(relation, *colval)) {
+            UniqueKeyConstraint* ukConstraint;
+          		for (auto & ukConstraintiter : relation->getuks()) {
+						if (ukConstraintiter.second->getAttribute() == attribute) {
+            				ukConstraint = ukConstraintiter.second;
+            			}
+          		}
+            if (!ConstraintValidator::validateUniqueKey(relation, *colval, ukConstraint)){
+
+
                 std::cerr << "Unique key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
         }
 
         // Foreign Key constraint check
-        if (attribute->hasForeignKeyConstraint()) {
-            if (!ConstraintValidator::validateForeignKey(attribute->getForeignKeyConstraint(), *colval)) {
+        if (attribute->isFK) {
+          		ForeignKeyConstraint* fkConstraint;
+                        for (auto & fkConstraintiter : relation->getfks()) {
+                                if (fkConstraintiter.second->getChildColumn() == attribute) {
+                                        fkConstraint = fkConstraintiter.second;
+                                }
+                        }
+            if (!ConstraintValidator::validateForeignKey(*colval, fkConstraint)) {
+                // Check if the foreign key constraint is violated
+                std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
+                return false;
+
+            }
                 std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
         }
-    }
 
    // Step 2: Append update to the corresponding files
 for (int i = 0; i < colvals.size(); ++i) {
@@ -228,8 +249,8 @@ for (int i = 0; i < colvals.size(); ++i) {
     }
 
     outfile.close();
-}
-
+    }
 
     return true;
 }
+
