@@ -233,6 +233,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include "../include/Tbl.hpp"
+
 #include <stdexcept>
 #include <algorithm>
 
@@ -297,136 +299,509 @@ std::unordered_set<std::string> getReferencedKeySet(Database* db, ForeignKeyCons
     return refSet;
 }
 
-bool DataLoader::loadDataFromCSV(Database* db, const std::string& relationName, const std::string& csvPath) {
-      cout<<"Available relations in the database: "<<endl;
-      for (const auto& [name, rel] : db->getRelations()) {
-        std::cout << "Relation: " << name << "\n";
-        for (const auto& [attrName, attr] : rel->getCAttributes()) {
-          cout<<"Available attributes in the relation: "<<endl;
-            std::cout << "  Attribute: " << attrName << ", Type: " << attr->type << "\n";
-        }
-        cout<<"Available attributes in the relation END"<<endl;
+// bool DataLoader::loadDataFromCSV(Database* db, const std::string& relationName, const std::string& csvPath) {
+//       cout<<"Available relations in the database: "<<endl;
+//       for (const auto& [name, rel] : db->getRelations()) {
+//         std::cout << "Relation: " << name << "\n";
+//         for (const auto& [attrName, attr] : rel->getCAttributes()) {
+//           cout<<"Available attributes in the relation: "<<endl;
+//             std::cout << "  Attribute: " << attrName << ", Type: " << attr->type << "\n";
+//         }
+//         cout<<"Available attributes in the relation END"<<endl;
+//
+//     }
+//     cout<<"Available relations in the database END"<<endl;
+//     cout<<"Checking if the relation "<<relationName<<" exists in the database: "<<endl;
+//     Relation* relation = db->getRelation(relationName);
+//     if (!relation) {
+//         std::cerr << "Relation " << relationName << " not found.\n";
+//         return false;
+//     }
+//
+//     std::ifstream csvFile(csvPath);
+//     if (!csvFile.is_open()) {
+//         std::cerr << "Failed to open CSV file: " << csvPath << "\n";
+//         return false;
+//     }
+//
+//     const auto& attributes = relation->getCAttributes();
+//     std::vector<std::string> attributeNames;
+//     for (const auto& [name, _] : attributes) {
+//         attributeNames.push_back(name);
+//     }
+//
+//     // Constraint tracking sets
+//     std::unordered_map<std::string, std::unordered_set<std::string>> pkSets;
+//     std::unordered_map<std::string, std::unordered_set<std::string>> ukSets;
+//     std::unordered_map<std::string, std::unordered_set<std::string>> fkSets;
+//
+//     for (const auto& [attrName, pk] : relation->pks) {
+//         pkSets[attrName] = {};
+//     }
+//
+//     for (const auto& [attrName, uk] : relation->uks) {
+//         ukSets[attrName] = {};
+//     }
+//
+//     for (const auto& [attrName, fk] : relation->fks) {
+//         fkSets[attrName] = getReferencedKeySet(db, fk);
+//     }
+//
+//     // Open output streams
+//     std::unordered_map<std::string, std::ofstream> outStreams;
+//     std::string basePath = "../../Databases/" + db->getName() + "/" + relationName + "/";
+//     for (const auto& name : attributeNames) {
+//         outStreams[name].open(basePath + name + ".dat", std::ios::binary | std::ios::app);
+//         if (!outStreams[name]) {
+//             std::cerr << "Error opening file for writing: " << basePath + name + ".dat" << "\n";
+//             return false;
+//         }
+//     }
+//
+//     std::string line;
+//     while (getline(csvFile, line)) {
+//         std::stringstream ss(line);
+//         std::string cell;
+//         std::vector<std::string> row;
+//         while (getline(ss, cell, ',')) {
+//             row.push_back(cell);
+//         }
+//
+//         if (row.size() != attributeNames.size()) {
+//             std::cerr << "Invalid row (column count mismatch): " << line << "\n";
+//             return false;
+//         }
+//
+//         for (size_t i = 0; i < row.size(); ++i) {
+//             const std::string& attrName = attributeNames[i];
+//             const std::string& value = row[i];
+//             const CAttribute* attr = attributes.at(attrName);
+//
+//             // Primary Key
+//             if (pkSets.count(attrName)) {
+//                 if (!pkSets[attrName].insert(value).second) {
+//                     std::cerr << "Primary Key violation on " << attrName << ": " << value << "\n";
+//                     return false;
+//                 }
+//             }
+//
+//             // Unique Key
+//             if (ukSets.count(attrName)) {
+//                 if (!ukSets[attrName].insert(value).second) {
+//                     std::cerr << "Unique Key violation on " << attrName << ": " << value << "\n";
+//                     return false;
+//                 }
+//             }
+//
+//             // Foreign Key
+//             if (fkSets.count(attrName)) {
+//                 if (fkSets[attrName].find(value) != fkSets[attrName].end()) {
+//                     std::cerr << "Foreign Key violation on " << attrName << ": " << value << "\n";
+//                     return false;
+//                 }
+//             }
+//
+//             // Write to disk
+//             if (attr->type == "int") {
+//                 int64_t val = std::stoll(value);
+//                 outStreams[attrName].write(reinterpret_cast<char*>(&val), sizeof(int64_t));
+//             } else if (attr->type == "float") {
+//                 double val = std::stod(value);
+//                 outStreams[attrName].write(reinterpret_cast<char*>(&val), sizeof(double));
+//             }
+// //            else if (attr->type == "Date_DDMMYYYY_Type") {
+// //                Date_DDMMYYYY_Type d = Date_DDMMYYYY_Type::parse(value);
+// //                outStreams[attrName].write(reinterpret_cast<char*>(&d), sizeof(Date_DDMMYYYY_Type));
+// //            }
+//             else {
+//                 size_t len = value.length();
+//                 outStreams[attrName].write(reinterpret_cast<char*>(&len), sizeof(size_t));
+//                 outStreams[attrName].write(value.c_str(), len);
+//             }
+//         }
+//     }
+//
+//     for (auto& [_, out] : outStreams) {
+//         out.close();
+//     }
+//
+//     csvFile.close();
+//     std::cout << "Data successfully loaded into relation: " << relationName << "\n";
+//     return true;
+// }
 
-    }
-    cout<<"Available relations in the database END"<<endl;
-    cout<<"Checking if the relation "<<relationName<<" exists in the database: "<<endl;
-    Relation* relation = db->getRelation(relationName);
-    if (!relation) {
+
+// bool DataLoader::loadDataFromCSV(Database* db,
+//                                  const std::string& relationName,
+//                                  const std::string& csvPath)
+// {
+//     namespace fs = std::filesystem;
+//
+//     // 1) Find the relation
+//     Relation* rel = db->getRelation(relationName);
+//     if (!rel) {
+//         std::cerr << "Relation " << relationName << " not found.\n";
+//         return false;
+//     }
+//
+//     // 2) Parse CSV using Tbl
+//     std::ifstream f(csvPath);
+//     if (!f.is_open()) {
+//         std::cerr << "Failed to open CSV file: " << csvPath << "\n";
+//         return false;
+//     }
+//     std::stringstream buf;
+//     buf << f.rdbuf();
+//     std::string content = buf.str();
+//     f.close();
+//
+//     // 3) Now parse with Tbl:
+//     Tbl::Table<> table(content);
+//     if (!table) {
+//         std::cerr << "Failed to parse CSV: " << csvPath << "\n";
+//         return false;
+//     }
+//     size_t numRows = table.GetNumRows();
+//     size_t numCols = table.GetNumColumns();
+//
+//     // 3) Gather attribute names
+//     const auto& attrs = rel->getCAttributes();
+//     std::vector<std::string> names;
+//     names.reserve(numCols);
+//     for (auto& [n, a] : attrs) names.push_back(n);
+//
+//     if (names.size() != numCols) {
+//         std::cerr << "Schema/CSV column count mismatch.\n";
+//         return false;
+//     }
+//
+//     // 4) Build constraint–tracking sets
+//     std::unordered_map<std::string,std::unordered_set<std::string>> pkSets, ukSets, fkSets;
+//     for (auto& [n, pk] : rel->pks) pkSets[n] = {};
+//     for (auto& [n, uk] : rel->uks) ukSets[n] = {};
+//     for (auto& [n, fk] : rel->fks) fkSets[n] = getReferencedKeySet(db, fk);
+//
+//     // 5) Open each column file, init header if needed
+//     struct Col { std::fstream fs; CAttribute* attr; };
+//     std::vector<Col> cols;
+//     std::string base = "../../Databases/" + db->getName() + "/" + relationName + "/";
+//     fs::create_directories(base);
+//
+//     for (auto& colName : names) {
+//         auto* attr = attrs.at(colName);
+//         fs::path p = base + colName + ".dat";
+//
+//         // if new file, write zero header
+//         if (!fs::exists(p)) {
+//             std::ofstream init(p, std::ios::binary);
+//             int64_t zero = 0;
+//             init.write(reinterpret_cast<char*>(&zero), sizeof(zero));
+//         }
+//
+//         // open for read/write
+//         cols.emplace_back();
+//         auto& c = cols.back();
+//         c.attr = attr;
+//         c.fs.open(p, std::ios::in|std::ios::out|std::ios::binary);
+//         if (!c.fs) {
+//             std::cerr << "Cannot open " << p << "\n";
+//             return false;
+//         }
+//
+//         // bump header by numRows
+//         int64_t oldCount=0;
+//         c.fs.read(reinterpret_cast<char*>(&oldCount), sizeof(oldCount));
+//         int64_t newCount = oldCount + static_cast<int64_t>(numRows);
+//         c.fs.seekp(0);
+//         c.fs.write(reinterpret_cast<char*>(&newCount), sizeof(newCount));
+//         c.fs.seekp(0, std::ios::end);
+//     }
+//
+//     // 6) Iterate over every cell
+//     for (size_t r = 0; r < numRows; ++r) {
+//         for (size_t c = 0; c < numCols; ++c) {
+//             auto& col = cols[c];
+//             auto& fs  = col.fs;
+//             auto* a    = col.attr;
+//             const auto& variantCell = table.GetData(r, c);
+//
+//             // extract raw string for constraint checks
+//             std::string raw;
+//             switch (variantCell.index()) {
+//                 case Tbl::IntType:    raw = std::to_string(std::get<int64_t>(variantCell)); break;
+//                 case Tbl::DoubleType: raw = std::to_string(std::get<double>(variantCell));  break;
+//                 case Tbl::StringType: raw = std::get<Tbl::Table<>::String>(variantCell);   break;
+//                 default: raw = ""; break;
+//             }
+//
+//             // PK
+//             if (pkSets.count(a->name)) {
+//                 if (!pkSets[a->name].insert(raw).second) {
+//                     std::cerr << "PK violation on " << a->name << ": " << raw << "\n";
+//                     return false;
+//                 }
+//             }
+//             // UK
+//             if (ukSets.count(a->name)) {
+//                 if (!ukSets[a->name].insert(raw).second) {
+//                     std::cerr << "UK violation on " << a->name << ": " << raw << "\n";
+//                     return false;
+//                 }
+//             }
+//             // FK
+//             if (fkSets.count(a->name)) {
+//                 if (fkSets[a->name].find(raw) == fkSets[a->name].end()) {
+//                     std::cerr << "FK violation on " << a->name << ": " << raw << "\n";
+//                     return false;
+//                 }
+//             }
+//
+//             // write binary payload
+//             if (a->type == "integer") {
+//                 int64_t v = std::get<int64_t>(variantCell);
+//                 fs.write(reinterpret_cast<char*>(&v), sizeof(v));
+//             }
+//             else if (a->type == "decimal") {
+//                 double d = std::get<double>(variantCell);
+//                 fs.write(reinterpret_cast<char*>(&d), sizeof(d));
+//             }
+//             else if (a->type == "date") {
+//                 auto s = std::get<Tbl::Table<>::String>(variantCell);
+//                 Date_DDMMYYYY_Type dt = Date_DDMMYYYY_Type::parse(s);
+//                 fs.write(reinterpret_cast<char*>(&dt), sizeof(dt));
+//             }
+//             else if (a->type == "boolean") {
+//                 bool b = (raw == "true" || raw == "1");
+//                 fs.write(reinterpret_cast<char*>(&b), sizeof(b));
+//             }
+//             else { // STRING
+//                 auto& s = std::get<Tbl::Table<>::String>(variantCell);
+//                 size_t len = s.size();
+//                 fs.write(reinterpret_cast<char*>(&len), sizeof(len));
+//                 fs.write(s.data(), len);
+//             }
+//         }
+//     }
+//
+//     // 7) Close files
+//     for (auto& col : cols) col.fs.close();
+//
+//     std::cout << "Loaded " << numRows
+//               << " rows into " << relationName << "\n";
+//     return true;
+// }
+// #include <tbl/Tbl.hpp>
+bool DataLoader::loadDataFromCSV(Database* db,
+                                 const std::string& relationName,
+                                 const std::string& csvPath)
+{
+    namespace fs = std::filesystem;
+
+    // 1) Lookup the relation
+    Relation* rel = db->getRelation(relationName);
+    if (!rel) {
         std::cerr << "Relation " << relationName << " not found.\n";
         return false;
     }
 
-    std::ifstream csvFile(csvPath);
-    if (!csvFile.is_open()) {
-        std::cerr << "Failed to open CSV file: " << csvPath << "\n";
+    // 2) Read entire CSV into memory
+    cout<<"Attmepting to open CSV file: "<<csvPath<<endl;
+    std::ifstream fin(csvPath, std::ios::binary);
+    if (!fin) {
+        std::cerr << "Failed to open CSV: " << csvPath << "\n";
         return false;
     }
-
-    const auto& attributes = relation->getCAttributes();
-    std::vector<std::string> attributeNames;
-    for (const auto& [name, _] : attributes) {
-        attributeNames.push_back(name);
+    cout<<"CSV file opened successfully: "<<csvPath<<endl;
+    std::stringstream buf;
+    buf << fin.rdbuf();
+    fin.close();
+    std::string content = buf.str();
+    cout<<"CSV file read successfully: "<<csvPath<<endl;
+    // 3) Parse CSV with Tbl
+    cout<<"Attempting to parse CSV file using Tbl: "<<csvPath<<endl;
+    Tbl::Table<> table(content);
+    if (!table) {
+        std::cerr << "Failed to parse CSV: " << csvPath << "\n";
+        return false;
     }
-
-    // Constraint tracking sets
-    std::unordered_map<std::string, std::unordered_set<std::string>> pkSets;
-    std::unordered_map<std::string, std::unordered_set<std::string>> ukSets;
-    std::unordered_map<std::string, std::unordered_set<std::string>> fkSets;
-
-    for (const auto& [attrName, pk] : relation->pks) {
-        pkSets[attrName] = {};
+    cout<<"CSV file parsed successfully using Tbl: "<<csvPath<<endl;
+    size_t numRows = table.GetNumRows();
+    size_t numCols = table.GetNumColumns();
+    cout<<"CSV file has "<<numRows<<" rows and "<<numCols<<" columns."<<endl;
+    // 4) Build (Attribute*, columnIndex) list in schema order
+    const auto& cattrs = rel->getCAttributes();            // std::map<string, CAttribute*>
+    if (cattrs.size() != numCols) {
+        std::cerr << "Schema/CSV column count mismatch: schema="
+                  << cattrs.size() << " vs CSV=" << numCols << "\n";
+        return false;
     }
+    cout<<"Schema/CSV column count match: schema="
+        << cattrs.size() << " vs CSV=" << numCols << "\n";
 
-    for (const auto& [attrName, uk] : relation->uks) {
-        ukSets[attrName] = {};
+    using CSVString = Tbl::Table<>::String;
+    struct ColInfo { CAttribute* attr; size_t colIdx; };
+    // std::vector<ColInfo> cols;
+    std::map<std::string, ColInfo> cols;
+    // cols.reserve(numCols);
+    cout<<"Preparing column info..."<<endl;
+    for (auto const& [colName, attr] : cattrs) {
+        size_t idx = table.GetColumnIndex(colName);
+        // cols.push_back({ attr, idx });
+        cols[colName] = { attr, idx };
+
     }
+    cout<<"Prepared column info."<<endl;
+    // 5) Prepare per-column .dat files, bump row-count header
+    cout<<"Preparing per-column .dat files..."<<endl;
+    // std::vector<std::fstream> streams;
+    std::map<std::string, std::fstream> streams;
 
-    for (const auto& [attrName, fk] : relation->fks) {
-        fkSets[attrName] = getReferencedKeySet(db, fk);
-    }
+    // streams.reserve(numCols);
+    std::string base = "../../Databases/" + db->getName() + "/" + relationName + "/";
 
-    // Open output streams
-    std::unordered_map<std::string, std::ofstream> outStreams;
-    std::string basePath = "../../Databases/" + db->getName() + "/" + relationName + "/";
-    for (const auto& name : attributeNames) {
-        outStreams[name].open(basePath + name + ".dat", std::ios::binary | std::ios::app);
-        if (!outStreams[name]) {
-            std::cerr << "Error opening file for writing: " << basePath + name + ".dat" << "\n";
+    std::cout << "Preparing to insert data into the following files: " << std::endl;
+
+    for (const auto& [colName, ci] : cols) {
+        fs::path p = base + ci.attr->name + ".dat";
+        std::cout << p << std::endl;
+
+        if (!fs::exists(p)) {
+            std::cout << "File does not exist, creating: " << p << std::endl;
+            std::ofstream init(p, std::ios::binary);
+            int64_t zero = 0;
+            init.write(reinterpret_cast<char*>(&zero), sizeof(zero));
+        }
+
+        std::cout << "File exists, opening for read/write: " << p << std::endl;
+        std::fstream fsout(p, std::ios::in | std::ios::out | std::ios::binary);
+
+        if (!fsout) {
+            std::cout << "Failed to open file for read/write: " << p << std::endl;
+            std::cerr << "Cannot open " << p << "\n";
             return false;
         }
+
+        streams[colName] = std::move(fsout);
+        std::cout << "File opened for read/write: " << p << std::endl;
     }
 
-    std::string line;
-    while (getline(csvFile, line)) {
-        std::stringstream ss(line);
-        std::string cell;
-        std::vector<std::string> row;
-        while (getline(ss, cell, ',')) {
-            row.push_back(cell);
-        }
 
-        if (row.size() != attributeNames.size()) {
-            std::cerr << "Invalid row (column count mismatch): " << line << "\n";
-            return false;
-        }
 
-        for (size_t i = 0; i < row.size(); ++i) {
-            const std::string& attrName = attributeNames[i];
-            const std::string& value = row[i];
-            const CAttribute* attr = attributes.at(attrName);
+    // 6) Prepare PK/UK/FK sets
+    cout<<"Preparing PK/UK/FK sets..."<<endl;
+    std::unordered_map<std::string,std::unordered_set<std::string>> pkSets, ukSets, fkSets;
+    for (auto const& [name, pk] : rel->pks)    pkSets[name] = {};
+    for (auto const& [name, uk] : rel->uks)    ukSets[name] = {};
+    for (auto const& [name, fk] : rel->fks)    fkSets[name] = getReferencedKeySet(db, fk);
+    cout<<"Prepared PK/UK/FK sets."<<endl;
+    for (size_t r = 0; r < numRows; ++r) {
+    std::cout << "Processing row " << r << std::endl;
 
-            // Primary Key
-            if (pkSets.count(attrName)) {
-                if (!pkSets[attrName].insert(value).second) {
-                    std::cerr << "Primary Key violation on " << attrName << ": " << value << "\n";
-                    return false;
-                }
-            }
+    for (const auto& [attrName, ci] : cols) {
+        std::cout << "Processing column " << attrName << std::endl;
 
-            // Unique Key
-            if (ukSets.count(attrName)) {
-                if (!ukSets[attrName].insert(value).second) {
-                    std::cerr << "Unique Key violation on " << attrName << ": " << value << "\n";
-                    return false;
-                }
-            }
+        auto& fsout = streams.at(attrName);
+        auto* attr  = ci.attr;
+        size_t col  = ci.colIdx;
+        cout<<"Attribute in Schema: name:"<<attr->name<<", type:"<<attr->type<<endl;
+        auto& cell = table.Get<Tbl::Table<>::String>(r, col);
+        std::string raw = cell;
 
-            // Foreign Key
-            if (fkSets.count(attrName)) {
-                if (fkSets[attrName].find(value) != fkSets[attrName].end()) {
-                    std::cerr << "Foreign Key violation on " << attrName << ": " << value << "\n";
-                    return false;
-                }
-            }
+        std::cout << "Raw value: " << raw << std::endl;
 
-            // Write to disk
-            if (attr->type == "int") {
-                int64_t val = std::stoll(value);
-                outStreams[attrName].write(reinterpret_cast<char*>(&val), sizeof(int64_t));
-            } else if (attr->type == "float") {
-                double val = std::stod(value);
-                outStreams[attrName].write(reinterpret_cast<char*>(&val), sizeof(double));
-            }
-//            else if (attr->type == "Date_DDMMYYYY_Type") {
-//                Date_DDMMYYYY_Type d = Date_DDMMYYYY_Type::parse(value);
-//                outStreams[attrName].write(reinterpret_cast<char*>(&d), sizeof(Date_DDMMYYYY_Type));
-//            }
-            else {
-                size_t len = value.length();
-                outStreams[attrName].write(reinterpret_cast<char*>(&len), sizeof(size_t));
-                outStreams[attrName].write(value.c_str(), len);
+        // PK check
+        if (pkSets.count(attrName)) {
+            if (!pkSets[attrName].insert(raw).second) {
+                std::cerr << "PK violation on " << attrName << ": " << raw << "\n";
+                return false;
             }
         }
+
+        // UK check
+        if (ukSets.count(attrName)) {
+            if (!ukSets[attrName].insert(raw).second) {
+                std::cerr << "UK violation on " << attrName << ": " << raw << "\n";
+                return false;
+            }
+        }
+
+        // FK check
+        if (fkSets.count(attrName)) {
+            if (fkSets[attrName].find(raw) == fkSets[attrName].end()) {
+                std::cerr << "FK violation on " << attrName << ": " << raw << "\n";
+                return false;
+            }
+        }
+
+        // Write binary based on type
+        auto& data = table.GetData(r, col);
+        if (attr->type == "integer") {
+            int64_t v{};
+            switch (data.index()) {
+                // v = std::get<int64_t>(data);
+                case Tbl::IntType:
+                    v = std::get<int64_t>(data);
+                    break;
+                case Tbl::DoubleType:
+                    v = static_cast<int64_t>(std::get<double>(data));
+                    break;
+                case Tbl::StringType:
+                    v = std::stoll(std::get<Tbl::Table<>::String>(data));
+                    break;
+                default:
+                    throw std::runtime_error("Unexpected variant index for integer column");
+            }
+            fsout.write(reinterpret_cast<const char*>(&v), sizeof(v));
+        }
+        else if (attr->type == "decimal") {
+            double d{};
+            // d = std::get<double>(data);
+            switch (data.index()) {
+                case Tbl::IntType:
+                    d = static_cast<double>(std::get<int64_t>(data));
+                    break;
+                case Tbl::DoubleType:
+                    d = std::get<double>(data);
+                    break;
+                case Tbl::StringType:
+                    d = std::stod(std::get<Tbl::Table<>::String>(data));
+                    break;
+                default:
+                    throw std::runtime_error("Unexpected variant index for decimal column");
+            }
+            fsout.write(reinterpret_cast<const char*>(&d), sizeof(d));
+        }
+        else { // string
+            cout<<"Writing string data..."<<endl;
+            std::string s =table.Get<Tbl::Table<>::String>(r, col);
+            // s = std::get<Tbl::Table<>::String>(data);
+            cout<<"String data: "<<s<<endl;
+            // if (data.index() == Tbl::StringType) {
+            //     s = std::get<Tbl::Table<>::String>(data);
+            // } else if (data.index() == Tbl::IntType) {
+            //     s = std::to_string(std::get<int64_t>(data));
+            // } else {
+            //     s = std::to_string(std::get<double>(data));
+            // }
+            size_t len = s.size();
+            fsout.write(reinterpret_cast<const char*>(&len), sizeof(len));
+            fsout.write(s.data(), len);
+        }
+
+        std::cout << "Column " << attrName << " processed." << std::endl;
     }
+}
 
-    for (auto& [_, out] : outStreams) {
-        out.close();
-    }
 
-    csvFile.close();
-    std::cout << "Data successfully loaded into relation: " << relationName << "\n";
+
+    // 8) Close all streams
+
+    for (auto& fsout : streams) fsout.second.close();
+    cout<<"Closed all streams."<<endl;
+    std::cout << "Loaded " << numRows << " rows into " << relationName << "\n";
     return true;
 }
+
 
 
 //---

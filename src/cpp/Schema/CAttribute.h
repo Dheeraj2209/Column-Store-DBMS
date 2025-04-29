@@ -53,13 +53,13 @@ public:
 //    }
     CAttribute(const std::string& name, const std::string& type, bool isNullable = true, bool isUnique = false, bool isPK = false, bool isFK = false)
         : name(name), type(type), isNullable(isNullable), isUnique(isUnique), isPK(isPK), isFK(isFK) {
-        if (type == "int") {
+        if (type == "integer") {
             this->attributeDataType = INT;
-        } else if (type == "float") {
+        } else if (type == "decimal") {
             this->attributeDataType = FLOAT;
         } else if (type == "string") {
             this->attributeDataType = STRING;
-        } else if (type == "Date_DDMMYYYY_Type") {
+        } else if (type == "date") {
             this->attributeDataType = DATE;
         }
     }

@@ -19,6 +19,9 @@ using namespace std;
 class DataLoader {
 public:
     static bool loadDataFromCSV(Database* db, const std::string& CSVfile, const std::string& relationName);
+    static bool loadCSVData(Database* db,
+                                 const std::string& relationName,
+                                 const std::string& csvPath);
 };
 
 
