@@ -287,12 +287,12 @@ std::unordered_set<std::string> getReferencedKeySet(Database* db, ForeignKeyCons
         return refSet;
     }
     cout<<"File:"<<filePath<<" opened successfully "<<endl;
-    if (attr->type == "int") {
+    if (attr->type == "integer") {
         int64_t val;
         while (inFile.read(reinterpret_cast<char*>(&val), sizeof(int64_t))) {
             refSet.insert(std::to_string(val));
         }
-    } else if (attr->type == "float") {
+    } else if (attr->type == "decimal") {
         double val;
         while (inFile.read(reinterpret_cast<char*>(&val), sizeof(double))) {
             refSet.insert(std::to_string(val));
@@ -318,6 +318,11 @@ else { // assume string
 
     inFile.close();
     cout<<"File closed successfully "<<endl;
+    cout<<"Referenced Key Set: "<<endl;
+    for (auto & val: refSet) {
+        cout<<val<<endl;
+    }
+    cout<<"Referenced Key Set END"<<endl;
     return refSet;
 }
 
@@ -711,14 +716,17 @@ bool DataLoader::loadDataFromCSV(Database* db,
 
     // 6) Prepare PK/UK/FK sets
     cout<<"Preparing PK/UK/FK sets..."<<endl;
+    cout<<"Loading PK/UK/FK sets... for relation: "<<relationName<<endl;
     std::unordered_map<std::string,std::unordered_set<std::string>> pkSets, ukSets, fkSets;
     for (auto const& [name, pk] : rel->pks)    pkSets[name] = {};
     for (auto const& [name, uk] : rel->uks)    ukSets[name] = {};
-    // for (auto const& [name, fk] : rel->fks)
-    // {
-    //     cout<<"Foreign key: "<<fk->getName()<<"found"<<endl;
-    //     fkSets[name] = getReferencedKeySet(db, fk);
-    // }
+    for (auto const& [name, fk] : rel->fks)
+    {
+        if (relationName==fk->parentTable->name){
+            cout<<"Foreign key: "<<fk->parentColumn->name<<" found"<<endl;
+            fkSets[fk->parentColumn->name] = getReferencedKeySet(db, fk);
+        }
+    }
     cout<<"Prepared PK/UK/FK sets."<<endl;
     // int newCount = 0;
     for (size_t r = 0; r < numRows; ++r) {
@@ -769,6 +777,7 @@ bool DataLoader::loadDataFromCSV(Database* db,
 
         // FK check
         if (fkSets.count(attrName)) {
+            cout<<"FK check for attribute: "<<attrName<<endl;
             if (fkSets[attrName].find(raw) == fkSets[attrName].end()) {
                 std::cerr << "FK violation on " << attrName << ": " << raw << "\n";
 
