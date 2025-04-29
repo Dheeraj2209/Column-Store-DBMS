@@ -23,9 +23,10 @@
 //            return 1;
 //        }
      std::string dbName = "ECommerceDB_main"; // Matches the database name in the XML
-
+     // std::string dbName = "ECommerceDB";
+     //
      // Step 3: Load Customer.csv
-     std::string customerCsvPath = "/Users/pradyundevarakonda/CLionProjects/Column-Store-DBMS/example_CSVs/customers2.csv"; // Adjust path as needed
+     std::string customerCsvPath = "/Users/pradyundevarakonda/CLionProjects/Column-Store-DBMS/example_CSVs/customers3.csv"; // Adjust path as needed
      std::string customerRelationName = "Customer";
 
      std::cout << "\nLoading Customer data from: " << customerCsvPath << std::endl;
@@ -37,16 +38,16 @@
      std::cout << "Customer data loaded successfully." << std::endl;
 
      // Step 4: Load Order.csv
- //     std::string orderCsvPath = "/Users/pradyundevarakonda/CLionProjects/Column-Store-DBMS/example_CSVs/orders.csv"; // Adjust path as needed
- //     std::string orderRelationName = "Order";
- //
- //     std::cout << "\nLoading Order data from: " << orderCsvPath << std::endl;
- // //    if (!dmlEngine.loadDatafromCSV(dbName, orderCsvPath, orderRelationName)) {
- // //        std::cerr << "Failed to load Order data." << std::endl;
- // //        return 1;
- // //    }
- //     std::cout << "Order data loaded successfully." << std::endl;
+     std::string orderCsvPath ="/Users/pradyundevarakonda/CLionProjects/Column-Store-DBMS/example_CSVs/orders2.csv"; // Adjust path as needed
+     std::string orderRelationName = "Order";
 
-     std::cout << "\nAll CSV loading operations completed successfully!" << std::endl;
+     std::cout << "\nLoading Order data from: " << orderCsvPath << std::endl;
+ if (!dmlEngine.loadDatafromCSV(dbName, orderCsvPath, orderRelationName)) {
+     std::cerr << "Failed to load Order data." << std::endl;
+     return 1;
+ }
+     std::cout << "Order data loaded successfully." << std::endl;
+
+ std::cout << "\nAll CSV loading operations completed successfully!" << std::endl;
      return 0;
  }

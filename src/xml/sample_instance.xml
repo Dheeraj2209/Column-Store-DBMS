@@ -9,7 +9,7 @@
           <Attribute name="CustomerID" type="integer" isNullable="false" isUnique="true"/>
           <Attribute name="Name" type="string" isNullable="false"/>
           <Attribute name="Email" type="string" isNullable="false"/>
-          <Attribute name="RegistrationDate" type="date" isNullable="false"/>
+          <Attribute name="RegistrationDate" type="string" isNullable="false"/>
         </Attributes>
         <PrimaryKey>
           <AttributeRef name="CustomerID"/>
@@ -20,7 +20,7 @@
         <Attributes>
           <Attribute name="OrderID" type="integer" isNullable="false" isUnique="true"/>
           <Attribute name="CustomerID" type="integer" isNullable="false"/>
-          <Attribute name="OrderDate" type="date" isNullable="false"/>
+          <Attribute name="OrderDate" type="string" isNullable="false"/>
           <Attribute name="TotalAmount" type="decimal" isNullable="false"/>
         </Attributes>
         <PrimaryKey>

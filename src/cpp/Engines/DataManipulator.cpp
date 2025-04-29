@@ -239,10 +239,12 @@ for (int i = 0; i < colvals.size(); ++i) {
             outfile << colval->getDoubleValue() << std::endl;
         } else if (type == "string") {
             outfile << colval->getStringValue() << std::endl;
-        } else if (type == "date") {
-            Date_DDMMYYYY_Type date = colval->getDateValue();
-            outfile << date.toString() << std::endl;  // assuming Date_DDMMYYYY_Type has a toString() method
-        } else {
+        }
+        // else if (type == "date") {
+        //     Date_DDMMYYYY_Type date = colval->getDateValue();
+        //     outfile << date.toString() << std::endl;  // assuming Date_DDMMYYYY_Type has a toString() method
+        // }
+        else {
             std::cerr << "Unknown attribute type: " << type << std::endl;
             return false;
         }
