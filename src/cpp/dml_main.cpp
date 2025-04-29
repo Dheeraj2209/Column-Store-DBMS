@@ -26,7 +26,7 @@
      // std::string dbName = "ECommerceDB";
      //
      // Step 3: Load Customer.csv
-     std::string customerCsvPath = "/Users/pradyundevarakonda/CLionProjects/Column-Store-DBMS/example_CSVs/customers3.csv"; // Adjust path as needed
+     std::string customerCsvPath = "../../example_CSVs/customers3.csv"; // Adjust path as needed
      std::string customerRelationName = "Customer";
 
      std::cout << "\nLoading Customer data from: " << customerCsvPath << std::endl;
@@ -38,7 +38,7 @@
      std::cout << "Customer data loaded successfully." << std::endl;
 
      // Step 4: Load Order.csv
-     std::string orderCsvPath ="/Users/pradyundevarakonda/CLionProjects/Column-Store-DBMS/example_CSVs/orders2.csv"; // Adjust path as needed
+     std::string orderCsvPath ="../../example_CSVs/orders2.csv"; // Adjust path as needed
      std::string orderRelationName = "Order";
 
      std::cout << "\nLoading Order data from: " << orderCsvPath << std::endl;

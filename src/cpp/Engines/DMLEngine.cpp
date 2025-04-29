@@ -161,5 +161,44 @@ bool DMLEngine::loadDatafromCSV(const string& DBname, const string& CSVfile, con
 //    return dataManipulator.updateData(this->databases[DBname], RelationName, values);
 //}
 
+
+// UPDAE DATA high level call
+//bool DMLEngine::updateData(const std::string& DBname, const std::string& RelationName, const std::vector<std::string>& values) {
+//    if (databases.find(DBname) == databases.end()) {
+//        std::cerr << "Error: Database '" << DBname << "' not found" << std::endl;
+//        return false;
+//    }
+//
+//    Database* db = databases[DBname];
+//    Relation* relation = db->getRelation(RelationName);
+//    if (!relation) {
+//        std::cerr << "Error: Relation '" << RelationName << "' not found in database '" << DBname << "'" << std::endl;
+//        return false;
+//    }
+//
+//    // Create a Row object with the updated values
+//    Row row(values, relation);
+//
+//    // Delegate to DataManipulator
+//    return dataManipulator.updateTuple(relation, &row);
+//}
+
+bool DMLEngine::updateData(const std::string& DBname, const std::string& RelationName, const std::vector<std::string>& values) {
+    if (databases.find(DBname) == databases.end()) {
+        std::cerr << "Error: Database '" << DBname << "' not found" << std::endl;
+        return false;
+    }
+
+    Database* db = databases[DBname];
+    auto relation = db->getRelation(RelationName);
+    if (!relation) {
+        std::cerr << "Error: Relation '" << RelationName << "' not found in database '" << DBname << "'" << std::endl;
+        return false;
+    }
+
+    Row row(values, relation);
+    return dataManipulator.updateTuple(relation, &row);
+}
+
 fs::path meta_metadata_path;
 std::ofstream meta_metadata_file;

@@ -17,6 +17,25 @@ class Row {
 
 public:
     Row(Relation* relation) : relation(relation) {}
+
+    // New constructor to initialize with Relation* and values
+//    Row(const std::vector<std::string>& values, Relation* relation) : relation(relation) {
+//        for (const auto& attrPair : relation->getCAttributes()) {
+//            CAttribute* attribute = attrPair.second;
+//            ColVal* colval = new ColVal(attribute, values[offset++]);
+//            colvals.push_back(colval);
+//        }
+//    }
+    // Constructor to initialize with Relation* and values
+    Row(const std::vector<std::string>& values, Relation* relation) : relation(relation) {
+        int offset = 0;
+        for (const auto& attrPair : relation->getCAttributes()) {
+            CAttribute* attribute = attrPair.second;
+            ColVal* colval = new ColVal(attribute, values[offset++]);
+            colvals.push_back(colval);
+        }
+    }
+
     Relation* getRelation() const {
         return relation;
     }

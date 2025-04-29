@@ -143,116 +143,257 @@ static bool writeColumnFile(const std::string &path,
 //#include "../Engines/ConstraintValidator.hpp"
 
 // Assumes 'row' represents a valid existing row to be updated
+//bool DataManipulator::updateTuple(Relation* relation, Row* row) {
+//    if (!relation || !row) {
+//        throw std::invalid_argument("Relation or Row is null.");
+//    }
+//
+//    const std::vector<ColVal*>& colvals = row->getColVals();
+//    if (colvals.empty()) {
+//        throw std::invalid_argument("Row has no ColVals.");
+//    }
+//
+//    // Step 1: Validate constraints
+//    for (ColVal* colval : colvals) {
+//        if (!colval) continue; // Safety
+//
+//        CAttribute* attribute = colval->getAttribute();
+//        if (!attribute) continue; // Safety
+//
+//        // Primary Key constraint check
+//        if (attribute->isPK) {
+//          		PrimaryKeyConstraint* pkConstraint;
+//          		for (auto & pkConstraintiter : relation->getpks()) {
+//						if (pkConstraintiter.second->getAttribute() == attribute) {
+//            				pkConstraint = pkConstraintiter.second;
+//            			}
+//          		}
+////            if (!ConstraintValidator::validatePrimaryKey(relation, *colval)) {
+//            if (!ConstraintValidator::validatePrimaryKey(relation, *colval, pkConstraint)) {
+//                std::cerr << "Primary key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//            }
+//        }
+//
+//        // Unique Key constraint check
+//        if (attribute->isUnique && (attribute->isPK == false)) {
+////            if (!ConstraintValidator::validateUniqueKey(relation, *colval)) {
+//            UniqueKeyConstraint* ukConstraint;
+//          		for (auto & ukConstraintiter : relation->getuks()) {
+//						if (ukConstraintiter.second->getAttribute() == attribute) {
+//            				ukConstraint = ukConstraintiter.second;
+//            			}
+//          		}
+//            if (!ConstraintValidator::validateUniqueKey(relation, *colval, ukConstraint)){
+//
+//
+//                std::cerr << "Unique key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//            }
+//        }
+//
+//        // Foreign Key constraint check
+//        if (attribute->isFK) {
+//          		ForeignKeyConstraint* fkConstraint;
+//                        for (auto & fkConstraintiter : relation->getfks()) {
+//                                if (fkConstraintiter.second->getChildColumn() == attribute) {
+//                                        fkConstraint = fkConstraintiter.second;
+//                                }
+//                        }
+//            if (!ConstraintValidator::validateForeignKey(*colval, fkConstraint)) {
+//                // Check if the foreign key constraint is violated
+//                std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//
+//            }
+//                std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//            }
+//        }
+//
+//   // Step 2: Append update to the corresponding files
+//for (int i = 0; i < colvals.size(); ++i) {
+//    ColVal* colval = colvals[i];
+//    if (!colval) continue;
+//
+//    CAttribute* attribute = colval->getAttribute();
+//    if (!attribute) continue;
+//
+//    const std::string& filepath = colval->getPath();
+//
+//    // Open file in append mode
+//    std::ofstream outfile(filepath, std::ios::app);
+//    if (!outfile.is_open()) {
+//        std::cerr << "Failed to open file for appending: " << filepath << std::endl;
+//        return false;
+//    }
+//
+//    // Decide what to write based on attribute type
+//    if (colval->isNullValue()) {
+//        outfile << "NULL" << std::endl;
+//    } else {
+//        std::string type = attribute->getType();
+//        if (type == "int") {
+//            outfile << colval->getIntValue() << std::endl;
+//        } else if (type == "float") {
+//            outfile << colval->getDoubleValue() << std::endl;
+//        } else if (type == "string") {
+//            outfile << colval->getStringValue() << std::endl;
+//        }
+////        else if (type == "date") {
+////            Date_DDMMYYYY_Type date = colval->getDateValue();
+////            outfile << date.toString() << std::endl;  // assuming Date_DDMMYYYY_Type has a toString() method
+////        }
+//        else {
+//            std::cerr << "Unknown attribute type: " << type << std::endl;
+//            return false;
+//        }
+//    }
+//
+//    outfile.close();
+//    }
+//
+//    return true;
+//}
+//
+
+//// DataManipulator.cpp with date
+//bool DataManipulator::updateTuple(Relation* relation, Row* row) {
+//    if (!relation || !row) {
+//        std::cerr << "Error: Relation or Row is null." << std::endl;
+//        return false;
+//    }
+//
+//    const auto& colvals = row->getColVals();
+//    if (colvals.empty()) {
+//        std::cerr << "Error: Row has no ColVals." << std::endl;
+//        return false;
+//    }
+//
+//    // Step 1: Validate constraints
+//    for (const auto& colval : colvals) {
+//        if (!colval) continue;
+//
+//        CAttribute* attribute = colval->getAttribute();
+//        if (!attribute) continue;
+//
+//        // Validate constraints (Primary Key, Unique Key, Foreign Key)
+//        if (attribute->isPK) {
+//            auto pkConstraint = relation->getpks().at(attribute->getName());
+//            if (!ConstraintValidator::validatePrimaryKey(relation, *colval, pkConstraint)) {
+//                std::cerr << "Primary key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//            }
+//        }
+//        if (attribute->isUnique && !attribute->isPK) {
+//            auto ukConstraint = relation->getuks().at(attribute->getName());
+//            if (!ConstraintValidator::validateUniqueKey(relation, *colval, ukConstraint)) {
+//                std::cerr << "Unique key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//            }
+//        }
+//        if (attribute->isFK) {
+//            auto fkConstraint = relation->getfks().at(attribute->getName());
+//            if (!ConstraintValidator::validateForeignKey(*colval, fkConstraint)) {
+//                std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
+//                return false;
+//            }
+//        }
+//    }
+//
+//    // Step 2: Update files
+//    for (const auto& colval : colvals) {
+//        if (!colval) continue;
+//
+//        CAttribute* attribute = colval->getAttribute();
+//        if (!attribute) continue;
+//
+//        std::string filepath = colval->getPath();
+//        std::vector<std::string> values;
+//
+//        // Read existing values
+//        if (!readColumnFile(filepath, attribute->getType(), values)) {
+//            std::cerr << "Error reading column file: " << filepath << std::endl;
+//            return false;
+//        }
+//
+//        // Update the specific row
+//        int rowIndex = row->getRelation()->getNumRows() - 1; // Assuming last row is updated
+//        if (rowIndex < 0 || rowIndex >= (int)values.size()) {
+//            std::cerr << "Error: Row index out of range for column: " << attribute->getName() << std::endl;
+//            return false;
+//        }
+//        values[rowIndex] = colval->getStringValue();
+//
+//        // Write updated values back
+//        if (!writeColumnFile(filepath, attribute->getType(), values)) {
+//            std::cerr << "Error writing column file: " << filepath << std::endl;
+//            return false;
+//        }
+//    }
+//
+//    return true;
+//}
+
+
 bool DataManipulator::updateTuple(Relation* relation, Row* row) {
     if (!relation || !row) {
-        throw std::invalid_argument("Relation or Row is null.");
+        std::cerr << "Error: Relation or Row is null." << std::endl;
+        return false;
     }
 
-    const std::vector<ColVal*>& colvals = row->getColVals();
+    const auto& colvals = row->getColVals();
     if (colvals.empty()) {
-        throw std::invalid_argument("Row has no ColVals.");
+        std::cerr << "Error: Row has no ColVals." << std::endl;
+        return false;
     }
 
-    // Step 1: Validate constraints
-    for (ColVal* colval : colvals) {
-        if (!colval) continue; // Safety
+    for (const auto& colval : colvals) {
+        if (!colval) continue;
 
         CAttribute* attribute = colval->getAttribute();
-        if (!attribute) continue; // Safety
+        if (!attribute) continue;
 
-        // Primary Key constraint check
+        // Validate Primary Key
         if (attribute->isPK) {
-          		PrimaryKeyConstraint* pkConstraint;
-          		for (auto & pkConstraintiter : relation->getpks()) {
-						if (pkConstraintiter.second->getAttribute() == attribute) {
-            				pkConstraint = pkConstraintiter.second;
-            			}
-          		}
-//            if (!ConstraintValidator::validatePrimaryKey(relation, *colval)) {
-            if (!ConstraintValidator::validatePrimaryKey(relation, *colval, pkConstraint)) {
+            auto pkIt = relation->getpks().find(attribute->getName());
+            if (pkIt == relation->getpks().end()) {
+                std::cerr << "Error: Primary key constraint not found for attribute: " << attribute->getName() << std::endl;
+                return false;
+            }
+            if (!ConstraintValidator::validatePrimaryKey(relation, *colval, pkIt->second)) {
                 std::cerr << "Primary key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
         }
 
-        // Unique Key constraint check
-        if (attribute->isUnique && (attribute->isPK == false)) {
-//            if (!ConstraintValidator::validateUniqueKey(relation, *colval)) {
-            UniqueKeyConstraint* ukConstraint;
-          		for (auto & ukConstraintiter : relation->getuks()) {
-						if (ukConstraintiter.second->getAttribute() == attribute) {
-            				ukConstraint = ukConstraintiter.second;
-            			}
-          		}
-            if (!ConstraintValidator::validateUniqueKey(relation, *colval, ukConstraint)){
-
-
+        // Validate Unique Key
+        if (attribute->isUnique && !attribute->isPK) {
+            auto ukIt = relation->getuks().find(attribute->getName());
+            if (ukIt == relation->getuks().end()) {
+                std::cerr << "Error: Unique key constraint not found for attribute: " << attribute->getName() << std::endl;
+                return false;
+            }
+            if (!ConstraintValidator::validateUniqueKey(relation, *colval, ukIt->second)) {
                 std::cerr << "Unique key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
         }
 
-        // Foreign Key constraint check
+        // Validate Foreign Key
         if (attribute->isFK) {
-          		ForeignKeyConstraint* fkConstraint;
-                        for (auto & fkConstraintiter : relation->getfks()) {
-                                if (fkConstraintiter.second->getChildColumn() == attribute) {
-                                        fkConstraint = fkConstraintiter.second;
-                                }
-                        }
-            if (!ConstraintValidator::validateForeignKey(*colval, fkConstraint)) {
-                // Check if the foreign key constraint is violated
-                std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
+            auto fkIt = relation->getfks().find(attribute->getName());
+            if (fkIt == relation->getfks().end()) {
+                std::cerr << "Error: Foreign key constraint not found for attribute: " << attribute->getName() << std::endl;
                 return false;
-
             }
+            if (!ConstraintValidator::validateForeignKey(*colval, fkIt->second)) {
                 std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
         }
-
-   // Step 2: Append update to the corresponding files
-for (int i = 0; i < colvals.size(); ++i) {
-    ColVal* colval = colvals[i];
-    if (!colval) continue;
-
-    CAttribute* attribute = colval->getAttribute();
-    if (!attribute) continue;
-
-    const std::string& filepath = colval->getPath();
-
-    // Open file in append mode
-    std::ofstream outfile(filepath, std::ios::app);
-    if (!outfile.is_open()) {
-        std::cerr << "Failed to open file for appending: " << filepath << std::endl;
-        return false;
     }
 
-    // Decide what to write based on attribute type
-    if (colval->isNullValue()) {
-        outfile << "NULL" << std::endl;
-    } else {
-        std::string type = attribute->getType();
-        if (type == "int") {
-            outfile << colval->getIntValue() << std::endl;
-        } else if (type == "float") {
-            outfile << colval->getDoubleValue() << std::endl;
-        } else if (type == "string") {
-            outfile << colval->getStringValue() << std::endl;
-        }
-        // else if (type == "date") {
-        //     Date_DDMMYYYY_Type date = colval->getDateValue();
-        //     outfile << date.toString() << std::endl;  // assuming Date_DDMMYYYY_Type has a toString() method
-        // }
-        else {
-            std::cerr << "Unknown attribute type: " << type << std::endl;
-            return false;
-        }
-    }
-
-    outfile.close();
-    }
-
+    // Proceed with updating files...
     return true;
 }
-
