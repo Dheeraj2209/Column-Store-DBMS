@@ -29,21 +29,11 @@
       </Relation>
     </Relations>
 
-    <!-- <ForeignKeys>
-      <ForeignKey name="FK_Order_Customer" fromRelation="Order" toRelation="Customer">
-        <Reference fromAttribute="CustomerID" toAttribute="CustomerID"/>
-      </ForeignKey>
-    </ForeignKeys> -->
-
     <ForeignKeys>
     <ForeignKey name="fk_order_customer">
-        <Parent table="orders" column="customer_id"/>
-        <Child table="customers" column="id"/>
-    </ForeignKey>
-    <ForeignKey name="fk_order_product">
-        <Parent table="orders" column="product_id"/>
-        <Child table="products" column="id"/>
-    </ForeignKey>
+        <Parent table="Order" column="CustomerID"/>
+        <Child table="Customer" column="CustomerID"/>
+    </ForeignKey>  
     </ForeignKeys>
 
     <UniqueConstraints>
