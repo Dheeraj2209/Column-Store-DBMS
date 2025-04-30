@@ -193,7 +193,7 @@
 //            try {
 //                if (attr->type == "int") {
 ////                    int value = table.Get<int>(row, colIndex);
-//                    int64_t value = table.Get<int64_t>(row, colIndex);
+//                    int value = table.Get<int>(row, colIndex);
 //                    outFile.write(reinterpret_cast<const char*>(&value), sizeof(int));
 //                } else if (attr->type == "float") {
 //                    float value = static_cast<float>(table.Get<double>(row, colIndex));
@@ -227,7 +227,7 @@
 //    return true;
 //}
 #include "DataLoader.h"
-#include <fstream>
+// #include <fstream>
 #include <filesystem>
 #include <sstream>
 #include <iostream>
@@ -240,6 +240,7 @@
 
 // Include the Tbl header (make sure your include paths are set correctly)
 #include "../Data_Objects/ColVal.hpp"
+#include "ConstraintValidator.hpp"
 
 #include "../include/Tbl.hpp"
 
@@ -290,8 +291,8 @@
 //     }
 //     cout<<"File:"<<filePath<<" opened successfully "<<endl;
 //     if (attr->type == "integer") {
-//         int64_t val;
-//         while (inFile.read(reinterpret_cast<char*>(&val), sizeof(int64_t))) {
+//         int val;
+//         while (inFile.read(reinterpret_cast<char*>(&val), sizeof(int))) {
 //             refSet.insert(std::to_string(val));
 //         }
 //     } else if (attr->type == "decimal") {
@@ -478,7 +479,7 @@ bool DataLoader::loadDataFromCSV(Database* db,
         if (!fs::exists(p)) {
             std::cout << "File does not exist, creating: " << p << std::endl;
             std::ofstream init(p, std::ios::binary);
-            // int64_t zero = 0;
+            // int zero = 0;
             // init.write(reinterpret_cast<char*>(&zero), sizeof(zero));
         }
 
@@ -589,7 +590,8 @@ bool DataLoader::loadDataFromCSV(Database* db,
                 if (attr->type=="integer") {
                     std::cout << "Attribute type is integer" << std::endl;
                     int64_t v = std::get<int64_t>(data);
-                    ColVal cv(attr, static_cast<int>(v));
+                    // int v2 = static_cast<int>(v);
+                    ColVal cv(attr,v);
                     // rowData.push_back(cv);
                     rowData[attrName] = cv;
                     // fsout.write(reinterpret_cast<const char*>(&v), sizeof(v));
@@ -623,7 +625,7 @@ bool DataLoader::loadDataFromCSV(Database* db,
                 if (attr->type == "integer") {
                     std::cout << "Attribute type is integer" << std::endl;
                     int64_t v = static_cast<int64_t>(std::get<double>(data));
-                    ColVal cv(attr, static_cast<int>(v));
+                    ColVal cv(attr, v);
                     // rowData.push_back(cv);
                     rowData[attrName] = cv;
                     // fsout.write(reinterpret_cast<const char*>(&v), sizeof(v));
@@ -658,15 +660,22 @@ bool DataLoader::loadDataFromCSV(Database* db,
                 // fsout.write(s.data(), len);
                 if (attr->type == "integer") {
                     std::cout << "Attribute type is integer" << std::endl;
-                    int64_t v = std::stoll(std::get<Tbl::Table<>::String>(data));
-                    ColVal cv(attr, static_cast<int>(v));
+                    string s = std::get<Tbl::Table<>::String>(data);
+                    int64_t v = std::stoi(s);
+                    ColVal cv(attr, v);
                     // rowData.push_back(cv);
                     rowData[attrName] = cv;
+                    // fsout.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                    // int v = std::stoll(std::get<Tbl::Table<>::String>(data));
+                    // rowData.push_back(cv);
+                    cout<<"\t \t \t CHECKKKKKKK  Integer data: "<<v<<endl;
                     // fsout.write(reinterpret_cast<const char*>(&v), sizeof(v));
                 }
                 else if (attr->type == "decimal") {
                     std::cout << "Attribute type is decimal" << std::endl;
-                    double d = std::stod(std::get<Tbl::Table<>::String>(data));
+                    string s = std::get<Tbl::Table<>::String>(data);
+                    double d = std::stod(s);
+                    // double d = std::stod(std::get<Tbl::Table<>::String>(data));
                     ColVal cv(attr, d);
                     // rowData.push_back(cv);
                     rowData[attrName] = cv;
@@ -735,9 +744,111 @@ bool DataLoader::loadDataFromCSV(Database* db,
     return true;
 }
 
+
+bool DataLoader::insertRow(Relation* rel, Row* row) {
+    namespace fs = std::filesystem;
+    const auto& attrs = rel->getCAttributes();
+
+    // 1) Build in-memory sets for constraints
+    std::unordered_map<std::string, std::unordered_set<ColVal>> pkSets, ukSets;
+    for (auto const& [n, pk] : rel->pks) {
+        pkSets[n] = {};
+    }
+    for (auto const& [n, uk] : rel->uks) {
+        ukSets[n] = {};
+    }
+    // and FK sets for each fk:
+    std::unordered_map<std::string, std::unordered_set<std::string>> fkSets;
+    for (auto const& [n, fk] : rel->fks) {
+        if (rel->getName()==fk->parentTable->getName())
+            fkSets[n] = getReferencedKeySet(rel->getDatabase(), fk);
+        // else
+        // fkSets[n] = getReferencedKeySet(rel->getDatabase(), fk);
+    }
+
+    // 2) Constraint checks
+    auto colvals = row->getColVals();
+    for (auto& pcv : colvals) {
+        auto &cv = pcv.second;
+        const std::string& name = cv->getAttributeName();
+
+        // PK
+        if (rel->pks.count(name)) {
+            if (!ConstraintValidator::validatePrimaryKey(
+                    rel, *cv, rel->pks.at(name)))
+                return false;
+        }
+        // UK
+        if (rel->uks.count(name)) {
+            if (!ConstraintValidator::validateUniqueKey(
+                    rel, *cv, rel->uks.at(name)))
+                return false;
+        }
+        // FK
+        if (rel->fks.count(name)) {
+            if (!ConstraintValidator::validateForeignKey(
+                    *cv,
+                    rel->fks.at(name)))
+                return false;
+        }
+    }
+    Database * db = rel->getDatabase();
+    // 3) Open each column file, append the new value
+    std::string base = "../../Databases/" + db->getName() + "/"
+                     + "/" + rel->getName() + "/";
+    // ensure directory exists...
+    // fs::create_directories(base);
+
+    for (auto& pcv : colvals) {
+        auto& cv = pcv.second;
+        CAttribute* a = cv->getAttribute();
+        std::fstream fs(
+            base + a->name + ".dat",
+            std::ios::in | std::ios::out | std::ios::binary);
+
+        // bump header
+        int count = 0;
+        fs.read(reinterpret_cast<char*>(&count), sizeof(count));
+        fs.seekp(0);
+        fs.write(reinterpret_cast<char*>(&++count), sizeof(count));
+        fs.seekp(0, std::ios::end);
+
+        // isDeleted flag = 0
+        uint8_t del = 0;
+        fs.write(reinterpret_cast<char*>(&del), 1);
+
+        // write payload
+        if (a->type == "integer") {
+            int64_t v = cv->getIntValue();
+            fs.write(reinterpret_cast<char*>(&v), sizeof(v));
+        }
+        else if (a->type == "decimal") {
+            double d = cv->getDoubleValue();
+            fs.write(reinterpret_cast<char*>(&d), sizeof(d));
+        }
+        // else if (a->type == "date") {
+        //     auto dt = cv->getDateValue();
+        //     fs.write(reinterpret_cast<char*>(&dt), sizeof(dt));
+        // }
+        else {
+            auto s = cv->getStringValue();
+            size_t len = s.size();
+            fs.write(reinterpret_cast<char*>(&len), sizeof(len));
+            fs.write(s.data(), len);
+        }
+        fs.close();
+    }
+
+    return true;
+}
+
+
+
+
+
         // if (attr->type == "integer") {
         //     cout<<"Attribute type is integer"<<endl;
-        //     int64_t v{};
+        //     int v{};
         //     switch (data.index()) {
         //         // v = std::get<int64_t>(data);
         //         // case Tbl::IntType:
@@ -746,7 +857,7 @@ bool DataLoader::loadDataFromCSV(Database* db,
         //             // break;
         //         // case Tbl::DoubleType:
         //         //     cout<<"Double type data found"<<endl;
-        //         //     v = static_cast<int64_t>(std::get<double>(data));
+        //         //     v = static_cast<int>(std::get<double>(data));
         //         //     break;
         //         // case Tbl::StringType:
         //         //     cout<<"String type data found"<<endl;
@@ -812,10 +923,10 @@ bool DataLoader::loadDataFromCSV(Database* db,
     //         return false;
     //     }
     //
-    //     int64_t oldCount = 0;
+    //     int oldCount = 0;
     //     f.read(reinterpret_cast<char*>(&oldCount), sizeof(oldCount));
     //
-    //     int64_t newTotal = oldCount + newCount;
+    //     int newTotal = oldCount + newCount;
     //     f.seekp(0);
     //     f.write(reinterpret_cast<const char*>(&newTotal), sizeof(newTotal));
     //

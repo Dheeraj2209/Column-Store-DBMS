@@ -139,7 +139,7 @@ bool DMLEngine::loadDatafromCSV(const string& DBname, const string& CSVfile, con
     Database* db = this->databases[DBname];
 
     // Delegate to DataLoader's static method
-    bool success = DataLoader::loadDataFromCSV(db, RelationName, CSVfile);
+    bool success = dataLoader.loadDataFromCSV(db, RelationName, CSVfile);
 
     if (success) {
         std::cout << "Successfully loaded data from " << CSVfile
@@ -152,6 +152,59 @@ bool DMLEngine::loadDatafromCSV(const string& DBname, const string& CSVfile, con
     return success;
 }
 
+bool DMLEngine::insertRow(const std::string& relationName,
+                         const std::vector<std::string>& values,
+                         Database* db)
+{
+    // 1) find relation
+    Relation* rel = db->getRelation(relationName);
+    if (!rel) {
+        std::cerr << "Relation " << relationName << " not found\n";
+        return false;
+    }
+
+    const auto& attrs = rel->getCAttributes();
+    if (values.size() != attrs.size()) {
+        std::cerr << "Wrong number of values for INSERT\n";
+        return false;
+    }
+
+    // 2) build a Row
+    Row* row = new Row(rel);
+    size_t i = 0;
+    for (auto const& [colName, attr] : attrs) {
+        const std::string& raw = values[i++];
+        ColVal* cv = nullptr;
+
+        if (raw.empty() && attr->isNullable) {
+            cv = new ColVal(attr, /*isNull=*/true);
+        }
+        else if (attr->type == "integer") {
+            int64_t v = std::stoll(raw);
+            cv = new ColVal(attr, v);
+        }
+        else if (attr->type == "decimal") {
+            double d = std::stod(raw);
+            cv = new ColVal(attr, d);
+        }
+        else if (attr->type == "date") {
+            auto dt = Date_DDMMYYYY_Type::parse(raw);
+            cv = new ColVal(attr, dt);
+        }
+        else { // string
+            cv = new ColVal(attr, raw);
+        }
+
+        row->addColVal(cv);
+    }
+
+    // 3) hand off to DataLoader
+    bool ok = dataLoader.insertRow(rel, row);
+    if (!ok) {
+        delete row;
+    }
+    return ok;
+}
 
 //bool DMLEngine::insertData(const string & DBname, const string & RelationName, const std::vector<std::string>& values){
 //    return dataManipulator.insertData(this->databases[DBname], RelationName, values);
@@ -247,7 +300,8 @@ bool DMLEngine::row_delete(const std::string& dbName,
         std::cerr<<"Relation "<<relName<<" not found\n";
         return false;
     }
-    ColVal pkColVal(rel->getPrimaryKey().attribute,value);
+    auto val2 = static_cast<int64_t>(value);
+    ColVal pkColVal(rel->getPrimaryKey().attribute,val2);
     // 2) call DataDeleter
     if (!DataDeleter::deleteRow(rel, pkColVal)) {
         std::cerr<<"Failed to delete row with PK: "<<pkColVal.getIntValue()<<"\n";

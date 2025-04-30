@@ -351,7 +351,8 @@ bool DataManipulator::updateTuple(Relation* relation, Row* row) {
         return false;
     }
 
-    for (const auto& colval : colvals) {
+    for (const auto& pcolval : colvals) {
+        ColVal* colval = pcolval.second;
         if (!colval) continue;
 
         CAttribute* attribute = colval->getAttribute();
@@ -390,7 +391,7 @@ bool DataManipulator::updateTuple(Relation* relation, Row* row) {
                 std::cerr << "Error: Foreign key constraint not found for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
-            if (!ConstraintValidator::validateForeignKey(*colval, fkIt->second)) {
+            if (!ConstraintValidator::validateForeignKey(*(colval), fkIt->second)) {
                 std::cerr << "Foreign key constraint violated for attribute: " << attribute->getName() << std::endl;
                 return false;
             }
@@ -398,7 +399,8 @@ bool DataManipulator::updateTuple(Relation* relation, Row* row) {
     }
     // Proceed with updating files...
     // Step 2: Update files
-    for (const auto& colval : colvals) {
+    for (const auto& pcolval : colvals) {
+        ColVal* colval = pcolval.second;
         if (!colval) continue;
 
         CAttribute* attribute = colval->getAttribute();

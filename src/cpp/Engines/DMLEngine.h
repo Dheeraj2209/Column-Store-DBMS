@@ -75,6 +75,9 @@ class DMLEngine {
     bool row_delete(const std::string& dbName,
                            const std::string& relName,
                            double & value);
+    bool insertRow(const std::string& relationName,
+                   const std::vector<std::string>& values,
+                   Database* db);
 
 
 };

@@ -8,6 +8,7 @@
 #include <sstream>
 #include "../include/external_includes.h"
 #include "../Schema/Database.h"
+#include "../Data_Objects/Row.hpp"
 //#include "../incude/stream_includes.h"
 #include "../include/Tbl.hpp"
 #include "../Schema/Relation.h"
@@ -18,10 +19,11 @@
 using namespace std;
 class DataLoader {
 public:
-    static bool loadDataFromCSV(Database* db, const std::string& CSVfile, const std::string& relationName);
-    static bool loadCSVData(Database* db,
+    bool loadDataFromCSV(Database* db, const std::string& CSVfile, const std::string& relationName);
+    bool loadCSVData(Database* db,
                                  const std::string& relationName,
                                  const std::string& csvPath);
+    bool insertRow(Relation* rel, Row* row);
 };
 
 

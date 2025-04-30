@@ -127,54 +127,121 @@
 //------------------------------------------------------------------------------
 // Helper: load all values from one column file into an unordered_set<ColVal>
 //------------------------------------------------------------------------------
+// static std::unordered_set<ColVal> loadColumnValues(Relation* rel, CAttribute* attr) {
+//     std::unordered_set<ColVal> values;
+//     std::string dbName   = rel->getDBName();
+//     std::string relName  = rel->getName();
+//     std::string colName  = attr->getName();
+//     std::string path     = "../Databases/" + dbName + "/" + relName + "/" + colName + ".dat";
+//
+//     std::ifstream in(path, std::ios::binary);
+//     if (!in.is_open()) return values;
+//
+//     const std::string& type = attr->type;
+//     if (type == "integer") {
+//         int64_t v;
+//         while (in.read(reinterpret_cast<char*>(&v), sizeof(v))) {
+//             values.insert(ColVal(attr, static_cast<int>(v)));
+//         }
+//     }
+//     else if (type == "decimal") {
+//         double d;
+//         while (in.read(reinterpret_cast<char*>(&d), sizeof(d))) {
+//             values.insert(ColVal(attr, d));
+//         }
+//     }
+//     // else if (type == "date") {
+//     //     Date_DDMMYYYY_Type dt;
+//     //     while (in.read(reinterpret_cast<char*>(&dt), sizeof(dt))) {
+//     //         values.insert(ColVal(attr, dt));
+//     //     }
+//     // }
+//     // else if (type == "boolean") {
+//     //     bool b;
+//     //     while (in.read(reinterpret_cast<char*>(&b), sizeof(b))) {
+//     //         values.insert(ColVal(attr, b));
+//     //     }
+//     // }
+//     else { // string or fallback
+//         while (true) {
+//             size_t len;
+//             if (!in.read(reinterpret_cast<char*>(&len), sizeof(len))) break;
+//             std::string s(len, '\0');
+//             if (!in.read(&s[0], len)) break;
+//             values.insert(ColVal(attr, s));
+//         }
+//     }
+//
+//     in.close();
+//     return values;
+// }
+
+
 static std::unordered_set<ColVal> loadColumnValues(Relation* rel, CAttribute* attr) {
     std::unordered_set<ColVal> values;
-    std::string dbName   = rel->getDBName();
-    std::string relName  = rel->getName();
-    std::string colName  = attr->getName();
-    std::string path     = "../Databases/" + dbName + "/" + relName + "/" + colName + ".dat";
+    const std::string dbName  = rel->getDBName();
+    const std::string relName = rel->getName();
+    const std::string colName = attr->getName();
+    const std::string path    = "../Databases/" + dbName + "/" + relName + "/" + colName + ".dat";
 
     std::ifstream in(path, std::ios::binary);
     if (!in.is_open()) return values;
 
-    const std::string& type = attr->type;
-    if (type == "integer") {
-        int64_t v;
-        while (in.read(reinterpret_cast<char*>(&v), sizeof(v))) {
-            values.insert(ColVal(attr, static_cast<int>(v)));
+    // 1) skip the 8-byte header (row count)
+    // in.seekg(sizeof(int64_t), std::ios::beg);
+
+    // 2) read entries
+    while (true) {
+        // read the isDeleted flag
+        uint8_t flag;
+        if (!in.read(reinterpret_cast<char*>(&flag), 1)) break;
+
+        // now read the payload, but only insert if flag==0
+        if (attr->type == "integer") {
+            int64_t v;
+            if (!in.read(reinterpret_cast<char*>(&v), sizeof(v))) break;
+            if (flag == 0) {
+                values.insert(ColVal(attr, v));
+            }
         }
-    }
-    else if (type == "decimal") {
-        double d;
-        while (in.read(reinterpret_cast<char*>(&d), sizeof(d))) {
-            values.insert(ColVal(attr, d));
+        else if (attr->type == "decimal") {
+            double d;
+            if (!in.read(reinterpret_cast<char*>(&d), sizeof(d))) break;
+            if (flag == 0) {
+                values.insert(ColVal(attr, d));
+            }
         }
-    }
-    else if (type == "date") {
-        Date_DDMMYYYY_Type dt;
-        while (in.read(reinterpret_cast<char*>(&dt), sizeof(dt))) {
-            values.insert(ColVal(attr, dt));
-        }
-    }
-    else if (type == "boolean") {
-        bool b;
-        while (in.read(reinterpret_cast<char*>(&b), sizeof(b))) {
-            values.insert(ColVal(attr, b));
-        }
-    }
-    else { // string or fallback
-        while (true) {
+        // else if (attr->type == "date") {
+        //     Date_DDMMYYYY_Type dt;
+        //     if (!in.read(reinterpret_cast<char*>(&dt), sizeof(dt))) break;
+        //     if (flag == 0) {
+        //         values.insert(ColVal(attr, dt));
+        //     }
+        // }
+        // else if (attr->type == "boolean") {
+        //     bool b;
+        //     if (!in.read(reinterpret_cast<char*>(&b), sizeof(b))) break;
+        //     if (flag == 0) {
+        //         values.insert(ColVal(attr, b));
+        //     }
+        // }
+        else { // string
             size_t len;
             if (!in.read(reinterpret_cast<char*>(&len), sizeof(len))) break;
+            // read the characters
             std::string s(len, '\0');
             if (!in.read(&s[0], len)) break;
-            values.insert(ColVal(attr, s));
+            if (flag == 0) {
+                values.insert(ColVal(attr, s));
+            }
         }
     }
 
     in.close();
     return values;
 }
+
+
 
 //------------------------------------------------------------------------------
 // Primary Key: valid if the value is *not* already present
@@ -208,6 +275,8 @@ bool ConstraintValidator::validateForeignKey(
 {
     Relation*  parentRel = fkConstraint->parentTable;
     CAttribute* parentCol = fkConstraint->parentColumn;
-    auto existing = loadColumnValues(parentRel, parentCol);
+    Relation* childRel  = fkConstraint->childTable;
+    CAttribute* childCol = fkConstraint->childColumn;
+    auto existing = loadColumnValues(childRel, childCol);
     return existing.find(value) != existing.end();
 }

@@ -28,7 +28,7 @@ class ColVal {
   Relation* relation;
   CAttribute* attribute;
   string strvalue;
-  int intvalue;
+  int64_t intvalue;
   double doublevalue;
   Date_DDMMYYYY_Type datevalue;
   bool isNull;
@@ -37,29 +37,29 @@ class ColVal {
       this->attribute = attribute;
   }
   ColVal(CAttribute* attribute, const string& strvalue);
-  ColVal(CAttribute* attribute, int intvalue);
+  ColVal(CAttribute* attribute, int64_t intvalue);
   ColVal(CAttribute* attribute, double doublevalue);
   ColVal(CAttribute* attribute, Date_DDMMYYYY_Type datevalue);
   ColVal(CAttribute* attribute, bool isNull);
-  ColVal(CAttribute* attribute, const string& strvalue, int intvalue, double doublevalue, Date_DDMMYYYY_Type datevalue, bool isNull);
+  ColVal(CAttribute* attribute, const string& strvalue, int64_t intvalue, double doublevalue, Date_DDMMYYYY_Type datevalue, bool isNull);
   string getStringValue() const;
-  int getIntValue() const;
+  int64_t getIntValue() const;
   double getDoubleValue() const;
   Date_DDMMYYYY_Type getDateValue() const;
   bool isNullValue() const;
   void setStringValue(const string& strvalue);
-  void setIntValue(int intvalue);
+  void setIntValue(int64_t intvalue);
   void setDoubleValue(double doublevalue);
   void setDateValue(Date_DDMMYYYY_Type datevalue);
   void setNullValue(bool isNull);
-  void setValue(const string& strvalue, int intvalue, double doublevalue, Date_DDMMYYYY_Type datevalue, bool isNull);
+  void setValue(const string& strvalue, int64_t intvalue, double doublevalue, Date_DDMMYYYY_Type datevalue, bool isNull);
   void setAttribute(CAttribute* attribute);
   CAttribute* getAttribute() const;
   string getAttributeName() const;
   string getAttributeType() const;
   void setValue(Date_DDMMYYYY_Type datevalue);
     void setValue(const string& strvalue);
-    void setValue(int intvalue);
+    void setValue(int64_t intvalue);
     void setValue(double doublevalue);
     void setValue(bool isNull);
 
@@ -74,7 +74,7 @@ class ColVal {
         return false; // type mismatch
     }
 
-    if (this->attribute->type == "INT") {
+    if (this->attribute->type == "int64_t") {
         return this->intvalue == other.intvalue;
     } else if (this->attribute->type == "FLOAT") {
         return this->doublevalue == other.doublevalue;
@@ -96,7 +96,7 @@ class ColVal {
 //    if (a.getAttributeType() != b.getAttributeType()) return false;
 //
 //    string type = a.getAttributeType();
-//    if (type == "int") return a.getIntValue() == b.getIntValue();
+//    if (type == "int64_t") return a.getIntValue() == b.getIntValue();
 //    if (type == "float") return abs(a.getDoubleValue() - b.getDoubleValue()) < 1e-6;
 //    if (type == "string") return a.getStringValue() == b.getStringValue();
 //    if (type == "Date_DDMMYYYY_Type") return a.getDateValue() == b.getDateValue();
@@ -110,12 +110,12 @@ class ColVal {
 //            if (cv.isNullValue()) return 0;
 //            std::string type = cv.getAttributeType();
 //
-//            if (type == "int") return hash<int>()(cv.getIntValue());
+//            if (type == "int64_t") return hash<int64_t>()(cv.getIntValue());
 //            if (type == "float") return hash<double>()(cv.getDoubleValue());
 //            if (type == "string") return hash<std::string>()(cv.getStringValue());
 //            if (type == "Date_DDMMYYYY_Type") {
 //                auto d = cv.getDateValue();
-//                return hash<int>()(d.day * 1000000 + d.month * 10000 + d.year);
+//                return hash<int64_t>()(d.day * 1000000 + d.month * 10000 + d.year);
 //            }
 //            return 0;
 //        }
@@ -133,8 +133,8 @@ namespace std {
                 seed ^= 0xdeadbeef;
             } else {
                 if (colVal.attribute != nullptr) {
-                    if (colVal.attribute->type == "INT") {
-                        seed ^= std::hash<int>{}(colVal.intvalue) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                    if (colVal.attribute->type == "int64_t") {
+                        seed ^= std::hash<int64_t>{}(colVal.intvalue) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                     } else if (colVal.attribute->type == "FLOAT") {
                         seed ^= std::hash<double>{}(colVal.doublevalue) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                     } else if (colVal.attribute->type == "STRING") {

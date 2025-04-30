@@ -19,7 +19,7 @@ int main() {
 //    ColVal pkVal(&pkAttr, 2);
 //    pkattr = db->getRelation("Customer")->getPrimaryKey().attribute;
    int val = 8;
-    if (!engine.row_delete("ECommerceDB","Customer", val)) {
+    if (!engine.row_delete(dbName,"Customer", val)) {
         std::cerr<<"Deletion failed\n";
         return 1;
     }

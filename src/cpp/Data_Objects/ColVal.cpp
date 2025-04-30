@@ -16,7 +16,7 @@ ColVal::ColVal(CAttribute* attribute, const std::string& strvalue) {
     this->strvalue = strvalue;
     this->isNull = false;
     // Convert string to appropriate type based on attribute type
-    if (attribute->type == "int") {
+    if (attribute->type == "int64_t") {
         intvalue = std::stoi(strvalue);
     } else if (attribute->type == "double") {
         doublevalue = std::stod(strvalue);
@@ -25,7 +25,7 @@ ColVal::ColVal(CAttribute* attribute, const std::string& strvalue) {
     }
 }
 
-ColVal::ColVal(CAttribute* attribute, int intvalue) {
+ColVal::ColVal(CAttribute* attribute, int64_t intvalue) {
     this->attribute = attribute;
     this->intvalue = intvalue;
     this->isNull = false;
@@ -44,7 +44,7 @@ ColVal::ColVal(CAttribute* attribute, bool isNull) {
     this->attribute = attribute;
     this->isNull = isNull;
 }
-ColVal::ColVal(CAttribute* attribute, const std::string& strvalue, int intvalue, double doublevalue, Date_DDMMYYYY_Type datevalue, bool isNull) {
+ColVal::ColVal(CAttribute* attribute, const std::string& strvalue, int64_t intvalue, double doublevalue, Date_DDMMYYYY_Type datevalue, bool isNull) {
     this->attribute = attribute;
     this->strvalue = strvalue;
     this->intvalue = intvalue;
@@ -62,23 +62,27 @@ std::string ColVal::getStringValue() const {
     }
 
 }
-int ColVal::getIntValue() const {
-    if(attribute->type == "int") {
-        return intvalue;
-    }
-    else{
-        std::cerr << "Error: Attribute type is not int." << std::endl;
-        return 0;
-    }
+int64_t ColVal::getIntValue() const {
+    // if(attribute->type == "int64_t") {
+    //     return intvalue;
+    // }
+    // else{
+    //     std::cerr << "Error: Attribute type is not int64_t." << std::endl;
+    //     return 0;
+    // }
+    return intvalue;
 }
-double ColVal::getDoubleValue() const {
-    if(attribute->type == "double") {
-        return doublevalue;
-    }
-    else{
-        std::cerr << "Error: Attribute type is not double." << std::endl;
-    }
+double ColVal::getDoubleValue() const
+{
+    return doublevalue;
 }
+//     if(attribute->type == "double") {
+//         return doublevalue;
+//     }
+//     else{
+//         std::cerr << "Error: Attribute type is not double." << std::endl;
+//     }
+// }
 Date_DDMMYYYY_Type ColVal::getDateValue() const {
     if(attribute->type == "date") {
         return datevalue;
@@ -103,16 +107,16 @@ void ColVal::setValue(const std::string& strvalue) {
         std::cerr << "Error: Attribute type is not string." << std::endl;
     }
 }
-void ColVal::setValue(int intvalue) {
-    if(attribute->type == "int") {
+void ColVal::setValue(int64_t intvalue) {
+    if(attribute->type == "integer") {
         this->intvalue = intvalue;
     }
     else{
-        std::cerr << "Error: Attribute type is not int." << std::endl;
+        std::cerr << "Error: Attribute type is not int64_t." << std::endl;
     }
 }
 void ColVal::setValue(double doublevalue) {
-    if(attribute->type == "double") {
+    if(attribute->type == "decimal") {
         this->doublevalue = doublevalue;
     }
     else{

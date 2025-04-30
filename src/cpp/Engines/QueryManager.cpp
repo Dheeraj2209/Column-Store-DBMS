@@ -71,7 +71,8 @@ static bool evaluateCondition(const string& condition, const Row* row) {
     value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
 
     // Find the column value in the row
-    for (ColVal* colVal : row->getColVals()) {
+    for (auto& pcolVal : row->getColVals()) {
+        ColVal* colVal = pcolVal.second;
         if (colVal->getAttributeName() == colName) {
             string rowValue;
             if (colVal->getAttribute()->type == "int") {
@@ -142,7 +143,7 @@ Table* QueryManager::executeQuery(const Query& query) {
 
             ColVal* colVal = new ColVal(attribute);
             if (attribute->type == "int") {
-                colVal->setValue(stoi(colValue));
+                colVal->setValue(static_cast<int64_t>(stoi(colValue)));
             } else if (attribute->type == "decimal") {
                 colVal->setValue(stod(colValue));
             } else if (attribute->type == "date") {
@@ -167,7 +168,8 @@ Table* QueryManager::executeQuery(const Query& query) {
             // Create projected row with only requested columns
             Row* projectedRow = new Row(relation);
             for (const string& colName : projectionCols) {
-                for (ColVal* colVal : row->getColVals()) {
+                for (auto &  pcolVal : row->getColVals()) {
+                    ColVal* colVal = pcolVal.second;
                     if (colVal->getAttributeName() == colName) {
                         projectedRow->addColVal(colVal);
                         break;

@@ -18,6 +18,7 @@ g++ -std=c++17 -o createDBOOPS \
 g++ -std=c++17 -o deleteRow Engines/*.cpp Schema/*.cpp ComputationObjects/*.cp
 p Data_Objects/*.cpp CustomTypes/*.cpp delete_main.cpp -ltinyxml2
 
+g++ -std=c++17 -o deleteRow Engines/*.cpp Schema/*.cpp ComputationObjects/*.cpp Data_Objects/*.cpp CustomTypes/*.cpp delete_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
 
 wsl paths reference:
 /mnt/c/Users/LENOVO/OneDrive/Desktop/C_store/Column-Store-DBMS/
