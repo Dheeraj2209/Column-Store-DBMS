@@ -24,6 +24,8 @@ public:
     // Returns true on success.
     bool updateTuple(Relation* relation, int rowIndex, const std::vector<std::string>& newData);
     bool updateTuple(Relation* relation, Row* row);
+//    bool deleteRow(Relation* relation, const std::vector<std::string>& primaryKeyValues);
+
 };
 
 #endif // DATAMANIPULATOR_HPP

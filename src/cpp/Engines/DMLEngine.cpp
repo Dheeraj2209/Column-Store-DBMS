@@ -200,5 +200,25 @@ bool DMLEngine::updateData(const std::string& DBname, const std::string& Relatio
     return dataManipulator.updateTuple(relation, &row);
 }
 
+//DELETE ROW
+#include "DMLEngine.h"
+
+bool DMLEngine::deleteRow(const std::string& DBname, const std::string& RelationName, const std::vector<std::string>& primaryKeyValues) {
+    if (databases.find(DBname) == databases.end()) {
+        std::cerr << "Database " << DBname << " not found." << std::endl;
+        return false;
+    }
+
+    Database* db = databases[DBname];
+    Relation* relation = db->getRelation(RelationName);
+    if (!relation) {
+        std::cerr << "Relation " << RelationName << " not found in database " << DBname << "." << std::endl;
+        return false;
+    }
+
+    return dataDeleter.deleteRow(relation, primaryKeyValues);
+}
+
+
 fs::path meta_metadata_path;
 std::ofstream meta_metadata_file;

@@ -95,6 +95,69 @@
 //
 //    return true;
 //}
+
+//DELETE EACH row by PK {SOFT DELETE}
+
+bool DataDeleter::deleteRow(Relation* relation, const std::vector<std::string>& primaryKeyValues) {
+    if (!relation) {
+        std::cerr << "Relation is null." << std::endl;
+        return false;
+    }
+
+    // Get the primary key attributes
+    auto primaryKey = relation->getPrimaryKey();
+    if (primaryKey.attributeRefs.size() != primaryKeyValues.size()) {
+        std::cerr << "Primary key values do not match the primary key definition." << std::endl;
+        return false;
+    }
+
+    // Iterate over each primary key attribute
+    for (size_t i = 0; i < primaryKey.attributeRefs.size(); ++i) {
+        const std::string& attrName = primaryKey.attributeRefs[i];
+        const std::string& value = primaryKeyValues[i];
+
+        // Get the attribute
+        CAttribute* attribute = relation->getCAttribute(attrName);
+        if (!attribute) {
+            std::cerr << "Attribute " << attrName << " not found in relation." << std::endl;
+            return false;
+        }
+
+        // Open the corresponding .dat file
+        std::string filePath = "../Databases/" + relation->getDatabaseName() + "/" + relation->getName() + "/" + attribute->getName() + ".dat";
+        std::fstream file(filePath, std::ios::in | std::ios::out | std::ios::binary);
+        if (!file) {
+            std::cerr << "Failed to open file: " << filePath << std::endl;
+            return false;
+        }
+
+        // Search for the row with the matching primary key value
+        std::string line;
+        size_t rowIndex = 0;
+        bool found = false;
+        while (std::getline(file, line)) {
+            if (line.find(value) != std::string::npos) { // Simplified matching
+                found = true;
+                break;
+            }
+            ++rowIndex;
+        }
+
+        if (!found) {
+            std::cerr << "Row with primary key value " << value << " not found." << std::endl;
+            return false;
+        }
+
+        // Mark the row as deleted by setting the isDeleted flag
+        file.seekp(rowIndex * sizeof(uint8_t), std::ios::beg); // Assuming isDeleted is at the start
+        uint8_t isDeleted = 1;
+        file.write(reinterpret_cast<char*>(&isDeleted), sizeof(isDeleted));
+        file.close();
+    }
+
+    return true;
+}
+
 bool DataDeleter::deleteByPK(Relation* relation, const ColVal& pkValue) {
     if (!relation || !pkValue.getAttribute()) {
         return false;

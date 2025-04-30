@@ -336,6 +336,9 @@ static bool writeColumnFile(const std::string &path,
 //}
 
 
+
+
+
 bool DataManipulator::updateTuple(Relation* relation, Row* row) {
     if (!relation || !row) {
         std::cerr << "Error: Relation or Row is null." << std::endl;
@@ -393,7 +396,36 @@ bool DataManipulator::updateTuple(Relation* relation, Row* row) {
             }
         }
     }
-
     // Proceed with updating files...
+    // Step 2: Update files
+    for (const auto& colval : colvals) {
+        if (!colval) continue;
+
+        CAttribute* attribute = colval->getAttribute();
+        if (!attribute) continue;
+
+        std::string filepath = colval->getPath();
+        std::vector<std::string> values;
+
+        // Read existing values
+        if (!readColumnFile(filepath, attribute->getType(), values)) {
+            std::cerr << "Error reading column file: " << filepath << std::endl;
+            return false;
+        }
+
+        // Update the specific row
+        int rowIndex = row->getRelation()->getNumRows() - 1; // Assuming last row is updated
+        if (rowIndex < 0 || rowIndex >= (int)values.size()) {
+            std::cerr << "Error: Row index out of range for column: " << attribute->getName() << std::endl;
+            return false;
+        }
+        values[rowIndex] = colval->getStringValue();
+
+        // Write updated values back
+        if (!writeColumnFile(filepath, attribute->getType(), values)) {
+            std::cerr << "Error writing column file: " << filepath << std::endl;
+            return false;
+        }
+    }
     return true;
 }

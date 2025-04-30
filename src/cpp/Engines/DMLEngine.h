@@ -51,7 +51,7 @@ class DMLEngine {
     bool loadMeta_Metadata();
     bool loadDatafromCSV(const string& DBname, const string& CSVfile, const string& RelationName);
 //    static bool insertData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
-//    static bool deleteData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
+//    bool deleteData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
     bool updateData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool selectData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool joinData(const string & DBname, const string & Relation1Name, const string & Relation2Name, const std::vector<std::string>& values);
@@ -59,7 +59,7 @@ class DMLEngine {
 //    static bool aggregateData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool sortData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool groupData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
-
+	bool DMLEngine::deleteRow(const std::string& DBname, const std::string& RelationName, const std::vector<std::string>& primaryKeyValues);
 };
 
 
