@@ -18,7 +18,8 @@ int main() {
 //    CAttribute pkAttr("CustomerID","integer",false,false,true);
 //    ColVal pkVal(&pkAttr, 2);
 //    pkattr = db->getRelation("Customer")->getPrimaryKey().attribute;
-    if (!engine.row_delete("ECommerceDB","Customer", 8)) {
+   int val = 8;
+    if (!engine.row_delete("ECommerceDB","Customer", val)) {
         std::cerr<<"Deletion failed\n";
         return 1;
     }
