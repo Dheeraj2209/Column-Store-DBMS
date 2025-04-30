@@ -179,24 +179,24 @@ Table* QueryManager::executeQuery(const Query& query) {
     }
 
     // Handle ORDER BY if specified
-    vector<string> orderByCols = query.getOrderbycols();
-    if (!orderByCols.empty()) {
-        // Sort the rows based on order by columns
-        vector<Row*> rows = resultTable->getRows();
-        sort(rows.begin(), rows.end(),
-            [&orderByCols](const Row* a, const Row* b) {
-                for (const string& orderByCol : orderByCols) {
-                    for (size_t i = 0; i < a->getColVals().size(); i++) {
-                        if (a->getColVals()[i]->getAttributeName() == orderByCol) {
-                            string valA = a->getColVals()[i]->getStringValue();
-                            string valB = b->getColVals()[i]->getStringValue();
-                            if (valA != valB) return valA < valB;
-                        }
-                    }
-                }
-                return false;
-            });
-    }
+    // vector<string> orderByCols = query.getOrderbycols();
+    // if (!orderByCols.empty()) {
+    //     // Sort the rows based on order by columns
+    //     vector<Row*> rows = resultTable->getRows();
+    //     sort(rows.begin(), rows.end(),
+    //         [&orderByCols](const Row* a, const Row* b) {
+    //             for (const string& orderByCol : orderByCols) {
+    //                 for (size_t i = 0; i < a->getColVals().size(); i++) {
+    //                     if (a->getColVals()[i]->getAttributeName() == orderByCol) {
+    //                         string valA = a->getColVals()[i]->getStringValue();
+    //                         string valB = b->getColVals()[i]->getStringValue();
+    //                         if (valA != valB) return valA < valB;
+    //                     }
+    //                 }
+    //             }
+    //             return false;
+    //         });
+    // }
 
     return resultTable;
 }

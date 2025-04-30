@@ -32,8 +32,8 @@
 
     <ForeignKeys>
       <ForeignKey name="fk_customer_id">
-        <Parent table="Customer" column="CustomerID"/>
-        <Child table="Order" column="CustomerID"/>
+        <Parent table="Order" column="CustomerID"/>
+        <Child table="Customer" column="CustomerID"/>
       </ForeignKey>
     </ForeignKeys>
 
