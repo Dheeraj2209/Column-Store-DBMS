@@ -66,13 +66,13 @@ class DMLEngine {
 //    static bool sortData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool groupData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //	bool row_delete(const std::string& dbName, const std::string& relName, const ColVal& pkVal); // ✅ correct
-    bool DMLEngine::row_delete(const std::string& dbName,
+    bool row_delete(const std::string& dbName,
                            const std::string& relName,
                            string & value);
-    bool DMLEngine::row_delete(const std::string& dbName,
+    bool row_delete(const std::string& dbName,
                            const std::string& relName,
                            int & value);
-    bool DMLEngine::row_delete(const std::string& dbName,
+    bool row_delete(const std::string& dbName,
                            const std::string& relName,
                            double & value);
 
