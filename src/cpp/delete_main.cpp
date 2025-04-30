@@ -1,24 +1,27 @@
-#include "DMLEngine.h"
+#include <iostream>
+#include "Engines/DMLEngine.h"
+#include "Data_Objects/ColVal.hpp"
+#include "Schema/CAttribute.h"
 
 int main() {
-    DMLEngine dmlEngine;
+    DMLEngine engine;
+//    engine.init();
+    auto dbName = "ECommerceDB_main";
+//    auto relName = "Customer";
+//    auto pkAttrName = "CustomerID";
+   Database* db = engine.getDatabase(dbName);
+    // load schema (assumes you’ve already run create)
+//    engine.createColumnStoreDBfromXMLSchema("ECommerceDB");
 
-    // Initialize the engine
-    if (!dmlEngine.init()) {
-        std::cerr << "Failed to initialize DMLEngine." << std::endl;
+    // specify primary-key attribute & value
+    // e.g. delete CustomerID=2 from Customer
+//    CAttribute pkAttr("CustomerID","integer",false,false,true);
+//    ColVal pkVal(&pkAttr, 2);
+//    pkattr = db->getRelation("Customer")->getPrimaryKey().attribute;
+    if (!engine.row_delete("ECommerceDB","Customer", 8)) {
+        std::cerr<<"Deletion failed\n";
         return 1;
     }
-
-    // Test deleting a row
-    std::string dbName = "ECommerceDB_main"; // Adjust as needed
-    std::string relationName = "Customer";
-    std::vector<std::string> primaryKeyValues = {"123"}; // Example primary key value
-
-    if (dmlEngine.deleteRow(dbName, relationName, primaryKeyValues)) {
-        std::cout << "Row deleted successfully." << std::endl;
-    } else {
-        std::cerr << "Failed to delete row." << std::endl;
-    }
-
+    std::cout<<"Deletion succeeded.\n";
     return 0;
 }

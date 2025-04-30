@@ -3,7 +3,9 @@
 //
 
 #include "DMLEngine.h"
-#include "DDLEngine.h" 
+#include "DDLEngine.h"
+#include "../Schema/Database.h"
+
 bool DMLEngine::init() {
   //set the global variable meta_metadata_path
     meta_metadata_path = fs::current_path() / "meta_metadata.json";
@@ -200,24 +202,92 @@ bool DMLEngine::updateData(const std::string& DBname, const std::string& Relatio
     return dataManipulator.updateTuple(relation, &row);
 }
 
-//DELETE ROW
-#include "DMLEngine.h"
+//DELETE ROW {SOFT DELETE}
 
-bool DMLEngine::deleteRow(const std::string& DBname, const std::string& RelationName, const std::vector<std::string>& primaryKeyValues) {
-    if (databases.find(DBname) == databases.end()) {
-        std::cerr << "Database " << DBname << " not found." << std::endl;
+bool DMLEngine::row_delete(const std::string& dbName,
+                           const std::string& relName,
+                           string & value)
+{
+    // 1) get the Database & Relation
+    Database* db = databases[dbName];
+    if (!db) {
+        std::cerr<<"DB "<<dbName<<" not found\n";
+        return false;
+    }
+    Relation* rel = db->getRelation(relName);
+    if (!rel) {
+        std::cerr<<"Relation "<<relName<<" not found\n";
+        return false;
+    }
+    ColVal pkColVal(rel->getPrimaryKey().attribute,value);
+    // 2) call DataDeleter
+    if (!DataDeleter::deleteRow(rel, pkColVal)) {
+        std::cerr<<"Failed to delete row with PK: "<<pkColVal.getStringValue()<<"\n";
+//        pkVal.getStringValue() <<"\n";
         return false;
     }
 
-    Database* db = databases[DBname];
-    Relation* relation = db->getRelation(RelationName);
-    if (!relation) {
-        std::cerr << "Relation " << RelationName << " not found in database " << DBname << "." << std::endl;
-        return false;
-    }
-
-    return dataDeleter.deleteRow(relation, primaryKeyValues);
+    std::cout<<"Row deleted successfully (soft) for PK="<<pkColVal.getStringValue()<<"\n";
+//              <<pkVal.getStringValue()<<"\n";
+    return true;
 }
+
+bool DMLEngine::row_delete(const std::string& dbName,
+                           const std::string& relName,
+                           int & value)
+{
+    // 1) get the Database & Relation
+    Database* db = databases[dbName];
+    if (!db) {
+        std::cerr<<"DB "<<dbName<<" not found\n";
+        return false;
+    }
+    Relation* rel = db->getRelation(relName);
+    if (!rel) {
+        std::cerr<<"Relation "<<relName<<" not found\n";
+        return false;
+    }
+    ColVal pkColVal(rel->getPrimaryKey().attribute,value);
+    // 2) call DataDeleter
+    if (!DataDeleter::deleteRow(rel, pkColVal)) {
+        std::cerr<<"Failed to delete row with PK: "<<pkColVal.getIntValue()<<"\n";
+//        pkVal.getStringValue() <<"\n";
+        return false;
+    }
+
+    std::cout<<"Row deleted successfully (soft) for PK="<<pkColVal.getIntValue()<<"\n";
+//              <<pkVal.getStringValue()<<"\n";
+    return true;
+}
+
+bool DMLEngine::row_delete(const std::string& dbName,
+                           const std::string& relName,
+                           double & value)
+{
+    // 1) get the Database & Relation
+    Database* db = databases[dbName];
+    if (!db) {
+        std::cerr<<"DB "<<dbName<<" not found\n";
+        return false;
+    }
+    Relation* rel = db->getRelation(relName);
+    if (!rel) {
+        std::cerr<<"Relation "<<relName<<" not found\n";
+        return false;
+    }
+    ColVal pkColVal(rel->getPrimaryKey().attribute,value);
+    // 2) call DataDeleter
+    if (!DataDeleter::deleteRow(rel, pkColVal)) {
+        std::cerr<<"Failed to delete row with PK: "<<pkColVal.getDoubleValue()<<"\n";
+//        pkVal.getStringValue() <<"\n";
+        return false;
+    }
+
+    std::cout<<"Row deleted successfully (soft) for PK="<<pkColVal.getDoubleValue()<<"\n";
+//              <<pkVal.getStringValue()<<"\n";
+    return true;
+}
+
 
 
 fs::path meta_metadata_path;

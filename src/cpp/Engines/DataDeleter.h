@@ -6,6 +6,7 @@
 
 #include "../include/external_includes.h"
 #include "../Schema/Relation.h"
+#include "../include/fsnamespace.h"
 #include <string>
 #include "../Schema/CAttribute.h"
 #include "../Data_Objects/Row.hpp"
@@ -20,20 +21,22 @@
 class DataDeleter {
 public:
 //     Deletes a row from the relation based on primary key value
-    bool deleteByPK(Relation* relation, const ColVal& pkValue);
+//    bool deleteByPK(Relation* relation, const ColVal& pkValue);
+//
+//    // Deletes a specific row from the relation
+//    bool deleteRow(Relation* relation, Row* row);
+//
+//    // Marks a row as deleted (soft delete)
+////    bool markRowDeleted(Relation* relation, Row* row);
+//
+//    // Physically removes deleted rows from storage (cleanup)
+//    bool purgeDeletedRows(Relation* relation);
+//
+//    //SOFT DELETE
+//
+//    bool DataDeleter::deleteRow(Relation* relation, const std::vector<std::string>& primaryKeyValues);
 
-    // Deletes a specific row from the relation
-    bool deleteRow(Relation* relation, Row* row);
-
-    // Marks a row as deleted (soft delete)
-//    bool markRowDeleted(Relation* relation, Row* row);
-
-    // Physically removes deleted rows from storage (cleanup)
-    bool purgeDeletedRows(Relation* relation);
-
-    //SOFT DELETE
-
-    bool DataDeleter::deleteRow(Relation* relation, const std::vector<std::string>& primaryKeyValues);
+    static bool deleteRow(Relation* relation, const ColVal& pkVal);
 };
 //};
 

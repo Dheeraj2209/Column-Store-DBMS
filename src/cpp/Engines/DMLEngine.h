@@ -48,6 +48,12 @@ class DMLEngine {
             std::cerr << "Failed to initialize DMLEngine." << std::endl;
         }
     }
+    Database* getDatabase(const string& dbName) {
+        if (databases.find(dbName) != databases.end()) {
+            return databases[dbName];
+        }
+        return nullptr;
+    }
     bool loadMeta_Metadata();
     bool loadDatafromCSV(const string& DBname, const string& CSVfile, const string& RelationName);
 //    static bool insertData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
@@ -59,7 +65,18 @@ class DMLEngine {
 //    static bool aggregateData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool sortData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool groupData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
-	bool DMLEngine::deleteRow(const std::string& DBname, const std::string& RelationName, const std::vector<std::string>& primaryKeyValues);
+//	bool row_delete(const std::string& dbName, const std::string& relName, const ColVal& pkVal); // ✅ correct
+    bool DMLEngine::row_delete(const std::string& dbName,
+                           const std::string& relName,
+                           string & value);
+    bool DMLEngine::row_delete(const std::string& dbName,
+                           const std::string& relName,
+                           int & value);
+    bool DMLEngine::row_delete(const std::string& dbName,
+                           const std::string& relName,
+                           double & value);
+
+
 };
 
 
