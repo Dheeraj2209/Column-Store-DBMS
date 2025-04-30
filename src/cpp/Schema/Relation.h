@@ -59,6 +59,9 @@ class Relation : public Schema_Element {
   std::string getName() const; // Ensure getName() is declared
   std::string getDBName() const;
   void setName(const std::string& name); // Added setter for name
+    Database * getDatabase() const {
+        return database;
+    }
   // The create() method creates a directory for the relation and a .dat file for each attribute.
   virtual bool create(const fs::path &basePath) const override;
   ~Relation();
