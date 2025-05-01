@@ -287,6 +287,7 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
                 if (!pkAttrs.empty()) {
                     PrimaryKeyConstraint* pkCons = new PrimaryKeyConstraint("PK_" + std::string(relName), rel, pkAttrs);
                     db.addConstraint(pkCons);
+                    db.addPrimaryKeyConstraint(pkCons);
                 }
             }
 
@@ -343,6 +344,7 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
 
             ForeignKeyConstraint* fkCons = new ForeignKeyConstraint(fkName, pTable, pColumn, cTable, cColumn);
             db.addConstraint(fkCons);
+            db.addForeignKeyConstraint(fkCons);
         }
     }
 
@@ -383,6 +385,7 @@ Database DDLEngine::loadSchemaFromXML(const std::string& xmlFilePath) {
 
             UniqueKeyConstraint* ucCons = new UniqueKeyConstraint(ucName, rel, attrRefs);
             db.addConstraint(ucCons);
+            db.addUniqueKeyConstraint(ucCons);
         }
     }
 
@@ -737,16 +740,17 @@ Database* DDLEngine::loadSchema(const std::string& xmlFilePath) {
                         pkAttributes.push_back(attr);
                     }
                 }
-
+                    cout<<"PK Attribute Name "<<pkAttributes[0]->name<<endl;
                 if (!pkAttributes.empty()) {
                     PrimaryKey pk("PK_" + std::string(relName), pkAttributes[0], pkAttrs);
                     rel->primaryKey = pk;
 
                     // Create PrimaryKeyConstraint
                     PrimaryKeyConstraint* pkCons = new PrimaryKeyConstraint(
-                        "PKC_" + std::string(relName), rel, pkAttrs
+                        "PKC_" + std::string(relName), rel, pkAttrs, pkAttributes[0]
                     );
                     db->addConstraint(pkCons);
+                    db->addPrimaryKeyConstraint(pkCons);
                     rel->pks[pkCons->name] = pkCons;
                 }
             }
@@ -794,6 +798,7 @@ Database* DDLEngine::loadSchema(const std::string& xmlFilePath) {
             fk->DatabaseName = db->getName();
 
             db->addConstraint(fk);
+            db->addForeignKeyConstraint(fk);
             child->fks[fkName] = fk;
             parent->fks[fkName] = fk;
         }
@@ -827,9 +832,10 @@ Database* DDLEngine::loadSchema(const std::string& xmlFilePath) {
 
             if (!ucAttrs.empty()) {
                 UniqueKeyConstraint* uc = new UniqueKeyConstraint(
-                    ucName, rel, ucAttrs
+                    ucName, rel, ucAttrs, rel->getCAttribute(ucAttrs.at(0))
                 );
                 db->addConstraint(uc);
+                db->addUniqueKeyConstraint(uc);
                 rel->uks[ucName] = uc;
             }
         }

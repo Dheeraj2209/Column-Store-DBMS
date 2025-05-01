@@ -1,4 +1,4 @@
-////
+  ////
 //// Created by Pradyun Devarakonda on 11/03/25.
 ////
 //
@@ -65,6 +65,28 @@ bool Database::addConstraint(Constraint* constraint) {
     constraints[constraint->name] = constraint;
     return true;
 }
+
+bool Database::addPrimaryKeyConstraint(PrimaryKeyConstraint* pkconstraint)
+{
+    pks[pkconstraint->name] = pkconstraint;
+    pkconstraint->relation->addPrimaryKeyConstraint(pkconstraint);
+    return true;
+}
+bool Database::addForeignKeyConstraint(ForeignKeyConstraint* fkconstraint)
+{
+    fkconstraints[fkconstraint->name] = fkconstraint;
+    fkconstraint->parentTable->addForeignKeyConstraint(fkconstraint);
+    fkconstraint->childTable->addForeignKeyConstraint(fkconstraint);
+    return true;
+}
+bool Database::addUniqueKeyConstraint(UniqueKeyConstraint* ukconstraint)
+{
+    uks[ukconstraint->name] = ukconstraint;
+    ukconstraint->relation->addUniqueKeyConstraint(ukconstraint);
+    return true;
+}
+
+
 bool Database::removeRelation(const std::string& relationName) {
     if (relations.find(relationName) == relations.end()) {
         std::cerr << "Error: Relation " << relationName << " not found in database.\n";
@@ -110,6 +132,8 @@ Constraint* Database::getConstraint(const std::string& constraintName) {
     }
     return constraints[constraintName];
 }
+
+
 bool Database::create() const {
     // Create the main database directory under ../../Databases/DatabaseName.
     fs::path basePath = fs::path("../../Databases") / name;

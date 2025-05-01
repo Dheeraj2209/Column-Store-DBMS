@@ -21,7 +21,8 @@ class Database{
    	std::map<string,View*> views;
     std::map<string,Constraint*> constraints;
     std::map<string,ForeignKeyConstraint*> fkconstraints;
-    // std::map<string,UniqueKeyConstraint*> ;
+    std::map<string,UniqueKeyConstraint*> uks;
+    std::map<string,PrimaryKeyConstraint*> pks;
     std::string xmlFilePath;
 public:
     Database();
@@ -42,6 +43,12 @@ public:
     bool removeRelation(const std::string& relationName);
     bool removeView(const std::string& viewName);
     bool removeConstraint(const std::string& constraintName);
+    bool addForeignKeyConstraint(ForeignKeyConstraint* fkconstraint);
+    bool addUniqueKeyConstraint(UniqueKeyConstraint* ukconstraint);
+    bool addPrimaryKeyConstraint(PrimaryKeyConstraint* pkconstraint);
+    std::map<string,ForeignKeyConstraint*> getForeignKeyConstraints() const;
+    std::map<string,UniqueKeyConstraint*> getUniqueKeyConstraints() const;
+    std::map<string,PrimaryKeyConstraint*> getPrimaryKeyConstraints() const;
     Relation* getRelation(const std::string& relationName);
     View* getView(const std::string& viewName);
     Constraint* getConstraint(const std::string& constraintName);

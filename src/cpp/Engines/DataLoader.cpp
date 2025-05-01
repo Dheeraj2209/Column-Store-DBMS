@@ -374,7 +374,7 @@ std::unordered_set<std::string> getReferencedKeySet(
     cout<<"Attempting to read file..."<<endl;
     while (true) {
         uint8_t isDeleted;
-        if (!in.read(reinterpret_cast<char*>(&isDeleted), 1)) break;
+        if (!in.read(reinterpret_cast<char*>(&isDeleted), sizeof(isDeleted))) break;
         cout<<"Is Deleted: "<<(int)isDeleted<<endl;
         if (fk->childColumn->type == "integer") {
             int64_t v;
@@ -392,7 +392,8 @@ std::unordered_set<std::string> getReferencedKeySet(
             size_t len;
             if (!in.read(reinterpret_cast<char*>(&len), sizeof(len))) break;
             std::string s(len, '\0');
-            if (!in.read(s.data(), len)) break;
+            // if (!in.read(s.data(), len)) break;
+            if (!in.read(&s[0], len)) break;
             cout<<"Value: "<<s<<endl;
             if (!isDeleted) refSet.insert(s);
         }
@@ -400,6 +401,134 @@ std::unordered_set<std::string> getReferencedKeySet(
 
     return refSet;
 }
+
+std::unordered_set<std::string> getReferencedKeySet(
+    Database* db,
+    PrimaryKeyConstraint* pk)
+{
+    cout<<"getReferencedKeySet pk function called"<<endl;
+    std::unordered_set<std::string> refSet;
+    const std::string dbName       = db->getName();
+    const std::string relname = pk->relation->getName();
+    const std::string attrname = pk->getAttribute()->name;
+    // const std::string attr = pk->relation->getPrimaryKeys()[0]->name;
+    Relation* rel = db->getRelation(relname);
+    CAttribute* attr = pk->getAttribute();
+    cout<<"Relation: "<<relname<<endl;
+    cout<<"Attribute: "<<attrname<<endl;
+
+    // sanity checks
+    // Relation* parent = db->getRelation(parentRel);
+    if (!rel) {
+        std::cerr << "Error: Parent relation " << relname << " not found.\n";
+        return refSet;
+    }
+    std::string path = "../../Databases/" + dbName + "/" +
+                       relname + "/" + attrname + ".dat";
+    cout<<"File path: "<<path<<endl;
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        std::cerr << "Error: Unable to open " << path << "\n";
+        return refSet;
+    }
+
+    // read until EOF: [isDeleted=1 byte][payload...]
+    cout<<"File opened successfully "<<endl;
+    cout<<"Attempting to read file..."<<endl;
+    while (true) {
+        uint8_t isDeleted;
+        if (!in.read(reinterpret_cast<char*>(&isDeleted), sizeof(isDeleted))) break;
+        cout<<"Is Deleted: "<<(int)isDeleted<<endl;
+        if (pk->attribute->type == "integer") {
+            int64_t v;
+            if (!in.read(reinterpret_cast<char*>(&v), sizeof(v))) break;
+            cout<<"Value: "<<v<<endl;
+            if (!isDeleted) refSet.insert(std::to_string(v));
+        }
+        else if (pk->attribute->type == "decimal") {
+            double d;
+            if (!in.read(reinterpret_cast<char*>(&d), sizeof(d))) break;
+            cout<<"Value: "<<d<<endl;
+            if (!isDeleted) refSet.insert(std::to_string(d));
+        }
+        else { // string or other
+            size_t len;
+            if (!in.read(reinterpret_cast<char*>(&len), sizeof(len))) break;
+            std::string s(len, '\0');
+            // if (!in.read(s.data(), len)) break;
+            if (!in.read(&s[0], len)) break;
+            cout<<"Value: "<<s<<endl;
+            if (!isDeleted) refSet.insert(s);
+        }
+    }
+
+    return refSet;
+}
+
+std::unordered_set<std::string> getReferencedKeySet(
+    Database* db,
+    UniqueKeyConstraint * uk)
+{
+    cout<<"getReferencedKeySet uk function called"<<endl;
+    std::unordered_set<std::string> refSet;
+    const std::string dbName       = db->getName();
+    const std::string relname = uk->relation->getName();
+    const std::string attrname = uk->getAttribute()->name;
+    // const std::string attr = pk->relation->getPrimaryKeys()[0]->name;
+    Relation* rel = db->getRelation(relname);
+    CAttribute* attr = uk->getAttribute();
+    cout<<"Relation: "<<relname<<endl;
+    cout<<"Attribute: "<<attrname<<endl;
+
+    // sanity checks
+    // Relation* parent = db->getRelation(parentRel);
+    if (!rel) {
+        std::cerr << "Error: Parent relation " << relname << " not found.\n";
+        return refSet;
+    }
+    std::string path = "../../Databases/" + dbName + "/" +
+                       relname + "/" + attrname + ".dat";
+    cout<<"File path: "<<path<<endl;
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        std::cerr << "Error: Unable to open " << path << "\n";
+        return refSet;
+    }
+
+    // read until EOF: [isDeleted=1 byte][payload...]
+    cout<<"File opened successfully "<<endl;
+    cout<<"Attempting to read file..."<<endl;
+    while (true) {
+        uint8_t isDeleted;
+        if (!in.read(reinterpret_cast<char*>(&isDeleted), sizeof(isDeleted))) break;
+        cout<<"Is Deleted: "<<(int)isDeleted<<endl;
+        if (uk->attribute->type == "integer") {
+            int64_t v;
+            if (!in.read(reinterpret_cast<char*>(&v), sizeof(v))) break;
+            cout<<"Value: "<<v<<endl;
+            if (!isDeleted) refSet.insert(std::to_string(v));
+        }
+        else if (uk->attribute->type == "decimal") {
+            double d;
+            if (!in.read(reinterpret_cast<char*>(&d), sizeof(d))) break;
+            cout<<"Value: "<<d<<endl;
+            if (!isDeleted) refSet.insert(std::to_string(d));
+        }
+        else { // string or other
+            size_t len;
+            if (!in.read(reinterpret_cast<char*>(&len), sizeof(len))) break;
+            std::string s(len, '\0');
+            // if (!in.read(s.data(), len)) break;
+            if (!in.read(&s[0], len)) break;
+            cout<<"Value: "<<s<<endl;
+            if (!isDeleted) refSet.insert(s);
+        }
+    }
+
+    return refSet;
+}
+
+
 
 
 bool DataLoader::loadDataFromCSV(Database* db,
@@ -484,15 +613,26 @@ bool DataLoader::loadDataFromCSV(Database* db,
         }
 
         std::cout << "File exists, opening for read/write: " << p << std::endl;
+        // std::fstream fsout(p, std::ios::in | std::ios::out | std::ios::binary);
+        //
+        // if (!fsout) {
+        //     std::cout << "Failed to open file for read/write: " << p << std::endl;
+        //     std::cerr << "Cannot open " << p << "\n";
+        //     return false;
+        // }
+        //
+        // streams[colName] = std::move(fsout);
         std::fstream fsout(p, std::ios::in | std::ios::out | std::ios::binary);
-
         if (!fsout) {
-            std::cout << "Failed to open file for read/write: " << p << std::endl;
             std::cerr << "Cannot open " << p << "\n";
             return false;
         }
 
+        // *** Seek to end so that all writes from here on truly append. ***
+        fsout.seekp(0, std::ios::end);
+
         streams[colName] = std::move(fsout);
+
         std::cout << "File opened for read/write: " << p << std::endl;
     }
 
@@ -502,8 +642,28 @@ bool DataLoader::loadDataFromCSV(Database* db,
     cout<<"Preparing PK/UK/FK sets..."<<endl;
     cout<<"Loading PK/UK/FK sets... for relation: "<<relationName<<endl;
     std::unordered_map<std::string,std::unordered_set<std::string>> pkSets, ukSets, fkSets;
-    for (auto const& [name, pk] : rel->pks)    pkSets[name] = {};
-    for (auto const& [name, uk] : rel->uks)    ukSets[name] = {};
+    // for (auto const& [name, pk] : rel->pks)    pkSets[name] = {};
+    // for (auto const& [name, uk] : rel->uks)    ukSets[name] = {};
+
+    for (auto const& [n, pk] : rel->pks) {
+        // pkSets[n]={};
+        // pkSets[n] = getReferencedKeySet(rel->getDatabase(), pk);
+        pkSets[pk->attribute->name] = getReferencedKeySet(rel->getDatabase(), pk);
+    }
+
+    // for (auto const& [n, pk] : db->getPrimaryKeyConstraints()) {
+    //     if (pk->)
+    //     cout<<"Primary key: "<<pk->attribute->name<<endl;
+    //     cout<<"Primary key: "<<pk->getAttribute()->name<<endl;
+    //     // pkSets[n] = {};
+    //     // pkSets[n] = getReferencedKeySet(rel->getDatabase(), pk);
+    //     pkSets[pk->attribute->name] = getReferencedKeySet(rel->getDatabase(), pk);
+    // }
+    for (auto const& [n, uk] : rel->uks) {
+        // ukSets[n] = {};
+        // ukSets[n] = getReferencedKeySet(rel->getDatabase(), uk);
+        ukSets[uk->attribute->name] = getReferencedKeySet(rel->getDatabase(), uk);
+    }
     for (auto const& [name, fk] : rel->fks)
     {
         cout<<"Foreign key: parentTable: "<<fk->parentTable->name<<endl;
@@ -750,12 +910,14 @@ bool DataLoader::insertRow(Relation* rel, Row* row) {
     const auto& attrs = rel->getCAttributes();
 
     // 1) Build in-memory sets for constraints
-    std::unordered_map<std::string, std::unordered_set<ColVal>> pkSets, ukSets;
+    std::unordered_map<std::string, std::unordered_set<string>> pkSets, ukSets;
     for (auto const& [n, pk] : rel->pks) {
-        pkSets[n] = {};
+        // pkSets[n]={};
+        pkSets[n] = getReferencedKeySet(rel->getDatabase(), pk);
     }
     for (auto const& [n, uk] : rel->uks) {
-        ukSets[n] = {};
+        // ukSets[n] = {};
+        ukSets[n] = getReferencedKeySet(rel->getDatabase(), uk);
     }
     // and FK sets for each fk:
     std::unordered_map<std::string, std::unordered_set<std::string>> fkSets;
@@ -770,26 +932,94 @@ bool DataLoader::insertRow(Relation* rel, Row* row) {
     auto colvals = row->getColVals();
     for (auto& pcv : colvals) {
         auto &cv = pcv.second;
-        const std::string& name = cv->getAttributeName();
+        const std::string& attrName = cv->getAttributeName();
+        int64_t intval; double dval; string stringval; string raw;
+        if (cv->attribute->type=="integer") {
+            cout<<"Attribute type is integer"<<endl;
+            intval = cv->getIntValue();
+            raw = std::to_string(intval);
+        }
+        else if (cv->attribute->type=="decimal") {
+            cout<<"Attribute type is decimal"<<endl;
+            dval = cv->getDoubleValue();
+            raw = std::to_string(dval);
+        }
+        else if (cv->attribute->type=="string") {
+            cout<<"Attribute type is string"<<endl;
+            stringval = cv->getStringValue();
+            raw = stringval;
+        }
+        else {
+            std::cerr << "Unknown attribute type" << std::endl;
+        }
+        // // PK
+        // if (rel->pks.count(name)) {
+        //     if (!ConstraintValidator::validatePrimaryKey(
+        //             rel, *cv, rel->pks.at(name)))
+        //         return false;
+        // }
+        // // UK
+        // if (rel->uks.count(name)) {
+        //     if (!ConstraintValidator::validateUniqueKey(
+        //             rel, *cv, rel->uks.at(name)))
+        //         return false;
+        // }
+        // // FK
+        // if (rel->fks.count(name)) {
+        //     if (!ConstraintValidator::validateForeignKey(
+        //             *cv,
+        //             rel->fks.at(name)))
+        //         return false;
+        // }
+        // if (pkSets.count(attrName)) {
+        //     if (!pkSets[attrName].insert(raw).second) {
+        //         std::cerr << "PK violation on " << attrName << ": " << raw << "\n";
+        //         return false;
+        //     }
+        // }
+        //
+        // // UK check
+        // if (ukSets.count(attrName)) {
+        //     if (!ukSets[attrName].insert(raw).second) {
+        //         std::cerr << "UK violation on " << attrName << ": " << raw << "\n";
+        //         return false;
+        //     }
+        // }
+        //
+        // // FK check
+        // if (fkSets.count(attrName)) {
+        //     cout<<"FK check for attribute: "<<attrName<<endl;
+        //     if (fkSets[attrName].find(raw) == fkSets[attrName].end()) {
+        //         std::cerr << "FK violation on " << attrName << ": " << raw << "\n";
+        //
+        //         return false;
+        //     }
+        // }
 
-        // PK
-        if (rel->pks.count(name)) {
-            if (!ConstraintValidator::validatePrimaryKey(
-                    rel, *cv, rel->pks.at(name)))
+        // PK check
+        if (pkSets.count(attrName)) {
+            if (!pkSets[attrName].insert(raw).second) {
+                std::cerr << "PK violation on " << attrName << ": " << raw << "\n";
                 return false;
+            }
         }
-        // UK
-        if (rel->uks.count(name)) {
-            if (!ConstraintValidator::validateUniqueKey(
-                    rel, *cv, rel->uks.at(name)))
+
+        // UK check
+        if (ukSets.count(attrName)) {
+            if (!ukSets[attrName].insert(raw).second) {
+                std::cerr << "UK violation on " << attrName << ": " << raw << "\n";
                 return false;
+            }
         }
-        // FK
-        if (rel->fks.count(name)) {
-            if (!ConstraintValidator::validateForeignKey(
-                    *cv,
-                    rel->fks.at(name)))
+
+        // FK check
+        if (fkSets.count(attrName)) {
+            cout<<"FK check for attribute: "<<attrName<<endl;
+            if (fkSets[attrName].find(raw) == fkSets[attrName].end()) {
+                std::cerr << "FK violation on " << attrName << ": " << raw << "\n";
+
                 return false;
+            }
         }
     }
     Database * db = rel->getDatabase();
@@ -802,15 +1032,9 @@ bool DataLoader::insertRow(Relation* rel, Row* row) {
     for (auto& pcv : colvals) {
         auto& cv = pcv.second;
         CAttribute* a = cv->getAttribute();
-        std::fstream fs(
-            base + a->name + ".dat",
-            std::ios::in | std::ios::out | std::ios::binary);
+        std::fstream fs(base + a->name + ".dat",std::ios::in | std::ios::out | std::ios::binary);
 
         // bump header
-        int count = 0;
-        fs.read(reinterpret_cast<char*>(&count), sizeof(count));
-        fs.seekp(0);
-        fs.write(reinterpret_cast<char*>(&++count), sizeof(count));
         fs.seekp(0, std::ios::end);
 
         // isDeleted flag = 0

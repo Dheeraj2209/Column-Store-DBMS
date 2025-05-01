@@ -78,6 +78,8 @@ class DMLEngine {
     bool insertRow(const std::string& relationName,
                    const std::vector<std::string>& values,
                    Database* db);
+    bool printTable(const std::string& dbName,const std::string& relationName) const;
+
 
 
 };

@@ -4,6 +4,7 @@
 
 Mac user:
 % g++ -std=c++17 -o createDBOOPS Engines/DDLEngine.cpp Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp Schema/Constraint.cpp Schema/View.cpp Schema/PrimaryKey.cpp Schema/PrimaryKeyConstraint.cpp Schema/UniqueKeyConstraint.cpp Schema/ForeignKeyConstraint.cpp ComputationObjects/Query.cpp main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+
 wsl/linux:
 g++ -std=c++17 -o createDBOOPS \
   Engines/DDLEngine.cpp Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp \
@@ -23,3 +24,6 @@ g++ -std=c++17 -o deleteRow Engines/*.cpp Schema/*.cpp ComputationObjects/*.cpp 
 wsl paths reference:
 /mnt/c/Users/LENOVO/OneDrive/Desktop/C_store/Column-Store-DBMS/
 
+
+printTable(mac):
+ g++ -std=c++17 -o printTable Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp print_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2

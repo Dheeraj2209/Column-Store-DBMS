@@ -30,8 +30,8 @@ int main(int argc, char** argv) {
     //    the CSV order is [ CustomerID, Name, Email, RegistrationDate ]
     std::vector<std::string> newCustomer {
         "5",                       // CustomerID (integer)
-        "Charlie Chaplin",         // Name
         "charlie@funnyfilms.com",  // Email
+        "Charlie Chaplin",         // Name
     };
 
     // 4) call insertRow, which under the hood:

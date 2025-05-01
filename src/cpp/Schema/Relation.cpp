@@ -5,7 +5,9 @@
 #include "Relation.h"
 #include "CAttribute.h"
 #include "Database.h"
-
+#include "PrimaryKeyConstraint.h"
+#include "ForeignKeyConstraint.h"
+#include "UniqueKeyConstraint.h"
 // ---------- Relation Implementation ----------
 
 std::map<std::string, CAttribute*> Relation::getCAttributes() const {
@@ -51,6 +53,20 @@ CAttribute* Relation::getCAttribute(const std::string& attributeName) {
 
 void Relation::setName(const std::string& name) {
     this->name = name;
+}
+
+
+bool Relation::addPrimaryKeyConstraint(PrimaryKeyConstraint* pkconstraint) {
+    pks[pkconstraint->name] = pkconstraint;
+    return true;
+}
+bool Relation::addForeignKeyConstraint(ForeignKeyConstraint* fkconstraint) {
+    fks[fkconstraint->name] = fkconstraint;
+    return true;
+}
+bool Relation::addUniqueKeyConstraint(UniqueKeyConstraint* ukconstraint) {
+    uks[ukconstraint->name] = ukconstraint;
+    return true;
 }
 
 bool Relation::create(const fs::path &basePath) const {
@@ -125,6 +141,9 @@ int Relation::getNumRows() {
 
     return count;
 }
+
+
+
 
 // Destructor
 Relation::~Relation() {

@@ -20,6 +20,11 @@ class UniqueKeyConstraint : public Constraint {
         : Constraint(UNIQUE), relation(rel), attributeRefs(attrs) {
         this->name = name;
     }
+    UniqueKeyConstraint(const std::string& name, Relation* rel,
+                        const std::vector<std::string>& attrs, CAttribute* attr)
+        : Constraint(UNIQUE), relation(rel), attributeRefs(attrs), attribute(attr) {
+        this->name = name;
+    }
     bool create(const fs::path &basePath) const;
     std::string getName() {
         return this->name;

@@ -52,7 +52,9 @@ class Relation : public Schema_Element {
   bool addCAttribute(const CAttribute* attribute);
   bool removeCAttribute(const std::string& attributeName);
   CAttribute* getCAttribute(const std::string& attributeName);
-
+    bool addPrimaryKeyConstraint(PrimaryKeyConstraint* pkconstraint);
+    bool addForeignKeyConstraint(ForeignKeyConstraint* fkconstraint);
+    bool addUniqueKeyConstraint(UniqueKeyConstraint* ukconstraint);
   std::map<std::string,ForeignKeyConstraint*> getfks();
   std::map<std::string,UniqueKeyConstraint*> getuks();
   std::map<std::string,PrimaryKeyConstraint*> getpks();
