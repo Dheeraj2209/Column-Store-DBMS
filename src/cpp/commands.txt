@@ -27,3 +27,6 @@ wsl paths reference:
 
 printTable(mac):
  g++ -std=c++17 -o printTable Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp print_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+
+updateRow(mac):
+ g++ -std=c++17 -o updateRow Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp update_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
