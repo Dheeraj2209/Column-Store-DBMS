@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     if (argc < 5) {
-        cerr << "Usage: " << argv[0] << " <dbName> <relationName> <oldKey> <newVal1> <newVal2> ...\n";
+        cerr << "Usage: " << argv[0] << " <dbName> <relationName> <oldKey> <newVal1> <newVal2> ... (column values in alphabetical order)\n";
         return 1;
     }
 
