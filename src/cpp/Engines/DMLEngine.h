@@ -80,6 +80,25 @@ class DMLEngine {
                    Database* db);
     bool printTable(const std::string& dbName,const std::string& relationName) const;
 
+    //high level update(delete and insert)
+    bool updateRow(const std::string& dbName,
+                          const std::string& relName,
+                          std::string& deleteKey,
+                          const std::vector<std::string>& newValues);
+
+
+    bool updateRow(const std::string& relationName,
+                   int & value,
+                   const std::vector<std::string>& values,
+                   Database* db);
+    bool updateRow(const std::string& relationName,
+                   double & value,
+                   const std::vector<std::string>& values,
+                   Database* db);
+    bool updateRow(const std::string& relationName,
+                   const std::string & value,
+                   const std::vector<std::string>& values,
+                   Database* db);
 
 
 };

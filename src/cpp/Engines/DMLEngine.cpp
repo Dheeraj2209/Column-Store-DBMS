@@ -206,6 +206,76 @@ bool DMLEngine::insertRow(const std::string& relationName,
     return ok;
 }
 
+bool DMLEngine::updateRow(const std::string& dbName,
+                          const std::string& relName,
+                          std::string& deleteKey,
+                          const std::vector<std::string>& newValues)
+
+{
+    // 1) fetch the database object
+    Database* db = getDatabase(dbName);
+    if (!db) {
+        std::cerr << "Database " << dbName << " not found.\n";
+        return false;
+    }
+    CAttribute* pkAttr = db->getRelation(relName)->getPrimaryKey().attribute;
+    if (!pkAttr) {
+        std::cerr << "Primary key not found for relation " << relName << "\n";
+        return false;
+    }
+    if (pkAttr->type=="integer") {
+        int v = std::stoll(deleteKey);
+        if (!row_delete(dbName, relName, v)) {
+            std::cerr << "Failed to delete old row in " << relName
+                      << " with key " << deleteKey << "\n";
+            return false;
+        }
+        if (!insertRow(relName, newValues, db)) {
+            std::cerr << "Failed to insert updated row into " << relName << "\n";
+            return false;
+        }
+    }
+    else if (pkAttr->type=="decimal") {
+        double d = std::stod(deleteKey);
+        if (!row_delete(dbName, relName, d)) {
+            std::cerr << "Failed to delete old row in " << relName
+                      << " with key " << deleteKey << "\n";
+            return false;
+        }
+        if (!insertRow(relName, newValues, db)) {
+            std::cerr << "Failed to insert updated row into " << relName << "\n";
+            return false;
+        }
+    }
+    else if (pkAttr->type=="string") {
+
+        if (!row_delete(dbName, relName, deleteKey)) {
+            std::cerr << "Failed to delete old row in " << relName
+                      << " with key " << deleteKey << "\n";
+            return false;
+        }
+        if (!insertRow(relName, newValues, db)) {
+            std::cerr << "Failed to insert updated row into " << relName << "\n";
+            return false;
+        }
+    }
+    else{
+        std::cerr << "Unsupported primary key type: " << pkAttr->type << "\n";
+        return false;
+    }
+    // 2) delete the old tuple
+
+
+    // 3) insert the new tuple
+    // if (!insertRow(relName, newValues, db)) {
+    //     std::cerr << "Failed to insert updated row into " << relName << "\n";
+    //     return false;
+    // }
+
+    return true;
+}
+
+
 //bool DMLEngine::insertData(const string & DBname, const string & RelationName, const std::vector<std::string>& values){
 //    return dataManipulator.insertData(this->databases[DBname], RelationName, values);
 //}
