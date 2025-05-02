@@ -14,9 +14,7 @@ int main(int argc, char* argv[]) {
     std::string dbName      = argv[1];
     std::string relationName = argv[2];
     std::string columnNames = argv[3]; // e.g., "col1,col2,col3"
-    columnNames = columnNames.substr(1, columnNames.length() - 2); // remove quotes
     std::string constraints = argv[4]; // e.g., "col1=5,col2>10"
-    constraints = constraints.substr(1, constraints.length() - 2); // remove quotes
     // assuming key is integer; adjust stoi → stoll if you use 64-bit keys
 
     DMLEngine engine;
