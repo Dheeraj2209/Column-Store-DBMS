@@ -7,22 +7,32 @@ Mac user:
 
 wsl/linux:
 g++ -std=c++17 -o createDBOOPS \
-  Engines/DDLEngine.cpp Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp \
+  Engines/DDLEngine.cpp \
+  Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp \
   Schema/Constraint.cpp Schema/View.cpp Schema/PrimaryKey.cpp \
   Schema/PrimaryKeyConstraint.cpp Schema/UniqueKeyConstraint.cpp \
-  Schema/ForeignKeyConstraint.cpp ComputationObjects/Query.cpp main.cpp
+  Schema/ForeignKeyConstraint.cpp \
+  ComputationObjects/Query.cpp \
+  main.cpp \
+  -ltinyxml2
+
 
 //Command for Load Database:
  % g++ -std=c++17 -o load Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp dml_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
 
-//WSL:: command for delete row by pk {soft delete}
-g++ -std=c++17 -o deleteRow Engines/*.cpp Schema/*.cpp ComputationObjects/*.cp
-p Data_Objects/*.cpp CustomTypes/*.cpp delete_main.cpp -ltinyxml2
+wsl/linux :
+g++ -std=c++17 -o load \
+  Engines/*.cpp \
+  Schema/*.cpp \
+  Data_Objects/*.cpp \
+  ComputationObjects/*.cpp \
+  CustomTypes/*.cpp \
+  dml_main.cpp \
+  -ltinyxml2
 
+
+command for delete row by pk {soft delete} mac:
 g++ -std=c++17 -o deleteRow Engines/*.cpp Schema/*.cpp ComputationObjects/*.cpp Data_Objects/*.cpp CustomTypes/*.cpp delete_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
-
-wsl paths reference:
-/mnt/c/Users/LENOVO/OneDrive/Desktop/C_store/Column-Store-DBMS/
 
 
 printTable(mac):
@@ -33,3 +43,33 @@ updateRow(mac):
 
 insertRow(mac):
  g++ -std=c++17 -o insertRow Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp insert_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+
+
+below are the commands for wsl/linux:
+g++ -std=c++17 -o printTable \
+  Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp \
+  ComputationObjects/*.cpp CustomTypes/*.cpp \
+  print_main.cpp -ltinyxml2
+
+
+g++ -std=c++17 -o updateRow \
+  Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp \
+  ComputationObjects/*.cpp CustomTypes/*.cpp \
+  update_main.cpp -ltinyxml2
+
+
+g++ -std=c++17 -o insertRow \
+  Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp \
+  ComputationObjects/*.cpp CustomTypes/*.cpp \
+  insert_main.cpp -ltinyxml2
+
+g++ -std=c++17 -o deleteRow \
+  Engines/*.cpp Schema/*.cpp ComputationObjects/*.cpp \
+  Data_Objects/*.cpp CustomTypes/*.cpp \
+  delete_main.cpp -ltinyxml2
+
+
+ wsl paths reference:
+ /mnt/c/Users/LENOVO/OneDrive/Desktop/C_store/Column-Store-DBMS/
+
+ /mnt/c/Users/LENOVO/OneDrive/Desktop/C_store/Column-Store-DBMS/src/xml/sample_instance2.xml
