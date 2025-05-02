@@ -12,6 +12,7 @@
 
 // Global debug control variable
 bool DEBUG_MODE = false;
+int printwidth = 30;
 
 //QueryManager::QueryManager() { /* Implementation */ }
 // Helper: very simple condition evaluator of the form "col = value"
@@ -208,6 +209,8 @@ static bool evaluateCondition(const std::string& condition, const std::string& v
 bool QueryManager::executeQuery(Database*& db, const Query& query, Table*& resultTable) {
     namespace fs = std::filesystem;
 
+    if (DEBUG_MODE) std::cout << "Executing query: " << query.getQuerystring() << "\n";
+
     // Get the relation name from query
     std::vector<std::string> relations = query.getParticipating_relations();
     if (relations.empty()) {
@@ -250,15 +253,17 @@ bool QueryManager::executeQuery(Database*& db, const Query& query, Table*& resul
         if (DEBUG_MODE) std::cout << "Opened column file: " << p << "\n";
     }
 
-    for (auto* attr : attrs) {
-        std::cout << std::setw(20) << std::left << attr->name;
+    std::vector<std::string> colNames = query.getResultcols();
+    // Get the columns to be printed from the query
+    std::set<std::string> columnsToPrint(colNames.begin(), colNames.end());
+    if (DEBUG_MODE) {
+        std::cout << "Columns to print: ";
+        for (const auto& col : columnsToPrint) {
+            std::cout << col << " ";
+        }
+        std::cout << "\n";
     }
-    std::cout << "\n";
-    for (size_t i = 0; i < attrs.size(); ++i) {
-        std::cout << std::string(20, '-');
-    }
-    std::cout << "\n";
-    
+
     // Get conditions
     std::vector<std::string> conditions = query.getConditions();
     if (DEBUG_MODE) std::cout << "Conditions received: " << conditions.size() << "\n";
@@ -274,6 +279,28 @@ bool QueryManager::executeQuery(Database*& db, const Query& query, Table*& resul
             if (DEBUG_MODE) std::cout << "Mapped condition: " << condition << " to column: " << colName << "\n";
         }
     }
+    
+    // 4) Print a header row
+    for (auto* attr : attrs) {
+        if (columnsToPrint.count("*") || columnsToPrint.count(attr->name)) {
+            std::cout << std::string(printwidth, '-');
+        }
+    }
+    std::cout << "\n";
+
+    for (auto* attr : attrs) {
+        if (columnsToPrint.count("*") || columnsToPrint.count(attr->name)) {
+            std::cout << "|" << std::setw(printwidth - 1) << std::left << attr->name;
+        }
+    }
+    std::cout << "|\n";
+
+    for (auto* attr : attrs) {
+        if (columnsToPrint.count("*") || columnsToPrint.count(attr->name)) {
+            std::cout << std::string(printwidth, '-');
+        }
+    }
+    std::cout << "\n";
 
     // 5) Read in lockstep until the first column hits EOF
     while (true) {
@@ -374,11 +401,21 @@ bool QueryManager::executeQuery(Database*& db, const Query& query, Table*& resul
 
         // 7) Print the row
         if (DEBUG_MODE) std::cout << "Row passed all conditions:\n";
-        for (auto& cell : row) {
-            std::cout << std::setw(20) << std::left << cell;
+        for (size_t i = 0; i < row.size(); ++i) {
+            if (columnsToPrint.count("*") || columnsToPrint.count(attrs[i]->name)) {
+                std::cout << "|" << std::setw(printwidth - 1) << std::left << row[i];
+            }
         }
-        std::cout << "\n";
+        std::cout << "|\n";
     }
+
+    // Print a boundary line below the last row
+    for (auto* attr : attrs) {
+        if (columnsToPrint.count("*") || columnsToPrint.count(attr->name)) {
+            std::cout << std::string(printwidth, '-');
+        }
+    }
+    std::cout << "\n";
 
     // 8) Close files
     for (auto& c : cols) {

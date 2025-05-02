@@ -418,9 +418,9 @@ bool DMLEngine::run_query(const std::string& dbName,
                           const std::string& constraints)
 {
 
-    // std::cout << "Running query on " << dbName << "." << relationName
-            //   << " with columns: " << columnNames
-            //   << " and constraints: " << constraints << std::endl;
+    std::cout << "Running query on " << dbName << "." << relationName
+              << " with columns: " << columnNames
+              << " and constraints: " << constraints << std::endl;
 
     // 1) get the Database & Relation
     Database* db = databases[dbName];

@@ -19,12 +19,12 @@
 
 using namespace std;
 class Query {
-    string querystring;
+    std::string querystring;
     //Database sourceDB;
-    vector<std::string> resultcols;
-    vector<std::string> conditions;
-    vector<std::string> participating_relations;
-    vector<std::string> orderbycols;
+    std::vector<std::string> resultcols;
+    std::vector<std::string> conditions;
+    std::vector<std::string> participating_relations;
+    std::vector<std::string> orderbycols;
 public:
     // Constructors
     Query();
@@ -33,23 +33,23 @@ public:
 
     // Setters
     //void setSourceDB(Database* sourceDB);
-    void setQuerystring(const string& querystring);
-    void setResultcols(const vector<std::string>& resultcols);
-    void setConditions(const vector<std::string>& conditions);
-    void setParticipating_relations(const vector<std::string>& participating_relations);
-    void setOrderbycols(const vector<std::string>& orderbycols);
+    void setQuerystring(const std::string& querystring);
+    void setResultcols(const std::vector<std::string>& resultcols);
+    void setConditions(const std::vector<std::string>& conditions);
+    void setParticipating_relations(const std::vector<std::string>& participating_relations);
+    void setOrderbycols(const std::vector<std::string>& orderbycols);
 
     // Getters
     //Database* getSourceDB() const;
-    string getQuerystring() const;
-    vector<std::string> getResultcols() const;
-    vector<std::string> getConditions() const;
-    vector<std::string> getParticipating_relations() const;
-    vector<std::string> getOrderbycols() const;
+    std::string getQuerystring() const;
+    std::vector<std::string> getResultcols() const;
+    std::vector<std::string> getConditions() const;
+    std::vector<std::string> getParticipating_relations() const;
+    std::vector<std::string> getOrderbycols() const;
     
     // Parsers
     void parseQuery();
-    vector<std::string> split(const string& s, char delimiter);
+    std::vector<std::string> split(const std::string& s, char delimiter);
     //void setQuerystring(const string& querystring);
     ~Query();
 };
