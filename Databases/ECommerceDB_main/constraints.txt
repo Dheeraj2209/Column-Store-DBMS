@@ -1,0 +1,8 @@
+PrimaryKey: PK_Customer on Relation: Customer Attributes: CustomerID 
+PrimaryKey: PK_Order on Relation: Order Attributes: OrderID 
+UniqueConstraint: UC_Customer_Email on Relation: Customer Attributes: Email 
+ForeignKey: fk_order_customer - Parent: Order(CustomerID) -> Child: Customer(CustomerID)
+PrimaryKey: PK_Customer on Relation: Customer Attributes: CustomerID 
+PrimaryKey: PK_Order on Relation: Order Attributes: OrderID 
+UniqueConstraint: UC_Customer_Email on Relation: Customer Attributes: Email 
+ForeignKey: fk_order_customer - Parent: Order(CustomerID) -> Child: Customer(CustomerID)

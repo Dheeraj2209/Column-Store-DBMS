@@ -20,17 +20,8 @@ public:
 //        return true;
 //    }
 
-    // Execute all stored queries, return each result as a Relation*
-//    vector<Relation*> executeQueries() {
-//        vector<Relation*> results;
-//        for (auto& q : queries) {
-//            results.push_back(executeQuery(q));
-//        }
-//        return results;
-//    }
-
     // Execute a single query, returning a new Relation* with the result set
-    Table* executeQuery(const Query& query);
+    bool executeQuery(Database*& db, const Query& query, Table*& resultTable);
 
     ~QueryManager() = default;
 };

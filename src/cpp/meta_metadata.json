@@ -1,0 +1,5 @@
+{
+  "databases": {
+    "ECommerceDB_main": {"schema_file": "../../Databases/ECommerceDB_main/ECommerceDB_main_schema.xml"}
+  }
+}

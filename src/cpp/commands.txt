@@ -68,6 +68,10 @@ g++ -std=c++17 -o deleteRow \
   Data_Objects/*.cpp CustomTypes/*.cpp \
   delete_main.cpp -ltinyxml2
 
+g++ -std=c++17 -o query \
+  Engines/*.cpp Schema/*.cpp ComputationObjects/*.cpp \
+  Data_Objects/*.cpp CustomTypes/*.cpp \
+  query_main.cpp -ltinyxml2
 
  wsl paths reference:
  /mnt/c/Users/LENOVO/OneDrive/Desktop/C_store/Column-Store-DBMS/

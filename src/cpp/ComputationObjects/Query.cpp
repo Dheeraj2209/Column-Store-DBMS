@@ -5,6 +5,10 @@
 #include "Query.h"
 //#include "../Schema/Database.h"
 
+Query::Query() {
+    // Default constructor
+}
+
 Query::Query(const string& querystring) : querystring(querystring) {
     // Parse the query string
     parseQuery();

@@ -412,6 +412,59 @@ bool DMLEngine::row_delete(const std::string& dbName,
     return true;
 }
 
+bool DMLEngine::run_query(const std::string& dbName,
+                          const std::string& relationName,
+                          const std::string& columnNames,
+                          const std::string& constraints)
+{
+
+    // std::cout << "Running query on " << dbName << "." << relationName
+            //   << " with columns: " << columnNames
+            //   << " and constraints: " << constraints << std::endl;
+
+    // 1) get the Database & Relation
+    Database* db = databases[dbName];
+    if (!db) {
+        std::cerr << "DB " << dbName << " not found\n";
+        return false;
+    }
+    Relation* rel = db->getRelation(relationName);
+    if (!rel) {
+        std::cerr << "Relation " << relationName << " not found\n";
+        return false;
+    }
+
+    // 2) parse the column names and constraints
+    std::vector<std::string> colNames;
+    std::istringstream colStream(columnNames);
+    std::string colName;
+    while (std::getline(colStream, colName, ',')) {
+        colNames.push_back(colName);
+    }
+
+    std::vector<std::string> constraintsVec;
+    std::istringstream constraintStream(constraints);
+    std::string constraint;
+    while (std::getline(constraintStream, constraint, ',')) {
+        constraintsVec.push_back(constraint);
+    }
+    
+    // 3) create a Query object
+    Query query;
+    query.setParticipating_relations({ relationName });
+    query.setResultcols(colNames);
+    query.setConditions(constraintsVec);
+    query.setOrderbycols({}); // Assuming no ORDER BY for now
+    
+    Table* resultTable = NULL;
+    if (!queryManager.executeQuery(db, query, resultTable)) {
+        std::cerr << "Query execution failed\n";
+        return false;
+    }
+
+    return true;
+
+}
 
 bool DMLEngine::printTable(const std::string& dbName, const std::string& relationName) const {
     namespace fs = std::filesystem;

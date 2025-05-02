@@ -75,6 +75,7 @@ class DMLEngine {
     bool row_delete(const std::string& dbName,
                            const std::string& relName,
                            double & value);
+    
     bool insertRow(const std::string& relationName,
                    const std::vector<std::string>& values,
                    Database* db);
@@ -82,11 +83,9 @@ class DMLEngine {
 
     //high level update(delete and insert)
     bool updateRow(const std::string& dbName,
-                          const std::string& relName,
-                          std::string& deleteKey,
-                          const std::vector<std::string>& newValues);
-
-
+                   const std::string& relName,
+                   std::string& deleteKey,
+                   const std::vector<std::string>& newValues);
     bool updateRow(const std::string& relationName,
                    int & value,
                    const std::vector<std::string>& values,
@@ -99,7 +98,25 @@ class DMLEngine {
                    const std::string & value,
                    const std::vector<std::string>& values,
                    Database* db);
-
+    
+    bool run_query(const std::string& dbName,
+                   const std::string& relationName,
+                   const std::string& columnNames,
+                   const std::string& constraints); //working
+    bool run_query(const std::string& dbName,
+                   const std::string& relationName,
+                   const std::string& columnNames);
+    bool run_query(const std::string& dbName,
+                   const std::string& relationName,
+                   const std::string& columnNames,
+                   const std::string& constraints,
+                   const std::string& orderBy);
+    bool run_query(const std::string& dbName,
+                   const std::string& relationName,
+                   const std::string& columnNames,
+                   const std::string& constraints,
+                   const std::string& orderBy,
+                   const std::string& groupBy);
 
 };
 

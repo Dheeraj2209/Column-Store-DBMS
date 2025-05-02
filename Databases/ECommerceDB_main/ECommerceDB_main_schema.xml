@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ColumnStoreSchema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:noNamespaceSchemaLocation="ColumnStoreSchema.xsd">
+
+  <Database name="ECommerceDB_main">
+    <Relations>
+      <Relation name="Customer">
+        <Attributes>
+          <Attribute name="CustomerID" type="integer" isNullable="false" isUnique="true"/>
+          <Attribute name="Name" type="string" isNullable="false"/>
+          <Attribute name="Email" type="string" isNullable="false"/>
+<!--          <Attribute name="RegistrationDate" type="string" isNullable="false"/>-->
+        </Attributes>
+        <PrimaryKey>
+          <AttributeRef name="CustomerID"/>
+        </PrimaryKey>
+      </Relation>
+
+      <Relation name="Order">
+        <Attributes>
+          <Attribute name="OrderID" type="integer" isNullable="false" isUnique="true"/>
+          <Attribute name="CustomerID" type="integer" isNullable="false"/>
+<!--          <Attribute name="OrderDate" type="string" isNullable="false"/>-->
+          <Attribute name="TotalAmount" type="decimal" isNullable="false"/>
+        </Attributes>
+        <PrimaryKey>
+          <AttributeRef name="OrderID"/>
+        </PrimaryKey>
+      </Relation>
+    </Relations>
+
+
+    <ForeignKeys>
+      <ForeignKey name="fk_order_customer">
+        <Parent table="Order" column="CustomerID"/>
+        <Child table="Customer" column="CustomerID"/>
+      </ForeignKey>
+    </ForeignKeys>
+
+    <UniqueConstraints>
+      <UniqueConstraint name="UC_Customer_Email" relation="Customer">
+        <AttributeRef name="Email"/>
+      </UniqueConstraint>
+    </UniqueConstraints>
+  </Database>
+
+</ColumnStoreSchema>
