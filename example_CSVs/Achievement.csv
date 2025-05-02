@@ -1,0 +1,5 @@
+AchievementID,PlayerID,Description,Level
+900,1,Completed First Mission,1
+901,1,Defeated Final Boss,5
+902,2,Reached Max Level,10
+903,3,Won Multiplayer Match,3

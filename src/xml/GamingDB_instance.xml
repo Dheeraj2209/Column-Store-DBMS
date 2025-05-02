@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ColumnStoreSchema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <Database name="GamingDB">
+
+        <Relations>
+            <!-- Player Table -->
+            <Relation name="Player">
+                <Attributes>
+                    <Attribute name="PlayerID" type="integer" isNullable="false" isUnique="true"/>
+                    <Attribute name="Username" type="string" isNullable="false"/>
+                    <Attribute name="Email" type="string" isNullable="false" isUnique="true"/>
+                    <Attribute name="Age" type="integer"/>
+                </Attributes>
+                <PrimaryKey>
+                    <AttributeRef name="PlayerID"/>
+                </PrimaryKey>
+            </Relation>
+
+            <!-- Game Table -->
+            <Relation name="Game">
+                <Attributes>
+                    <Attribute name="GameID" type="integer" isNullable="false"/>
+                    <Attribute name="Title" type="string" isNullable="false"/>
+                    <Attribute name="Genre" type="string"/>
+                    <Attribute name="Price" type="decimal"/>
+                </Attributes>
+                <PrimaryKey>
+                    <AttributeRef name="GameID"/>
+                </PrimaryKey>
+            </Relation>
+
+            <!-- Score Table -->
+            <Relation name="Score">
+                <Attributes>
+                    <Attribute name="ScoreID" type="integer" isNullable="false"/>
+                    <Attribute name="PlayerID" type="integer" isNullable="false"/>
+                    <Attribute name="GameID" type="integer" isNullable="false"/>
+                    <Attribute name="Points" type="integer"/>
+                </Attributes>
+                <PrimaryKey>
+                    <AttributeRef name="ScoreID"/>
+                </PrimaryKey>
+            </Relation>
+
+            <!-- Achievement Table -->
+            <Relation name="Achievement">
+                <Attributes>
+                    <Attribute name="AchievementID" type="integer" isNullable="false"/>
+                    <Attribute name="PlayerID" type="integer" isNullable="false"/>
+                    <Attribute name="Description" type="string"/>
+                    <Attribute name="Level" type="integer"/>
+                </Attributes>
+                <PrimaryKey>
+                    <AttributeRef name="AchievementID"/>
+                </PrimaryKey>
+            </Relation>
+        </Relations>
+
+        <ForeignKeys>
+            <ForeignKey name="Score_Player_FK">
+                <Parent table="Player" column="PlayerID"/>
+                <Child table="Score" column="PlayerID"/>
+            </ForeignKey>
+            <ForeignKey name="Score_Game_FK">
+                <Parent table="Game" column="GameID"/>
+                <Child table="Score" column="GameID"/>
+            </ForeignKey>
+            <ForeignKey name="Achievement_Player_FK">
+                <Parent table="Player" column="PlayerID"/>
+                <Child table="Achievement" column="PlayerID"/>
+            </ForeignKey>
+        </ForeignKeys>
+
+        <UniqueConstraints>
+            <UniqueConstraint name="UniqueEmail" relation="Player">
+                <AttributeRef name="Email"/>
+            </UniqueConstraint>
+        </UniqueConstraints>
+
+    </Database>
+</ColumnStoreSchema>

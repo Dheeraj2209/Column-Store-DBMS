@@ -30,3 +30,6 @@ printTable(mac):
 
 updateRow(mac):
  g++ -std=c++17 -o updateRow Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp update_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+
+insertRow(mac):
+ g++ -std=c++17 -o insertRow Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp insert_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
