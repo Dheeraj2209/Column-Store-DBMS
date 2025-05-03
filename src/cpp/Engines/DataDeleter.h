@@ -37,6 +37,8 @@ public:
 //    bool DataDeleter::deleteRow(Relation* relation, const std::vector<std::string>& primaryKeyValues);
 
     static bool deleteRow(Relation* relation, const ColVal& pkVal);
+
+    static bool undeleteRow(Relation* relation, const ColVal& pkVal);
 };
 //};
 

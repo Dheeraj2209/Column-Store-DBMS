@@ -118,6 +118,10 @@ class DMLEngine {
                    const std::string& orderBy,
                    const std::string& groupBy);
 
+    bool row_undelete(const std::string& dbName,
+                             const std::string& relName,
+                             int& value);
+
 };
 
 

@@ -384,6 +384,8 @@ bool DMLEngine::row_delete(const std::string& dbName,
     return true;
 }
 
+
+
 bool DMLEngine::row_delete(const std::string& dbName,
                            const std::string& relName,
                            double & value)
@@ -409,6 +411,38 @@ bool DMLEngine::row_delete(const std::string& dbName,
 
     std::cout<<"Row deleted successfully (soft) for PK="<<pkColVal.getDoubleValue()<<"\n";
 //              <<pkVal.getStringValue()<<"\n";
+    return true;
+}
+
+
+bool DMLEngine::row_undelete(const std::string& dbName,
+                             const std::string& relName,
+                             int& value)
+{
+    // 1) get the Database & Relation
+    Database* db = databases[dbName];
+    if (!db) {
+        std::cerr << "DB " << dbName << " not found\n";
+        return false;
+    }
+
+    Relation* rel = db->getRelation(relName);
+    if (!rel) {
+        std::cerr << "Relation " << relName << " not found\n";
+        return false;
+    }
+
+    // 2) construct the primary key value
+    auto val2 = static_cast<int64_t>(value);
+    ColVal pkColVal(rel->getPrimaryKey().attribute, val2);
+
+    // 3) call undelete in DataDeleter
+    if (!DataDeleter::undeleteRow(rel, pkColVal)) {
+        std::cerr << "Failed to undelete row with PK: " << pkColVal.getIntValue() << "\n";
+        return false;
+    }
+
+    std::cout << "Row undeleted successfully for PK=" << pkColVal.getIntValue() << "\n";
     return true;
 }
 

@@ -301,7 +301,112 @@ bool DataDeleter::deleteRow(Relation* relation, const ColVal& pkVal) {
     return true;
 }
 
+bool DataDeleter::undeleteRow(Relation* relation, const ColVal& pkVal) {
+    cout<<"undeleteRow called\n";
+    const auto& attrs = relation->getCAttributes();
+    CAttribute* pkAttr = pkVal.getAttribute();
 
+    if (!pkAttr || !pkAttr->isPK) {
+        std::cerr << "[DataDeleter] No valid PK provided.\n";
+        return false;
+    }
+
+    cout<<"[DataDeleter] PK found: " << pkAttr->name << "\n";
+    std::string base = "../../Databases/" + relation->getDatabase()->getName() + "/" + relation->getName() + "/";
+    std::string pkPath = base + pkAttr->name + ".dat";
+    std::fstream pkStream(pkPath, std::ios::in | std::ios::out | std::ios::binary);
+    cout<<"[DataDeleter] PK path: " << pkPath << "\n";
+    if (!pkStream) {
+        std::cerr << "[DataDeleter] Cannot open PK file: " << pkPath << "\n";
+        return false;
+    }
+
+    cout<<"[DataDeleter] PK file opened successfully\n";
+    size_t rowIndex = 0;
+    size_t foundRow = SIZE_MAX;
+    cout<<"[DataDeleter] Scanning PK file for matching value...\n";
+
+    while (true) {
+        uint8_t isDel;
+        cout<<"[DataDeleter] Reading isDeleted flag\n";
+        if (!pkStream.read(reinterpret_cast<char*>(&isDel), sizeof(isDel))) {
+            cout<<"[DataDeleter] End of file reached or read error\n";
+            break;
+        }
+
+        cout<<"[DataDeleter] isDeleted: " << (int)isDel << "\n";
+        bool match = false;
+
+        if (pkAttr->type == "integer") {
+            int64_t v;
+            pkStream.read(reinterpret_cast<char*>(&v), sizeof(v));
+            cout<<"[DataDeleter] PK value: " << v << "\n";
+            match = (isDel && pkVal.getIntValue() == static_cast<int>(v));
+        } else if (pkAttr->type == "decimal") {
+            double d;
+            pkStream.read(reinterpret_cast<char*>(&d), sizeof(d));
+            cout<<"[DataDeleter] PK value: " << d << "\n";
+            match = (isDel && pkVal.getDoubleValue() == d);
+        } else if (pkAttr->type == "string") {
+            size_t len;
+            pkStream.read(reinterpret_cast<char*>(&len), sizeof(len));
+            std::string s(len, '\0');
+            pkStream.read(&s[0], len);
+            match = (isDel && pkVal.getStringValue() == s);
+        }
+
+        cout<<"[DataDeleter] match: " << match << "\n";
+
+        if (match) {
+            foundRow = rowIndex;
+            break;
+        }
+
+        ++rowIndex;
+        cout<<"[DataDeleter] rowIndex: " << rowIndex << "\n";
+    }
+
+    if (foundRow == SIZE_MAX) {
+        std::cerr << "[DataDeleter] Row with matching PK not found or not deleted.\n";
+        return false;
+    }
+
+    cout<<"[DataDeleter] Found row: " << foundRow << "\n";
+    for (const auto& [name, attr] : attrs) {
+        std::string colPath = base + name + ".dat";
+        std::fstream colStream(colPath, std::ios::in | std::ios::out | std::ios::binary);
+        cout<<"[DataDeleter] Column path: " << colPath << "\n";
+        if (!colStream) {
+            std::cerr << "[DataDeleter] Cannot open column file: " << colPath << "\n";
+            return false;
+        }
+
+        std::streamoff offset = 0;
+        for (size_t i = 0; i < foundRow; ++i) {
+            offset += 1; // isDeleted
+            if (attr->type == "integer")
+                offset += sizeof(int64_t);
+            else if (attr->type == "decimal")
+                offset += sizeof(double);
+            else if (attr->type == "string") {
+                size_t len;
+                colStream.seekg(offset, std::ios::beg);
+                colStream.read(reinterpret_cast<char*>(&len), sizeof(len));
+                offset += sizeof(len) + len;
+            } else if (attr->type == "date")
+                offset += sizeof(Date_DDMMYYYY_Type);
+        }
+
+        cout<<"[DataDeleter] Writing to column file at offset: " << offset << "\n";
+        colStream.seekp(offset, std::ios::beg);
+        uint8_t zero = 0;
+        colStream.write(reinterpret_cast<const char*>(&zero), sizeof(zero));
+        cout<<"[DataDeleter] Wrote to column file successfully\n";
+    }
+
+    cout<<"[DataDeleter] Row undeleted successfully\n";
+    return true;
+}
 //bool DataDeleter::deleteByPK(Relation* relation, const ColVal& pkValue) {
 //    if (!relation || !pkValue.getAttribute()) {
 //        return false;
