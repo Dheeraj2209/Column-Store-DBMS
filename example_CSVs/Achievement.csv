@@ -3,3 +3,19 @@ AchievementID,PlayerID,Description,Level
 901,1,Defeated Final Boss,5
 902,2,Reached Max Level,10
 903,3,Won Multiplayer Match,3
+904,4,Explored Hidden Dungeon,4
+905,5,Collected 100 Gems,2
+906,6,Survived Zombie Horde,6
+907,7,Built First City,3
+908,8,Unlocked Secret Character,7
+909,9,Completed Speed Run,5
+910,10,Defeated 50 Enemies,2
+911,11,Won Racing Championship,8
+912,12,Mastered All Skills,9
+913,13,Found Rare Artifact,4
+914,14,Completed Campaign,6
+915,15,Won 10 Consecutive Matches,7
+916,16,Unlocked All Levels,10
+917,17,Defeated Elite Boss,5
+918,18,Explored Entire Map,3
+919,19,Achieved High Score,4

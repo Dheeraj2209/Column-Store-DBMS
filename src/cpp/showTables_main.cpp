@@ -1,0 +1,38 @@
+ // print_main.cpp
+//
+// #include "Engines/DDLEngine.h"
+// using namespace std;
+//
+// int main() {
+//     // Step 2: Initialize the DML Engine
+//     DMLEngine dmlEngine;
+//     string dbName = "ECommerceDB_main"; // Matches the database name in the XML
+//
+//     dmlEngine.printTable(dbName, "Order");
+//     return 0;
+// }
+
+#include "Engines/DDLEngine.h"
+#include <iostream>
+#include "Engines/DMLEngine.h"
+int main(int argc, char** argv) {
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <DatabaseName> <RelationName>\n";
+        return 1;
+    }
+
+    std::string dbName      = argv[1];
+//    std::string relationName = argv[2];
+
+    // Initialize and load the DML engine (assumes you have a setter or constructor)
+    DMLEngine dmlEngine;
+    // dmlEngine.setDatabaseName(dbName);
+
+    // Print the table
+    if (!dmlEngine.showTables(dbName)) {
+        std::cerr << "Failed to show Tables in database " << dbName <<std::endl;
+        return 1;
+    }
+
+    return 0;
+}

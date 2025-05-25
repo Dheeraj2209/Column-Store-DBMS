@@ -44,6 +44,12 @@ updateRow(mac):
 insertRow(mac):
  g++ -std=c++17 -o insertRow Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp insert_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
 
+unDeleteRow(mac):
+g++ -std=c++17 -o unDeleteRow Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp CustomTypes/*.cpp undelete_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
+
+
+query(mac):
+ g++ -std=c++17 -o query Engines/*.cpp Schema/*.cpp ComputationObjects/*.cpp Data_Objects/*.cpp CustomTypes/*.cpp query_main.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -ltinyxml2
 
 below are the commands for wsl/linux:
 g++ -std=c++17 -o printTable \

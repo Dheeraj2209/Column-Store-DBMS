@@ -55,9 +55,8 @@ class DMLEngine {
         return nullptr;
     }
     bool loadMeta_Metadata();
+    bool showTables(const std::string& dbName) const;
     bool loadDatafromCSV(const string& DBname, const string& CSVfile, const string& RelationName);
-//    static bool insertData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
-//    bool deleteData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
     bool updateData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool selectData(const string & DBname, const string & RelationName, const std::vector<std::string>& values);
 //    static bool joinData(const string & DBname, const string & Relation1Name, const string & Relation2Name, const std::vector<std::string>& values);

@@ -1,5 +1,7 @@
 {
   "databases": {
-    "ECommerceDB_main": {"schema_file": "../../Databases/ECommerceDB_main/ECommerceDB_main_schema.xml"}
+    "ECommerceDB": {"schema_file": "../../Databases/ECommerceDB/ECommerceDB_schema.xml"},
+    "ECommerceDB_main": {"schema_file": "../../Databases/ECommerceDB_main/ECommerceDB_main_schema.xml"},
+    "GamingDB": {"schema_file": "../../Databases/GamingDB/GamingDB_schema.xml"}
   }
 }

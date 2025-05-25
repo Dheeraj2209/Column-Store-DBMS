@@ -502,115 +502,314 @@ bool DMLEngine::run_query(const std::string& dbName,
 
 bool DMLEngine::printTable(const std::string& dbName, const std::string& relationName) const {
     namespace fs = std::filesystem;
-    // Database* db = getDatabase(dbName);
     Database* db = databases.at(dbName);
-    // 1) Find the relation
     Relation* rel = db->getRelation(relationName);
     if (!rel) {
         std::cerr << "Relation " << relationName << " not found.\n";
         return false;
     }
 
-    // 2) Gather attributes in schema order
-    const auto& attrMap = rel->getCAttributes(); // map<string,CAttribute*>
+    const auto& attrMap = rel->getCAttributes();
     std::vector<CAttribute*> attrs;
-    attrs.reserve(attrMap.size());
-    for (auto const& [name, attr] : attrMap) {
-        attrs.push_back(attr);
-    }
+    for (auto const& [_, attr] : attrMap) attrs.push_back(attr);
 
-    // 3) Open each column file for binary reading
     std::string base = "../../Databases/" + db->getName() + "/" + relationName + "/";
     struct ColIn { CAttribute* attr; std::ifstream in; };
     std::vector<ColIn> cols;
-    cols.reserve(attrs.size());
-
     for (auto* attr : attrs) {
         fs::path p = base + attr->name + ".dat";
         std::ifstream in(p, std::ios::binary);
-        if (!in) {
-            std::cerr << "Cannot open column file: " << p << "\n";
-            return false;
-        }
-        cols.push_back({ attr, std::move(in) });
+        if (!in) { std::cerr<<"Cannot open "<<p<<"\n"; return false; }
+        cols.push_back({attr, std::move(in)});
     }
 
-    // 4) Print a header row
-    for (auto* attr : attrs) {
-        std::cout << std::setw(20) << std::left << attr->name;
-    }
-    std::cout << "\n";
-    for (size_t i = 0; i < attrs.size(); ++i) {
-        std::cout << std::string(20, '-');
-    }
-    std::cout << "\n";
+    // --- First pass: load all rows into memory and track lengths ---
+    std::vector<std::vector<std::string>> rows;
+    std::vector<size_t> colMax(attrs.size());
+    // initialize with header lengths
+    for (size_t i = 0; i < attrs.size(); ++i)
+        colMax[i] = attrs[i]->name.size();
 
-    // 5) Read in lockstep until the first column hits EOF
     while (true) {
-        // Attempt to read the deleted-flag from the first column
         uint8_t flag0;
-        if (!cols[0].in.read(reinterpret_cast<char*>(&flag0), sizeof(flag0))) {
-            // EOF reached
-            break;
-        }
+        if (!cols[0].in.read((char*)&flag0, sizeof(flag0))) break;  // EOF
 
-        // For each column, read its own flag and value
-        std::vector<std::string> row;
-        row.reserve(cols.size());
-        for (size_t i = 0; i < cols.size(); ++i) {
-            auto& [attr, in] = cols[i];
-            uint8_t flag = (i == 0 ? flag0 : 0);
-            if (i != 0) {
-                // for columns beyond the first, read & discard their flag
-                in.read(reinterpret_cast<char*>(&flag), sizeof(flag));
-            }
+        std::vector<std::string> row(attrs.size());
+        for (size_t i = 0; i < attrs.size(); ++i) {
+            uint8_t flag = (i==0? flag0 : 0);
+            if (i != 0) cols[i].in.read((char*)&flag, sizeof(flag));
 
-            // now read the actual data
             std::string cell;
+            auto* attr = attrs[i];
             if (attr->type == "integer") {
-                int64_t v;
-                in.read(reinterpret_cast<char*>(&v), sizeof(v));
+                int64_t v; cols[i].in.read((char*)&v, sizeof(v));
                 cell = std::to_string(v);
             }
             else if (attr->type == "decimal") {
-                double d;
-                in.read(reinterpret_cast<char*>(&d), sizeof(d));
+                double d; cols[i].in.read((char*)&d, sizeof(d));
                 cell = std::to_string(d);
             }
             else if (attr->type == "date") {
-                Date_DDMMYYYY_Type dt;
-                in.read(reinterpret_cast<char*>(&dt), sizeof(dt));
-                cell = dt.toString();  // implement this in your Date class
+                Date_DDMMYYYY_Type dt; cols[i].in.read((char*)&dt, sizeof(dt));
+                cell = dt.toString();
             }
-            else { // string
-                size_t len;
-                in.read(reinterpret_cast<char*>(&len), sizeof(len));
+            else {
+                size_t len; cols[i].in.read((char*)&len, sizeof(len));
                 std::string s(len, '\0');
-                in.read(&s[0], len);
+                cols[i].in.read(&s[0], len);
                 cell = s;
             }
-
-            row.push_back(cell);
+            if (flag0 == 1) { cell.clear(); break; } // skip deleted
+            row[i] = cell;
+            colMax[i] = std::max(colMax[i], cell.size());
         }
-
-        // 6) Skip if deleted
-        if (flag0 == 1) {
-            continue;
-        }
-
-        // 7) Print the row
-        for (auto& cell : row) {
-            std::cout << std::setw(20) << std::left << cell;
-        }
-        std::cout << "\n";
+        if (flag0 == 0) rows.emplace_back(std::move(row));
     }
 
-    // 8) Close files
-    for (auto& c : cols) {
-        c.in.close();
+    // rewind all streams
+    for (auto& c : cols) { c.in.clear(); c.in.seekg(0); }
+
+    // add padding (2 spaces) to each column width
+    for (auto& w : colMax) w += 2;
+
+    // helper to print divider
+    auto printDiv = [&]() {
+        std::cout << '+';
+        for (auto w : colMax)
+            std::cout << std::string(w, '-') << '+';
+        std::cout << "\n";
+    };
+
+    // --- Print header ---
+    printDiv();
+    std::cout << '|';
+    for (size_t i = 0; i < attrs.size(); ++i) {
+        std::cout << std::setw(colMax[i]) << std::left << (" " + attrs[i]->name);
+        std::cout << '|';
+    }
+    std::cout << "\n";
+    printDiv();
+
+    // --- Print rows ---
+    for (auto& row : rows) {
+        std::cout << '|';
+        for (size_t i = 0; i < row.size(); ++i) {
+            std::string cell = " " + row[i];
+            std::cout << std::setw(colMax[i]) << std::left << cell << '|';
+        }
+        std::cout << "\n";
+        printDiv();
     }
 
     return true;
 }
+
+bool DMLEngine::showTables(const std::string& dbName) const {
+    // 1) Lookup database
+    auto dbIt = databases.find(dbName);
+    if (dbIt == databases.end()) {
+        std::cerr << "Database '" << dbName << "' not found.\n";
+        return false;
+    }
+    Database* db = dbIt->second;
+
+    // 2) Get all relations
+    const auto& relMap = db->getRelations();
+    if (relMap.empty()) {
+        std::cout << "Database '" << dbName << "' has no tables.\n";
+        return true;
+    }
+
+    // For each table...
+    for (const auto& [tableName, relPtr] : relMap) {
+        Relation* rel = relPtr;
+        // 3) Gather attributes
+        const auto& attrMap = rel->getCAttributes();  // map<string,CAttribute*>
+        std::vector<CAttribute*> attrs;
+        attrs.reserve(attrMap.size());
+        for (auto const& [_, attr] : attrMap)
+            attrs.push_back(attr);
+
+        // 4) Compute column widths
+        // Headers: Field, Type, Null, Key
+        size_t wField = std::string("Field").size();
+        size_t wType  = std::string("Type").size();
+        size_t wNull  = std::string("Null").size();
+        size_t wKey   = std::string("Key").size();
+        for (auto* a : attrs) {
+            wField = std::max(wField, a->name.size());
+            wType  = std::max(wType,  a->type.size());
+            // Null is "YES"/"NO" -> width 3
+            // Key can be "PRI", "UNI", "FOR", or "" -> width up to 3
+        }
+        // add padding
+        wField += 2;
+        wType  += 2;
+        wNull  = std::max(wNull + 2, size_t(5));
+        wKey   = std::max(wKey  + 2, size_t(5));
+
+        // Divider printer
+        auto printDivider = [&]() {
+            std::cout << '+'
+                      << std::string(wField, '-') << '+'
+                      << std::string(wType,  '-') << '+'
+                      << std::string(wNull,  '-') << '+'
+                      << std::string(wKey,   '-') << '+'
+                      << "\n";
+        };
+
+        // 5) Print table header
+        std::cout << "Table: " << tableName << "\n";
+        printDivider();
+        std::cout << '|'
+                  << std::setw(wField) << std::left << " Field"
+                  << '|'
+                  << std::setw(wType)  << std::left << " Type"
+                  << '|'
+                  << std::setw(wNull)  << std::left << " Null"
+                  << '|'
+                  << std::setw(wKey)   << std::left << " Key"
+                  << "|\n";
+        printDivider();
+
+        // 6) Print each column’s metadata
+        for (auto* a : attrs) {
+            // Nullability
+            std::string nullStr = a->isNullable ? "YES" : "NO";
+            // Key status
+            std::string keyStr;
+            if      (a->isPK)        keyStr = "PRI";
+            else if (a->isUnique)         keyStr = "UNI";
+            else if (a->isFK) keyStr = "FOR";
+            else                              keyStr = "";
+
+            std::cout << '|'
+                      << std::setw(wField) << std::left << (" " + a->name)
+                      << '|'
+                      << std::setw(wType)  << std::left << (" " + a->type)
+                      << '|'
+                      << std::setw(wNull)  << std::left << (" " + nullStr)
+                      << '|'
+                      << std::setw(wKey)   << std::left << (" " + keyStr)
+                      << "|\n";
+            printDivider();
+        }
+        std::cout << "\n";
+    }
+
+    return true;
+}
+// bool DMLEngine::printTable(const std::string& dbName, const std::string& relationName) const {
+//     namespace fs = std::filesystem;
+//     // Database* db = getDatabase(dbName);
+//     Database* db = databases.at(dbName);
+//     // 1) Find the relation
+//     Relation* rel = db->getRelation(relationName);
+//     if (!rel) {
+//         std::cerr << "Relation " << relationName << " not found.\n";
+//         return false;
+//     }
+//
+//     // 2) Gather attributes in schema order
+//     const auto& attrMap = rel->getCAttributes(); // map<string,CAttribute*>
+//     std::vector<CAttribute*> attrs;
+//     attrs.reserve(attrMap.size());
+//     for (auto const& [name, attr] : attrMap) {
+//         attrs.push_back(attr);
+//     }
+//
+//     // 3) Open each column file for binary reading
+//     std::string base = "../../Databases/" + db->getName() + "/" + relationName + "/";
+//     struct ColIn { CAttribute* attr; std::ifstream in; };
+//     std::vector<ColIn> cols;
+//     cols.reserve(attrs.size());
+//
+//     for (auto* attr : attrs) {
+//         fs::path p = base + attr->name + ".dat";
+//         std::ifstream in(p, std::ios::binary);
+//         if (!in) {
+//             std::cerr << "Cannot open column file: " << p << "\n";
+//             return false;
+//         }
+//         cols.push_back({ attr, std::move(in) });
+//     }
+//
+//     // 4) Print a header row
+//     for (auto* attr : attrs) {
+//         std::cout << std::setw(20) << std::left << attr->name;
+//     }
+//     std::cout << "\n";
+//     for (size_t i = 0; i < attrs.size(); ++i) {
+//         std::cout << std::string(20, '-');
+//     }
+//     std::cout << "\n";
+//
+//     // 5) Read in lockstep until the first column hits EOF
+//     while (true) {
+//         // Attempt to read the deleted-flag from the first column
+//         uint8_t flag0;
+//         if (!cols[0].in.read(reinterpret_cast<char*>(&flag0), sizeof(flag0))) {
+//             // EOF reached
+//             break;
+//         }
+//
+//         // For each column, read its own flag and value
+//         std::vector<std::string> row;
+//         row.reserve(cols.size());
+//         for (size_t i = 0; i < cols.size(); ++i) {
+//             auto& [attr, in] = cols[i];
+//             uint8_t flag = (i == 0 ? flag0 : 0);
+//             if (i != 0) {
+//                 // for columns beyond the first, read & discard their flag
+//                 in.read(reinterpret_cast<char*>(&flag), sizeof(flag));
+//             }
+//
+//             // now read the actual data
+//             std::string cell;
+//             if (attr->type == "integer") {
+//                 int64_t v;
+//                 in.read(reinterpret_cast<char*>(&v), sizeof(v));
+//                 cell = std::to_string(v);
+//             }
+//             else if (attr->type == "decimal") {
+//                 double d;
+//                 in.read(reinterpret_cast<char*>(&d), sizeof(d));
+//                 cell = std::to_string(d);
+//             }
+//             else if (attr->type == "date") {
+//                 Date_DDMMYYYY_Type dt;
+//                 in.read(reinterpret_cast<char*>(&dt), sizeof(dt));
+//                 cell = dt.toString();  // implement this in your Date class
+//             }
+//             else { // string
+//                 size_t len;
+//                 in.read(reinterpret_cast<char*>(&len), sizeof(len));
+//                 std::string s(len, '\0');
+//                 in.read(&s[0], len);
+//                 cell = s;
+//             }
+//
+//             row.push_back(cell);
+//         }
+//
+//         // 6) Skip if deleted
+//         if (flag0 == 1) {
+//             continue;
+//         }
+//
+//         // 7) Print the row
+//         for (auto& cell : row) {
+//             std::cout << std::setw(20) << std::left << cell;
+//         }
+//         std::cout << "\n";
+//     }
+//
+//     // 8) Close files
+//     for (auto& c : cols) {
+//         c.in.close();
+//     }
+//
+//     return true;
+// }
 fs::path meta_metadata_path;
 std::ofstream meta_metadata_file;

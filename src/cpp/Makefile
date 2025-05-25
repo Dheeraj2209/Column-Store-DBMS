@@ -1,101 +1,120 @@
-## Makefile
-#
-#CXX = g++
-#CXXFLAGS = -std=c++17
-#
-## Source files
-#CREATE_SRC = Engines/DDLEngine.cpp Schema/Database.cpp Schema/CAttribute.cpp \
-#             Schema/Relation.cpp Schema/Constraint.cpp Schema/View.cpp \
-#             Schema/PrimaryKey.cpp Schema/PrimaryKeyConstraint.cpp \
-#             Schema/UniqueKeyConstraint.cpp Schema/ForeignKeyConstraint.cpp \
-#             ComputationObjects/Query.cpp main.cpp
-#
-#LOAD_SRC = Engines/*.cpp Schema/*.cpp Data_Objects/*.cpp ComputationObjects/*.cpp \
-#           CustomTypes/*.cpp dml_main.cpp
-#
-## Platform-specific flags
-#UNAME_S := $(shell uname -s)
-#
-#ifeq ($(UNAME_S), Darwin)
-#    # macOS
-#    INCLUDES = -I/opt/homebrew/include
-#    LDFLAGS = -L/opt/homebrew/lib -ltinyxml2
-#else
-#    # Linux / WSL
-#    INCLUDES =
-#    LDFLAGS =
-#endif
-#
-#.PHONY: all clean
-#
-#all: createDBOOPS load
-#
-#createDBOOPS:
-#	$(CXX) $(CXXFLAGS) -o createDBOOPS $(CREATE_SRC) $(INCLUDES) $(LDFLAGS)
-#
-#load:
-#	$(CXX) $(CXXFLAGS) -o load $(LOAD_SRC) $(INCLUDES) $(LDFLAGS)
-#
-#clean:
-#	rm -f createDBOOPS load
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++17
 
+# Libraries
+LIBS := -ltinyxml2
+LDFLAGS := -I/opt/homebrew/include -L/opt/homebrew/lib
 
-
-# Detect platform (mac or Linux)
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-    CXXFLAGS = -std=c++17 -I/opt/homebrew/include
-    LDFLAGS = -L/opt/homebrew/lib -ltinyxml2
-else
-    CXXFLAGS = -std=c++17
-    LDFLAGS =
-endif
-
-# Common source files
-COMMON_SCHEMA = Schema/Database.cpp Schema/CAttribute.cpp Schema/Relation.cpp Schema/Constraint.cpp \
-                Schema/View.cpp Schema/PrimaryKey.cpp Schema/PrimaryKeyConstraint.cpp \
-                Schema/UniqueKeyConstraint.cpp Schema/ForeignKeyConstraint.cpp
-COMMON_ENGINES = Engines/DDLEngine.cpp Engines/*.cpp
-COMMON_OBJECTS = ComputationObjects/*.cpp CustomTypes/*.cpp Data_Objects/*.cpp
+# Directories
+SRC_DIR := src
+ENGINES := Engines/*.cpp
+SCHEMA := Schema/*.cpp
+DATA_OBJECTS := Data_Objects/*.cpp
+COMP_OBJECTS := ComputationObjects/*.cpp
+CUSTOM_TYPES := CustomTypes/*.cpp
+CPPMAINS := .
 
 # Targets
-all: create load update delete query
+wsl: createDBOOPS load insertRow deleteRow updateRow printTable
+mac: createmac loadmac insertRowmac deleteRowmac updateRowmac printTablemac unDeleteRowmac querymac showTablesmac
 
-create:
-	$(CXX) $(CXXFLAGS) -o createDBOOPS Engines/DDLEngine.cpp $(COMMON_SCHEMA) ComputationObjects/Query.cpp main.cpp $(LDFLAGS)
+#mac executables
+createmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/main.cpp
+	$(CXX) $(CXXFLAGS) -o createDBOOPS \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/main.cpp \
+		$(LDFLAGS) $(LIBS)
 
-load:
-	$(CXX) $(CXXFLAGS) -o load $(COMMON_ENGINES) $(COMMON_SCHEMA) $(COMMON_OBJECTS) dml_main.cpp $(LDFLAGS)
+showTablesmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/showTables_main.cpp
+	$(CXX) $(CXXFLAGS) -o showTables \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/showTables_main.cpp \
+		$(LDFLAGS) $(LIBS)
 
-update:
-	$(CXX) $(CXXFLAGS) -o update $(COMMON_ENGINES) $(COMMON_SCHEMA) $(COMMON_OBJECTS) update_main.cpp $(LDFLAGS)
+loadmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/dml_main.cpp
+	$(CXX) $(CXXFLAGS) -o load \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/dml_main.cpp \
+		$(LDFLAGS) $(LIBS)
 
-delete:
-	$(CXX) $(CXXFLAGS) -o delete $(COMMON_ENGINES) $(COMMON_SCHEMA) $(COMMON_OBJECTS) delete_main.cpp $(LDFLAGS)
+insertRowmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/insert_main.cpp
+	$(CXX) $(CXXFLAGS) -o insertRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/insert_main.cpp \
+		$(LDFLAGS) $(LIBS)
 
-query:
-	$(CXX) $(CXXFLAGS) -o query $(COMMON_ENGINES) $(COMMON_SCHEMA) $(COMMON_OBJECTS) query_main.cpp $(LDFLAGS)
+deleteRowmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/delete_main.cpp
+	$(CXX) $(CXXFLAGS) -o deleteRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/delete_main.cpp \
+		$(LDFLAGS) $(LIBS)
 
-clean:
-	rm -f createDBOOPS load update delete query
+updateRowmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/update_main.cpp
+	$(CXX) $(CXXFLAGS) -o updateRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/update_main.cpp \
+		$(LDFLAGS) $(LIBS)
+
+printTablemac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/print_main.cpp
+	$(CXX) $(CXXFLAGS) -o printTable \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/print_main.cpp \
+		$(LDFLAGS) $(LIBS)
+
+unDeleteRowmac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/undelete_main.cpp
+	$(CXX) $(CXXFLAGS) -o undeleteRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/undelete_main.cpp \
+		$(LDFLAGS) $(LIBS)
+
+querymac: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/query_main.cpp
+	$(CXX) $(CXXFLAGS) -o queryRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/query_main.cpp \
+		$(LDFLAGS) $(LIBS)
 
 
 
+#wsl exectables
+createDBOOPS: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/main.cpp
+	$(CXX) $(CXXFLAGS) -o createDBOOPS \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/main.cpp \
+		$(LIBS)
 
+load: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/dml_main.cpp
+	$(CXX) $(CXXFLAGS) -o load \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/dml_main.cpp \
+		$(LIBS)
 
+insertRow: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/insert_main.cpp
+	$(CXX) $(CXXFLAGS) -o insertRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/insert_main.cpp \
+		$(LIBS)
 
+deleteRow: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/delete_main.cpp
+	$(CXX) $(CXXFLAGS) -o deleteRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/delete_main.cpp \
+		$(LIBS)
 
+updateRow: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/update_main.cpp
+	$(CXX) $(CXXFLAGS) -o updateRow \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/update_main.cpp \
+		$(LIBS)
 
+printTable: $(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) $(CPPMAINS)/print_main.cpp
+	$(CXX) $(CXXFLAGS) -o printTable \
+		$(ENGINES) $(SCHEMA) $(DATA_OBJECTS) $(COMP_OBJECTS) $(CUSTOM_TYPES) \
+		$(CPPMAINS)/print_main.cpp \
+		$(LIBS)
 
+cleanwsl:
+	rm -f createDBOOPS load insertRow deleteRow updateRow printTable
 
-
-
-
-
-
-
-
-
-
-
-
+cleanmac:
+	rm -f createmac loadmac insertRowmac deleteRowmac updateRowmac printTablemac unDeleteRowmac querymac showTablesmac

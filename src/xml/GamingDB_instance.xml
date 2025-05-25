@@ -59,16 +59,16 @@
 
         <ForeignKeys>
             <ForeignKey name="Score_Player_FK">
-                <Parent table="Player" column="PlayerID"/>
-                <Child table="Score" column="PlayerID"/>
+                <Parent table="Score" column="PlayerID"/>
+                <Child table="Player" column="PlayerID"/>
             </ForeignKey>
             <ForeignKey name="Score_Game_FK">
-                <Parent table="Game" column="GameID"/>
-                <Child table="Score" column="GameID"/>
+                <Parent table="Score" column="GameID"/>
+                <Child table="Game" column="GameID"/>
             </ForeignKey>
             <ForeignKey name="Achievement_Player_FK">
-                <Parent table="Player" column="PlayerID"/>
-                <Child table="Achievement" column="PlayerID"/>
+                <Parent table="Achievement" column="PlayerID"/>
+                <Child table="Player" column="PlayerID"/>
             </ForeignKey>
         </ForeignKeys>
 

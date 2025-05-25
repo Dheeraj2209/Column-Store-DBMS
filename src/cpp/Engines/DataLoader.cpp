@@ -40,192 +40,7 @@
 //    // The CSV file should not have any tuples that violate the authorization constraint.
 //    // The CSV file should not have any tuples that violate the access constraint.
 //
-////bool DataLoader::loadDataFromCSV(Database* db, const std::string& CSVfile, const std::string& relationName) {
-////    std::ifstream file(CSVfile);
-////    if (!file.is_open()) {
-////        std::cerr << "Error: Unable to open CSV file " << CSVfile << std::endl;
-////        return false;
-////    }
-////
-////    std::stringstream buffer;
-////    buffer << file.rdbuf();
-////    std::string fileContent = buffer.str();
-////
-////    Tbl::Table table(fileContent);
-////    if (!table.isValid()) { // Ensure Table is valid
-////        std::cerr << "Error: Failed to parse CSV data." << std::endl;
-////        return false;
-////    }
-////
-////    Relation* relation = db.getRelation(relationName);
-////    if (!relation) {
-////        std::cerr << "Error: Relation " << relationName << " not found in database." << std::endl;
-////        return false;
-////    }
-////
-////    const auto &dbName = db.getName();
-////    const auto& attributes = relation->getCAttributes();
-////
-////    if (table.NumCols() != attributes.size()) {
-////        std::cerr << "Error: CSV columns do not match the relation schema." << std::endl;
-////        return false;
-////    }
-////
-////    std::unordered_map<std::string, std::ofstream> columnFiles;
-////    for (const auto& pair : attributes) {
-////        auto& attr = pair.second;
-////        std::string columnFilePath = "../Databases/" + dbName + "/" + relationName + "/" + attr->name + ".dat";
-////
-////        std::ofstream& outFile = columnFiles[attr->name];
-////        outFile.open(columnFilePath, std::ios::app | std::ios::binary);
-////        if (!outFile.is_open()) {
-////            std::cerr << "Error: Unable to open column file " << columnFilePath << std::endl;
-////
-////            // Close previously opened files
-////            for (auto& pair : columnFiles) {
-////                if (pair.second.is_open()) pair.second.close();
-////            }
-////            return false;
-////        }
-////    }
-////
-////    // Iterate over each row
-////    for (size_t row = 0; row < table.NumRows(); ++row) {
-////        size_t colIndex = 0;  // Reset column index for each row
-////
-////        for (const auto& pair : attributes) {
-////            const auto& attr = pair.second;
-////            std::ofstream& outFile = columnFiles[attr->name];
-////
-////            try {
-////                if (attr->type == "int") {
-////                    int value = table.GetInt(row, colIndex);
-////                    outFile.write(reinterpret_cast<const char*>(&value), sizeof(int));
-////                } else if (attr->type == "float") {
-////                    float value = static_cast<float>(table.GetDouble(row, colIndex));
-////                    outFile.write(reinterpret_cast<const char*>(&value), sizeof(float));
-////                } else if (attr->type == "Date_DDMMYYYY_Type") {
-////                    // Date_DDMMYYYY_Type date = Date_DDMMYYYY_Type::parse(table.GetString(row, colIndex));
-////                    // std::string binaryDate = date.toBinary(); // Ensure a proper serialization method
-////                    // outFile.write(binaryDate.data(), binaryDate.size());
-////                    Date_DDMMYYYY_Type date = Date_DDMMYYYY_Type::parse(table.GetString(row, colIndex));
-////                    outFile.write(reinterpret_cast<const char*>(&date), sizeof(Date_DDMMYYYY_Type));
-////                } else {
-////                    std::string value = table.GetString(row, colIndex);
-////                    size_t len = value.size();
-////                    outFile.write(reinterpret_cast<const char*>(&len), sizeof(size_t));
-////                    outFile.write(value.c_str(), len);
-////                }
-////            } catch (const std::exception& e) {
-////                std::cerr << "Error processing column " << attr->name << " in row " << row << ": " << e.what() << std::endl;
-////
-////                // Cleanup before returning
-////                for (auto& pair : columnFiles) {
-////                    pair.second.close();
-////                }
-////                return false;
-////            }
-////
-////            colIndex++;
-////        }
-////    }
-////
-////    // Close all files
-////    for (auto& pair : columnFiles) {
-////        pair.second.close();
-////    }
-////
-////    return true;
-////}
-//bool DataLoader::loadDataFromCSV(Database* db, const std::string& CSVfile, const std::string& relationName) {
-//    std::ifstream file(CSVfile);
-//    if (!file.is_open()) {
-//        std::cerr << "Error: Unable to open CSV file " << CSVfile << std::endl;
-//        return false;
-//    }
-//
-//    std::stringstream buffer;
-//    buffer << file.rdbuf();
-//    file.close();
-//
-//    Tbl::Table table(buffer.str());
-//    if (!table) { // Check if table was successfully parsed
-//        std::cerr << "Error: Failed to parse CSV data." << std::endl;
-//        return false;
-//    }
-//
-//    Relation* relation = db->getRelation(relationName);
-//    if (!relation) {
-//        std::cerr << "Error: Relation " << relationName << " not found in database." << std::endl;
-//        return false;
-//    }
-//
-//    const auto& dbName = db->getName();
-//    const auto& attributes = relation->getCAttributes();
-//
-//    if (table.GetNumColumns() != attributes.size()) {
-//        std::cerr << "Error: CSV columns do not match the relation schema." << std::endl;
-//        return false;
-//    }
-//
-//    std::unordered_map<std::string, std::ofstream> columnFiles;
-//    for (const auto& pair : attributes) {
-//        auto& attr = pair.second;
-//        std::string columnFilePath = "../Databases/" + dbName + "/" + relationName + "/" + attr->name + ".dat";
-//
-//        std::ofstream& outFile = columnFiles[attr->name];
-//        outFile.open(columnFilePath, std::ios::app | std::ios::binary);
-//        if (!outFile.is_open()) {
-//            std::cerr << "Error: Unable to open column file " << columnFilePath << std::endl;
-//            for (auto& pair : columnFiles) {
-//                if (pair.second.is_open()) pair.second.close();
-//            }
-//            return false;
-//        }
-//    }
-//
-//    for (size_t row = 0; row < table.GetNumRows(); ++row) {
-//        size_t colIndex = 0;
-//        for (const auto& pair : attributes) {
-//            const auto& attr = pair.second;
-//            std::ofstream& outFile = columnFiles[attr->name];
-//
-//            try {
-//                if (attr->type == "int") {
-////                    int value = table.Get<int>(row, colIndex);
-//                    int value = table.Get<int>(row, colIndex);
-//                    outFile.write(reinterpret_cast<const char*>(&value), sizeof(int));
-//                } else if (attr->type == "float") {
-//                    float value = static_cast<float>(table.Get<double>(row, colIndex));
-//                    outFile.write(reinterpret_cast<const char*>(&value), sizeof(float));
-//                } else if (attr->type == "Date_DDMMYYYY_Type") {
-//                    std::string dateStr = table.Get<std::string>(row, colIndex);
-//                    Date_DDMMYYYY_Type date = Date_DDMMYYYY_Type::parse(dateStr);
-//                    outFile.write(reinterpret_cast<const char*>(&date), sizeof(Date_DDMMYYYY_Type));
-//                } else {
-//                    std::string value = table.Get<std::string>(row, colIndex);
-//                    size_t len = value.size();
-//                    outFile.write(reinterpret_cast<const char*>(&len), sizeof(size_t));
-//                    outFile.write(value.c_str(), len);
-//                }
-//            } catch (const std::exception& e) {
-//                std::cerr << "Error processing column " << attr->name << " in row " << row << ": " << e.what() << std::endl;
-//                for (auto& pair : columnFiles) {
-//                    pair.second.close();
-//                }
-//                return false;
-//            }
-//
-//            colIndex++;
-//        }
-//    }
-//
-//    for (auto& pair : columnFiles) {
-//        pair.second.close();
-//    }
-//
-//    return true;
-//}
+
 #include "DataLoader.h"
 // #include <fstream>
 #include <filesystem>
@@ -244,90 +59,7 @@
 
 #include "../include/Tbl.hpp"
 
-// Helper functions – you need to implement these in your project:
-// std::unordered_set<std::string> getReferencedKeySet(Database* db, ForeignKeyConstraint* fk) {
-//     std::unordered_set<std::string> refSet;
-//     cout<<"getReferencedKeySet function called"<<endl;
-//     std::string dbName = db->getName();
-//     std::string parentRel = fk->parentTable->getName();
-//     std::string parentAttr = fk->parentColumn->name;
-//     cout<<"Parent Relation: "<<parentRel<<endl;
-//     Relation* parentRelation = db->getRelation(parentRel);
-//     // cout<<"Parent Relation pointer: "<<parentRelation<<endl;
-//
-//     if (!parentRelation) {
-//         std::cerr << "Error: Parent relation " << parentRel << " not found.\n";
-//         return refSet;
-//     }
-//
-//     std::string childAttr = fk->childColumn->name;
-//     Relation* childRelation = fk->childTable;
-//
-//     const auto& pattributes = parentRelation->getCAttributes();
-//     cout<<"Attributes in parent relation taken "<<endl;
-//     const auto& cattributes = childRelation->getCAttributes();
-//
-//     if (pattributes.find(parentAttr) == pattributes.end())
-//     {
-//         std::cerr << "Error: Attribute " << parentAttr << " not found in parent relation.\n";
-//         return refSet;
-//     }
-//     cout<<"Attribute found in parent relation "<<endl;
-//     if (cattributes.find(childAttr) == cattributes.end())
-//     {
-//         std::cerr << "Error: Attribute " << childAttr << " not found in child relation.\n";
-//         return refSet;
-//     }
-//     cout<<"Attribute found in child relation "<<endl;
-//     CAttribute* attr = cattributes.at(childAttr);
-//     std::string filePath = "../../Databases/" + dbName + "/" + childRelation->getName() + "/" + childAttr + ".dat";
-//     cout<<"File path: "<<filePath<<endl;
-//
-//     std::ifstream inFile(filePath, std::ios::binary);
-//     cout<<"File opened "<<endl;
-//     if (!inFile.is_open()) {
-//         std::cerr << "Error: Unable to open file " << filePath << "\n";
-//         return refSet;
-//     }
-//     cout<<"File:"<<filePath<<" opened successfully "<<endl;
-//     if (attr->type == "integer") {
-//         int val;
-//         while (inFile.read(reinterpret_cast<char*>(&val), sizeof(int))) {
-//             refSet.insert(std::to_string(val));
-//         }
-//     } else if (attr->type == "decimal") {
-//         double val;
-//         while (inFile.read(reinterpret_cast<char*>(&val), sizeof(double))) {
-//             refSet.insert(std::to_string(val));
-//         }
-//     }
-//     // else if (attr->type == "Date_DDMMYYYY_Type") {
-//     //     Date_DDMMYYYY_Type date;
-//     //     while (inFile.read(reinterpret_cast<char*>(&date), sizeof(Date_DDMMYYYY_Type))) {
-//     //         refSet.insert(Date_DDMMYYYY_Type::dateToString(date));
-//     //     }
-//
-//     // }
-// else { // assume string
-//         while (true) {
-//             size_t len;
-//             if (!inFile.read(reinterpret_cast<char*>(&len), sizeof(size_t))) break;
-//             std::string val(len, '\0');
-//             if (!inFile.read(&val[0], len)) break;
-//             refSet.insert(val);
-//         }
-//     }
-//     cout<<"File read successfully "<<endl;
-//
-//     inFile.close();
-//     cout<<"File closed successfully "<<endl;
-//     cout<<"Referenced Key Set: "<<endl;
-//     for (auto & val: refSet) {
-//         cout<<val<<endl;
-//     }
-//     cout<<"Referenced Key Set END"<<endl;
-//     return refSet;
-// }
+
 
 std::unordered_set<std::string> getReferencedKeySet(
     Database* db,
@@ -908,24 +640,44 @@ bool DataLoader::loadDataFromCSV(Database* db,
 bool DataLoader::insertRow(Relation* rel, Row* row) {
     namespace fs = std::filesystem;
     const auto& attrs = rel->getCAttributes();
-
+    string relationName = rel->getName();
+    Database* db  = rel->getDatabase();
     // 1) Build in-memory sets for constraints
-    std::unordered_map<std::string, std::unordered_set<string>> pkSets, ukSets;
+    cout<<"Preparing PK/UK/FK sets..."<<endl;
+    cout<<"Loading PK/UK/FK sets... for relation: "<<relationName<<endl;
+    std::unordered_map<std::string,std::unordered_set<std::string>> pkSets, ukSets, fkSets;
+    // for (auto const& [name, pk] : rel->pks)    pkSets[name] = {};
+    // for (auto const& [name, uk] : rel->uks)    ukSets[name] = {};
+
     for (auto const& [n, pk] : rel->pks) {
         // pkSets[n]={};
-        pkSets[n] = getReferencedKeySet(rel->getDatabase(), pk);
+        // pkSets[n] = getReferencedKeySet(rel->getDatabase(), pk);
+        pkSets[pk->attribute->name] = getReferencedKeySet(rel->getDatabase(), pk);
     }
+
+    // for (auto const& [n, pk] : db->getPrimaryKeyConstraints()) {
+    //     if (pk->)
+    //     cout<<"Primary key: "<<pk->attribute->name<<endl;
+    //     cout<<"Primary key: "<<pk->getAttribute()->name<<endl;
+    //     // pkSets[n] = {};
+    //     // pkSets[n] = getReferencedKeySet(rel->getDatabase(), pk);
+    //     pkSets[pk->attribute->name] = getReferencedKeySet(rel->getDatabase(), pk);
+    // }
     for (auto const& [n, uk] : rel->uks) {
         // ukSets[n] = {};
-        ukSets[n] = getReferencedKeySet(rel->getDatabase(), uk);
+        // ukSets[n] = getReferencedKeySet(rel->getDatabase(), uk);
+        ukSets[uk->attribute->name] = getReferencedKeySet(rel->getDatabase(), uk);
     }
-    // and FK sets for each fk:
-    std::unordered_map<std::string, std::unordered_set<std::string>> fkSets;
-    for (auto const& [n, fk] : rel->fks) {
-        if (rel->getName()==fk->parentTable->getName())
-            fkSets[n] = getReferencedKeySet(rel->getDatabase(), fk);
-        // else
-        // fkSets[n] = getReferencedKeySet(rel->getDatabase(), fk);
+    for (auto const& [name, fk] : rel->fks)
+    {
+        cout<<"Foreign key: parentTable: "<<fk->parentTable->name<<endl;
+        cout<<"Foreign key: childTable: "<<fk->childTable->name<<endl;
+        cout<<"Foreign key: parentColumn: "<<fk->parentColumn->name<<endl;
+        cout<<"Foreign key: childColumn: "<<fk->childColumn->name<<endl;
+        if (relationName==fk->parentTable->name){
+            cout<<"Foreign key: "<<fk->parentColumn->name<<" found"<<endl;
+            fkSets[fk->parentColumn->name] = getReferencedKeySet(db, fk);
+        }
     }
 
     // 2) Constraint checks
@@ -952,49 +704,6 @@ bool DataLoader::insertRow(Relation* rel, Row* row) {
         else {
             std::cerr << "Unknown attribute type" << std::endl;
         }
-        // // PK
-        // if (rel->pks.count(name)) {
-        //     if (!ConstraintValidator::validatePrimaryKey(
-        //             rel, *cv, rel->pks.at(name)))
-        //         return false;
-        // }
-        // // UK
-        // if (rel->uks.count(name)) {
-        //     if (!ConstraintValidator::validateUniqueKey(
-        //             rel, *cv, rel->uks.at(name)))
-        //         return false;
-        // }
-        // // FK
-        // if (rel->fks.count(name)) {
-        //     if (!ConstraintValidator::validateForeignKey(
-        //             *cv,
-        //             rel->fks.at(name)))
-        //         return false;
-        // }
-        // if (pkSets.count(attrName)) {
-        //     if (!pkSets[attrName].insert(raw).second) {
-        //         std::cerr << "PK violation on " << attrName << ": " << raw << "\n";
-        //         return false;
-        //     }
-        // }
-        //
-        // // UK check
-        // if (ukSets.count(attrName)) {
-        //     if (!ukSets[attrName].insert(raw).second) {
-        //         std::cerr << "UK violation on " << attrName << ": " << raw << "\n";
-        //         return false;
-        //     }
-        // }
-        //
-        // // FK check
-        // if (fkSets.count(attrName)) {
-        //     cout<<"FK check for attribute: "<<attrName<<endl;
-        //     if (fkSets[attrName].find(raw) == fkSets[attrName].end()) {
-        //         std::cerr << "FK violation on " << attrName << ": " << raw << "\n";
-        //
-        //         return false;
-        //     }
-        // }
 
         // PK check
         if (pkSets.count(attrName)) {
@@ -1022,7 +731,6 @@ bool DataLoader::insertRow(Relation* rel, Row* row) {
             }
         }
     }
-    Database * db = rel->getDatabase();
     // 3) Open each column file, append the new value
     std::string base = "../../Databases/" + db->getName() + "/"
                      + "/" + rel->getName() + "/";
@@ -1068,119 +776,3 @@ bool DataLoader::insertRow(Relation* rel, Row* row) {
 
 
 
-
-
-        // if (attr->type == "integer") {
-        //     cout<<"Attribute type is integer"<<endl;
-        //     int v{};
-        //     switch (data.index()) {
-        //         // v = std::get<int64_t>(data);
-        //         // case Tbl::IntType:
-        //         //     cout<<"Integer type data found"<<endl;
-        //             v = std::get<int64_t>(data);
-        //             // break;
-        //         // case Tbl::DoubleType:
-        //         //     cout<<"Double type data found"<<endl;
-        //         //     v = static_cast<int>(std::get<double>(data));
-        //         //     break;
-        //         // case Tbl::StringType:
-        //         //     cout<<"String type data found"<<endl;
-        //         //     v = std::stoll(std::get<Tbl::Table<>::String>(data));
-        //         //     break;
-        //         default:
-        //             throw std::runtime_error("Unexpected variant index for integer column");
-        //     }
-        //     fsout.write(reinterpret_cast<const char*>(&v), sizeof(v));
-        // }
-        // else if (attr->type == "decimal") {
-        //     cout<<"Attribute type is decimal"<<endl;
-        //     double d{};
-        //     // d = std::get<double>(data);
-        //     switch (data.index()) {
-        //         case Tbl::IntType:
-        //             cout<<"Integer type data found"<<endl;
-        //             d = static_cast<double>(std::get<int64_t>(data));
-        //             break;
-        //         // case Tbl::DoubleType:
-        //         //     cout<<"Double type data found"<<endl;
-        //         //     d = std::get<double>(data);
-        //         //     break;
-        //         // case Tbl::StringType:
-        //         //     cout<<"String type data found"<<endl;
-        //         //     d = std::stod(std::get<Tbl::Table<>::String>(data));
-        //         //     break;
-        //         default:
-        //             throw std::runtime_error("Unexpected variant index for decimal column");
-        //     }
-        //     fsout.write(reinterpret_cast<const char*>(&d), sizeof(d));
-        // }
-        // else { // string
-        //     cout<<"Writing string data..."<<endl;
-        //     std::string s =table.Get<Tbl::Table<>::String>(r, col);
-        //     // s = std::get<Tbl::Table<>::String>(data);
-        //     cout<<"String data: "<<s<<endl;
-        //     // if (data.index() == Tbl::StringType) {
-        //     //     s = std::get<Tbl::Table<>::String>(data);
-        //     // } else if (data.index() == Tbl::IntType) {
-        //     //     s = std::to_string(std::get<int64_t>(data));
-        //     // } else {
-        //     //     s = std::to_string(std::get<double>(data));
-        //     // }
-        //     size_t len = s.size();
-        //     fsout.write(reinterpret_cast<const char*>(&len), sizeof(len));
-        //     fsout.write(s.data(), len);
-        // }
-        //
-        // std::cout << "Column " << attrName << " processed." << std::endl;
-    // }
-        // newCount++;
-    // }
-    // // 7.1) Update row counts in column files
-    // std::cout << "Updating row count headers in column files..." << std::endl;
-    //
-    // for (const auto& [colName, ci] : cols) {
-    //     fs::path p = base + ci.attr->name + ".dat";
-    //
-    //     std::fstream f(p, std::ios::in | std::ios::out | std::ios::binary);
-    //     if (!f) {
-    //         std::cerr << "Failed to open " << p << " to update row count.\n";
-    //         return false;
-    //     }
-    //
-    //     int oldCount = 0;
-    //     f.read(reinterpret_cast<char*>(&oldCount), sizeof(oldCount));
-    //
-    //     int newTotal = oldCount + newCount;
-    //     f.seekp(0);
-    //     f.write(reinterpret_cast<const char*>(&newTotal), sizeof(newTotal));
-    //
-    //     std::cout << "Updated row count for " << colName << ": " << oldCount << " -> " << newTotal << std::endl;
-    //
-    //     f.close();
-    // }
-
-    // std::cout << "Row count headers updated successfully." << std::endl;
-
-
-//---
-
-//### **Notes:**
-//- **In-Memory Constraint Checks:**
-//  For each row loaded from CSV, the code converts each field into a string (using `std::to_string` for numbers, and a helper conversion for dates) to compare values. For primary key or unique columns, it checks against an in‑memory `unordered_set` (per attribute) to catch duplicates.
-//- **Foreign Key Checks:**
-//  For each attribute that is a foreign key (as indicated by its presence in the `fkLookup` map), the value is checked against a pre‑loaded set of valid parent keys.
-//- **Writing Data:**
-//  Values are written to the appropriate column file using binary writes—numeric types as fixed‑size data, and strings with a length prefix.
-//- **Error Handling:**
-//  If any constraint is violated, an error message is printed and the function returns `false`.
-//
-//This version 0.0 demonstrates one approach to loading CSV data while enforcing integrity constraints without loading entire columns into memory. In a production system you’d likely optimize the in‑memory structures (or use a disk‑based index if the data is too large) and add robust error recovery/transaction support.
-//
-
-                //std::string dateToString(const Date_DDMMYYYY_Type& date) {
-                //    // Convert date values to a normalized string, e.g., YYYY-MM-DD.
-                //    char buffer[11];  // YYYY-MM-DD + ull terminator
-                //    snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d", date.year, date.month, date.day);
-                //    return std::string(buffer);
-                //}
-                //
