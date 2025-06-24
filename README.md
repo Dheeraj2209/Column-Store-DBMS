@@ -205,7 +205,7 @@ make wsl    # on Linux/WSL
 # 9) List all relations
 ./showTables ECommerceDB_main
 ```
-
+ 
 ---
 
 ## 5. Future Directions
